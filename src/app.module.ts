@@ -3,6 +3,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { UsersModule } from './users/users.module';
+import { SubjectsModule } from './subjects/subjects.module';
+import { AssignmentsModule } from './assignments/assignments.module';
 
 @Module({
   imports: [ConfigModule.forRoot({ isGlobal: true }),
@@ -19,7 +22,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         autoLoadEntities: true, // Descubre entidades automáticamente 
         synchronize: true, // ¡Solo para desarrollo! 
       })
-    })
+    }),
+    UsersModule,
+    SubjectsModule,
+    AssignmentsModule
   ],
   controllers: [AppController],
   providers: [AppService],
