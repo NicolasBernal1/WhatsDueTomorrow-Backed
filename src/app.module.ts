@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { SubjectsModule } from './subjects/subjects.module';
 import { AssignmentsModule } from './assignments/assignments.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [ConfigModule.forRoot({ isGlobal: true }),
@@ -25,7 +26,8 @@ import { AssignmentsModule } from './assignments/assignments.module';
     }),
     UsersModule,
     SubjectsModule,
-    AssignmentsModule
+    AssignmentsModule,
+    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService],
