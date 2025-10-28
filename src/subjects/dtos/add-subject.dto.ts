@@ -8,5 +8,5 @@ export class AddSubjectDto{
   professor: string;
 
   @IsOptional()
-  color!: string; 
+  color?: string; 
 }

@@ -63,4 +63,8 @@ export class SubjectsService {
       message: "Subject deleted successfully"
     }
   }
+
+  async getSubjectById(subjectId: number): Promise<Subject | null>{
+    return await this.subjectRepository.findOneBy({ id: subjectId });
+  }
 }
