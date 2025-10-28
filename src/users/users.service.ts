@@ -17,6 +17,10 @@ export class UsersService {
     return await this.userRepository.findOneBy({ email });
   }
 
+  async findOneById(id: number): Promise<User | null>{
+    return await this.userRepository.findOneBy({ id });
+  }
+
   async create(createUserDto: CreateUserDto): Promise<User>{
    const new_user = this.userRepository.create(createUserDto);
    return await this.userRepository.save(new_user);
