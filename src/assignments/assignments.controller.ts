@@ -1,9 +1,11 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Request } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Request, UseGuards } from '@nestjs/common';
 import { AssignmentsService } from './assignments.service';
 import { BaseResponseDto } from 'src/common/dtos/base-response.dto';
 import { Assignment } from './entities/assignment.entity';
 import { AddAssignmentDto } from './dtos/add-assignment.dto';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('assignments')
 export class AssignmentsController {
   constructor(private readonly assignmentService: AssignmentsService){}
