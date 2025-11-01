@@ -1,11 +1,11 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Request, UseGuards } from '@nestjs/common';
 import { SubjectsService } from './subjects.service';
 import { BaseResponseDto } from 'src/common/dtos/base-response.dto';
-import { Subject } from './entities/subject.entity';
 import { AddSubjectDto } from './dtos/add-subject.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { SubjectClass } from './entities/subject-class.entity';
 import { AddClassDto } from './dtos/add-class.dto';
+import { SubjectResponseDto } from './dtos/subject-response.dto';
+import { ClassResponseDto } from './dtos/class-response.dto';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('subjects')
@@ -13,7 +13,7 @@ export class SubjectsController {
   constructor(private readonly subjectService: SubjectsService){}
 
   @Get()
-  async getSubjects(@Request() req): Promise<BaseResponseDto<Subject[]>>{
+  async getSubjects(@Request() req): Promise<BaseResponseDto<SubjectResponseDto[]>>{
     return this.subjectService.getSubjects(req.user.sub);
   }
 
@@ -30,7 +30,7 @@ export class SubjectsController {
   // Horario
 
   @Get('/classes')
-  async getUserClasses(@Request() req): Promise<BaseResponseDto<SubjectClass[]>>{
+  async getUserClasses(@Request() req): Promise<BaseResponseDto<ClassResponseDto[]>>{
     return this.subjectService.getClassesByid(req.user.sub);
   }
 

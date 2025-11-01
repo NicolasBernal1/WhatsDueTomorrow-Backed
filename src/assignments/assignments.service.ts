@@ -6,6 +6,7 @@ import { BaseResponseDto } from 'src/common/dtos/base-response.dto';
 import { AddAssignmentDto } from './dtos/add-assignment.dto';
 import { UsersService } from 'src/users/users.service';
 import { SubjectsService } from 'src/subjects/subjects.service';
+import { AssignmentResponseDto } from './dtos/assignment-response.dto';
 
 @Injectable()
 export class AssignmentsService {
@@ -16,7 +17,7 @@ export class AssignmentsService {
     private readonly subjectService: SubjectsService
   ){}
 
-  async getAssignmentsBySubject(userId: number, subjectId: number): Promise<BaseResponseDto<Assignment[]>>{
+  async getAssignmentsBySubject(userId: number, subjectId: number): Promise<BaseResponseDto<AssignmentResponseDto[]>>{
     const assignments = await this.assignmentRepository.find({
       where: { user: { id: userId }, subject: { id: subjectId } },
     });
@@ -29,14 +30,22 @@ export class AssignmentsService {
       };
     }
 
+    const response: AssignmentResponseDto[] = assignments.map((assignment) => ({
+      id: assignment.id,
+      title: assignment.title,
+      description: assignment.description || "",
+      dueDate: assignment.dueDate,
+      subjectId: assignment.subject.id,
+    }));
+
     return {
       status: 200,
       message: 'Assignments retrieved successfully',
-      data: assignments
+      data: response
     }
   }
 
-  async getAssignmentsByUser(userId: number): Promise<BaseResponseDto<Assignment[]>>{
+  async getAssignmentsByUser(userId: number): Promise<BaseResponseDto<AssignmentResponseDto[]>>{
     const assignments = await this.assignmentRepository.find({
       where: { user: { id: userId } },
     });
@@ -49,10 +58,18 @@ export class AssignmentsService {
       };
     }
 
+    const response: AssignmentResponseDto[] = assignments.map((assignment) => ({
+      id: assignment.id,
+      title: assignment.title,
+      description: assignment.description || "",
+      dueDate: assignment.dueDate,
+      subjectId: assignment.subject.id,
+    }));
+
     return {
       status: 200,
       message: 'Assignments retrieved successfully',
-      data: assignments
+      data: response
     }
   }
 

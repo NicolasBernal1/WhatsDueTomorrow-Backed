@@ -7,6 +7,8 @@ import { AddSubjectDto } from './dtos/add-subject.dto';
 import { UsersService } from 'src/users/users.service';
 import { SubjectClass } from './entities/subject-class.entity';
 import { AddClassDto } from './dtos/add-class.dto';
+import { SubjectResponseDto } from './dtos/subject-response.dto';
+import { ClassResponseDto } from './dtos/class-response.dto';
 
 @Injectable()
 export class SubjectsService {
@@ -18,7 +20,7 @@ export class SubjectsService {
     private readonly subjectClassRepository: Repository<SubjectClass>
   ){}
 
-  async getSubjects(userId: number): Promise<BaseResponseDto<Subject[]>>{
+  async getSubjects(userId: number): Promise<BaseResponseDto<SubjectResponseDto[]>>{
     const user = await this.userService.findOneById(userId);
 
     if(!user){
@@ -31,14 +33,21 @@ export class SubjectsService {
       return {
         status: 200,
         message: "The user has no subjects",
-        data: subjects
+        data: []
       }
     }
+
+    const response: SubjectResponseDto[] = subjects.map((subject) => ({
+      id: subject.id,
+      name: subject.name,
+      professor: subject.professor,
+      color: subject.color
+    }));
 
     return {
       status: 200,
       message: "Subjects retrieved successfully",
-      data: subjects
+      data: response
     }
   }
 
@@ -78,11 +87,22 @@ export class SubjectsService {
     }
   }
 
-  async getSubjectById(subjectId: number): Promise<Subject | null>{
-    return await this.subjectRepository.findOneBy({ id: subjectId });
+  async getSubjectById(subjectId: number): Promise<SubjectResponseDto>{
+    const subject = await this.subjectRepository.findOneBy({ id: subjectId });
+    if(!subject){
+      throw new NotFoundException('The subject does not exist');
+    }
+    const response: SubjectResponseDto = {
+      id: subject.id,
+      name: subject.name,
+      professor: subject.professor,
+      color: subject.color
+    }
+
+    return response;
   }
 
-  async getClassesByid(userId: number): Promise<BaseResponseDto<SubjectClass[]>>{
+  async getClassesByid(userId: number): Promise<BaseResponseDto<ClassResponseDto[]>>{
     const user = await this.userService.findOneById(userId);
 
     if(!user){
@@ -95,14 +115,22 @@ export class SubjectsService {
       return {
         status: 200,
         message: "The user has no classes",
-        data: userClasses
+        data: []
       }
     }
+
+    const response: ClassResponseDto[] = userClasses.map((userClass) => ({
+      id: userClass.id,
+      dayOfWeek: userClass.dayOfWeek,
+      startTime: userClass.startTime,
+      endTime: userClass.endTime,
+      subjectId: userClass.subject.id
+    }));
 
     return {
       status: 200,
       message: "Classes retrieved successfully",
-      data: userClasses
+      data: response
     }
   }
 

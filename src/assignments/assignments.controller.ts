@@ -1,9 +1,9 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Request, UseGuards } from '@nestjs/common';
 import { AssignmentsService } from './assignments.service';
 import { BaseResponseDto } from 'src/common/dtos/base-response.dto';
-import { Assignment } from './entities/assignment.entity';
 import { AddAssignmentDto } from './dtos/add-assignment.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { AssignmentResponseDto } from './dtos/assignment-response.dto';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('assignments')
@@ -11,12 +11,12 @@ export class AssignmentsController {
   constructor(private readonly assignmentService: AssignmentsService){}
 
   @Get('subject/:subjectId')
-  async getAssignmentsBySubject(@Request() req, @Param('subjectId', ParseIntPipe) subjectId: number): Promise<BaseResponseDto<Assignment[]>>{
+  async getAssignmentsBySubject(@Request() req, @Param('subjectId', ParseIntPipe) subjectId: number): Promise<BaseResponseDto<AssignmentResponseDto[]>>{
     return this.assignmentService.getAssignmentsBySubject(req.user.sub, subjectId);
   }
 
   @Get()
-  async getAll(@Request() req): Promise<BaseResponseDto<Assignment[]>>{
+  async getAll(@Request() req): Promise<BaseResponseDto<AssignmentResponseDto[]>>{
     return this.assignmentService.getAssignmentsByUser(req.user.sub);
   }
 
