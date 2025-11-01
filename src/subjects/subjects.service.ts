@@ -136,17 +136,11 @@ export class SubjectsService {
   }
 
   async removeClass(userId: number, classId: number): Promise<BaseResponseDto<null>>{
-    const user = await this.userService.findOneById(userId);
+  const subjectClass = await this.subjectClassRepository.findOne({ where: { id: classId, user: { id: userId } } });
 
-    if(!user){
-      throw new NotFoundException('User not found');
-    }
-
-    const subjectClass = await this.subjectClassRepository.findOneBy({ id: classId });
-
-    if(!subjectClass){
-      throw new NotFoundException('Class not found');
-    }
+  if (!subjectClass) {
+    throw new NotFoundException('Class not found or not owned by user');
+  }
 
     await this.subjectClassRepository.delete(classId);
 
@@ -154,7 +148,5 @@ export class SubjectsService {
       status: 200,
       message: 'Class deleted successfully'
     }
-
-    
   }
 }
