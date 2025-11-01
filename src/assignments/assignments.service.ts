@@ -44,7 +44,7 @@ export class AssignmentsService {
     if(assignments.length === 0){
       return {
         status: 200,
-        message: 'No assignments found for this subject',
+        message: 'No assignments found for this user',
           data: []
       };
     }

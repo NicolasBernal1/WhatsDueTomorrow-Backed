@@ -23,6 +23,6 @@ export class Subject {
   @OneToMany(() => Assignment, assignment => assignment.subject)
   assignments: Assignment[];
 
-  @OneToMany(() => SubjectClass, subjectClass => subjectClass.subject, { onDelete: 'CASCADE', eager: true })
+  @OneToMany(() => SubjectClass, subjectClass => subjectClass.subject, { onDelete: 'CASCADE' })
   subjectClasses: SubjectClass[];
 }

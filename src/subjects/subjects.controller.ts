@@ -22,7 +22,7 @@ export class SubjectsController {
     return this.subjectService.addSubject(req.user.sub, addSubjectDto);
   }
 
-  @Delete(':id')
+  @Delete('/:id')
   async removeSubject(@Param('id', ParseIntPipe) id: number):Promise<BaseResponseDto<null>>{
     return this.subjectService.remove(id);
   }
