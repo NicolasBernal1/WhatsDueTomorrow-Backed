@@ -124,7 +124,12 @@ export class SubjectsService {
       dayOfWeek: userClass.dayOfWeek,
       startTime: userClass.startTime,
       endTime: userClass.endTime,
-      subjectId: userClass.subject.id
+      subject: {
+        id: userClass.subject.id,
+        name: userClass.subject.name,
+        professor: userClass.subject.professor,
+        color: userClass.subject.color
+      }
     }));
 
     return {
