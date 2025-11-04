@@ -7,6 +7,7 @@ import { AddAssignmentDto } from './dtos/add-assignment.dto';
 import { UsersService } from 'src/users/users.service';
 import { SubjectsService } from 'src/subjects/subjects.service';
 import { AssignmentResponseDto } from './dtos/assignment-response.dto';
+import { AssignmentResponseCompDto } from './dtos/assignment-response-comp.dto';
 
 @Injectable()
 export class AssignmentsService {
@@ -45,9 +46,9 @@ export class AssignmentsService {
     }
   }
 
-  async getAssignmentsByUser(userId: number): Promise<BaseResponseDto<AssignmentResponseDto[]>>{
+  async getAssignmentsByUser(userId: number): Promise<BaseResponseDto<AssignmentResponseCompDto[]>>{
     const assignments = await this.assignmentRepository.find({
-      where: { user: { id: userId } },
+      where: { user: { id: userId } }
     });
 
     if(assignments.length === 0){
@@ -58,12 +59,13 @@ export class AssignmentsService {
       };
     }
 
-    const response: AssignmentResponseDto[] = assignments.map((assignment) => ({
+    const response: AssignmentResponseCompDto[] = assignments.map((assignment) => ({
       id: assignment.id,
       title: assignment.title,
       description: assignment.description || "",
       dueDate: assignment.dueDate,
       subjectId: assignment.subject.id,
+      subjectName: assignment.subject.name
     }));
 
     return {
