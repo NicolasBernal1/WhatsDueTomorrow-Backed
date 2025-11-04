@@ -51,6 +51,25 @@ export class SubjectsService {
     }
   }
 
+  async getSubject(subjectId: number): Promise<BaseResponseDto<SubjectResponseDto>>{
+    const subject = await this.getSubjectById(subjectId);
+
+    if(!subject){
+      throw new NotFoundException('Subject not found');
+    }
+
+    return {
+      status: 200,
+      message: 'Subject rectrieved successfully',
+      data: {
+        id: subject.id,
+        name: subject.name,
+        professor: subject.professor,
+        color: subject.color
+      }
+    }
+  }
+
   async addSubject(userId: number, addSubjectDto: AddSubjectDto): Promise<BaseResponseDto<null>>{
     const user = await this.userService.findOneById(userId);
 
@@ -87,19 +106,12 @@ export class SubjectsService {
     }
   }
 
-  async getSubjectById(subjectId: number): Promise<SubjectResponseDto>{
+  async getSubjectById(subjectId: number): Promise<Subject>{
     const subject = await this.subjectRepository.findOneBy({ id: subjectId });
     if(!subject){
       throw new NotFoundException('The subject does not exist');
     }
-    const response: SubjectResponseDto = {
-      id: subject.id,
-      name: subject.name,
-      professor: subject.professor,
-      color: subject.color
-    }
-
-    return response;
+    return subject;
   }
 
   async getClassesByid(userId: number): Promise<BaseResponseDto<ClassResponseDto[]>>{
@@ -124,7 +136,12 @@ export class SubjectsService {
       dayOfWeek: userClass.dayOfWeek,
       startTime: userClass.startTime,
       endTime: userClass.endTime,
-      subjectId: userClass.subject.id
+      subject: {
+        id: userClass.subject.id,
+        name: userClass.subject.name,
+        professor: userClass.subject.professor,
+        color: userClass.subject.color
+      }
     }));
 
     return {

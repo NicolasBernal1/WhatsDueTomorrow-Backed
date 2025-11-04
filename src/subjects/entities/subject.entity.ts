@@ -14,7 +14,7 @@ export class Subject {
   @Column()
   professor: string;
 
-  @Column({ default: 'blue' })// mirar mejor luego al hacer el front
+  @Column({ default: '#007bff' })// mirar mejor luego al hacer el front
   color: string;
 
   @ManyToOne(() => User, (user) => user.subjects, { onDelete: 'CASCADE', eager: true })

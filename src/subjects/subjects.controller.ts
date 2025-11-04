@@ -17,6 +17,16 @@ export class SubjectsController {
     return this.subjectService.getSubjects(req.user.sub);
   }
 
+  @Get('/classes')
+  async getUserClasses(@Request() req): Promise<BaseResponseDto<ClassResponseDto[]>>{
+    return this.subjectService.getClassesByid(req.user.sub);
+  }
+
+  @Get("/:id")
+  async getSubjectById(@Param('id', ParseIntPipe) id: number): Promise<BaseResponseDto<SubjectResponseDto>> {
+    return this.subjectService.getSubject(id);
+  }
+
   @Post()
   async addSubject(@Request() req, @Body() addSubjectDto: AddSubjectDto): Promise<BaseResponseDto<null>>{
     return this.subjectService.addSubject(req.user.sub, addSubjectDto);
@@ -25,13 +35,6 @@ export class SubjectsController {
   @Delete('/:id')
   async removeSubject(@Param('id', ParseIntPipe) id: number):Promise<BaseResponseDto<null>>{
     return this.subjectService.remove(id);
-  }
-
-  // Horario
-
-  @Get('/classes')
-  async getUserClasses(@Request() req): Promise<BaseResponseDto<ClassResponseDto[]>>{
-    return this.subjectService.getClassesByid(req.user.sub);
   }
 
   @Post('/classes')
