@@ -9,6 +9,7 @@ import { SubjectClass } from './entities/subject-class.entity';
 import { AddClassDto } from './dtos/add-class.dto';
 import { SubjectResponseDto } from './dtos/subject-response.dto';
 import { ClassResponseDto } from './dtos/class-response.dto';
+import { ContradictoryTimeException } from './exceptions/contradictory-time.exception';
 
 @Injectable()
 export class SubjectsService {
@@ -162,6 +163,11 @@ export class SubjectsService {
 
     if(!subject){
       throw new NotFoundException('Subject not found');
+    }
+
+    if(addClassDto.endTime < addClassDto.startTime){
+      console.log("ERRRRRORRRRRRRRRRRRRRRR")
+      throw new ContradictoryTimeException();
     }
 
     const newClass = this.subjectClassRepository.create({

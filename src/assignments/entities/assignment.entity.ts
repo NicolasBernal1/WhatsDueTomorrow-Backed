@@ -13,7 +13,7 @@ export class Assignment {
   @Column({ nullable: true })
   description?: string;
 
-  @Column({ type: 'date'})
+  @Column({ type: 'datetime'})
   dueDate: string;
 
   @ManyToOne(() => User, user => user.assignments, { eager: true, onDelete: 'CASCADE' })
