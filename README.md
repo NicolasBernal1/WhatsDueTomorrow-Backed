@@ -4,6 +4,11 @@ What's Due Tomorrow? is a web application made for students where they can organ
 
 ## Main Technologies
 - NestJs
+- TypeORM
+- Swagger
+
+## How to install
+You can install it either by cloning this repository or with this image from Docker Hub: [What's Due Tomorrow? - Backend Image](https://hub.docker.com/r/nicolasbernal1/backend-wdt)
 
 ## Endpoints
 Base URL: http://localhost:3000
