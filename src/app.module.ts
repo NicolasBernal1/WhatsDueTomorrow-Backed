@@ -7,6 +7,7 @@ import { UsersModule } from './users/users.module';
 import { SubjectsModule } from './subjects/subjects.module';
 import { AssignmentsModule } from './assignments/assignments.module';
 import { AuthModule } from './auth/auth.module';
+import { PrometheusModule } from '@willsoto/nestjs-prometheus';
 
 @Module({
   imports: [ConfigModule.forRoot({ isGlobal: true }),
@@ -27,7 +28,8 @@ import { AuthModule } from './auth/auth.module';
     UsersModule,
     SubjectsModule,
     AssignmentsModule,
-    AuthModule
+    AuthModule,
+    PrometheusModule.register()
   ],
   controllers: [AppController],
   providers: [AppService],
