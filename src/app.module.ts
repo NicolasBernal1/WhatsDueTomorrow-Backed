@@ -21,9 +21,6 @@ import { PrometheusModule } from '@willsoto/nestjs-prometheus';
         username: configService.get<string>('DB_USERNAME'), 
         password: configService.get<string>('DB_PASSWORD'), 
         database: configService.get<string>('DB_DATABASE'), 
-        ssl: {
-          rejectUnauthorized: false,
-        },
         autoLoadEntities: true, // Descubre entidades automáticamente 
         synchronize: true, // ¡Solo para desarrollo! 
       })
