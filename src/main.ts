@@ -24,7 +24,7 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   app.enableCors({
-    origin: 'https://whats-due-tomorrow-frontend.vercel.app/login', 
+    origin: 'https://whats-due-tomorrow-frontend.vercel.app', 
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
