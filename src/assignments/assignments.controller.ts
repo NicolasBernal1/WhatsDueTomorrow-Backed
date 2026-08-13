@@ -1,10 +1,11 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Request, UseGuards } from '@nestjs/common';
 import { AssignmentsService } from './assignments.service';
 import { BaseResponseDto } from 'src/common/dtos/base-response.dto';
 import { AddAssignmentDto } from './dtos/add-assignment.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { AssignmentResponseDto } from './dtos/assignment-response.dto';
 import { AssignmentResponseCompDto } from './dtos/assignment-response-comp.dto';
+import { UpdateAssignmentDto } from './dtos/update-assignment.dto';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('assignments')
@@ -29,6 +30,11 @@ export class AssignmentsController {
   @Delete('/:assignmentId')
   async removeAssignment(@Param('assignmentId', ParseIntPipe) assignmentId: number): Promise<BaseResponseDto<null>>{
     return this.assignmentService.deleteAssignment(assignmentId);
+  }
+
+  @Patch('/:assignmentId')
+  async editAssignment(@Param('assignmentId', ParseIntPipe) assignmentId: number, @Body() updateAssignmentDto: UpdateAssignmentDto): Promise<BaseResponseDto<null>> {
+    return this.assignmentService.editAssignment(assignmentId, updateAssignmentDto);
   }
 
 }
