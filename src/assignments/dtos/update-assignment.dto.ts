@@ -1,12 +1,12 @@
 import { IsNotEmpty, IsOptional } from "class-validator";
 
 export class UpdateAssignmentDto {
-  @IsNotEmpty()
+  @IsOptional()
   title?: string;
 
   @IsOptional()
   description?: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   dueDate?: string;
 }

@@ -24,8 +24,8 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   app.enableCors({
-    origin: 'http://localhost:4200', 
-    //origin: 'https://whats-due-tomorrow-frontend.vercel.app', 
+    //origin: 'http://localhost:4200', 
+    origin: 'https://whats-due-tomorrow-frontend.vercel.app', 
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
