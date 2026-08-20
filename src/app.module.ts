@@ -20,7 +20,10 @@ import { PrometheusModule } from '@willsoto/nestjs-prometheus';
         port: configService.get<number>('DB_PORT'), 
         username: configService.get<string>('DB_USERNAME'), 
         password: configService.get<string>('DB_PASSWORD'), 
-        database: configService.get<string>('DB_DATABASE'), 
+        database: configService.get<string>('DB_DATABASE'),
+        ssl: {
+          rejectUnauthorized: false
+        },
         autoLoadEntities: true, // Descubre entidades automáticamente 
         synchronize: true, // ¡Solo para desarrollo! 
       })
