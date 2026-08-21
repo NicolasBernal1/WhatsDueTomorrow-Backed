@@ -7,6 +7,7 @@ import { AddClassDto } from './dtos/add-class.dto';
 import { SubjectResponseDto } from './dtos/subject-response.dto';
 import { ClassResponseDto } from './dtos/class-response.dto';
 import { EditSubjectDto } from './dtos/edit-subject.dto';
+import { EditClassDto } from './dtos/edit-class.dto';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('subjects')
@@ -51,5 +52,10 @@ export class SubjectsController {
   @Patch('/:id')
   async editSubject(@Param('id', ParseIntPipe) id: number, @Body() editSubjectDto: EditSubjectDto): Promise<BaseResponseDto<null>> {
     return this.subjectService.editSubject(id, editSubjectDto);
+  }
+
+  @Patch('/classes/:id')
+  async editClass(@Request() req, @Param('id', ParseIntPipe) id: number, @Body() editClassDto: EditClassDto): Promise<BaseResponseDto<null>> {
+    return this.subjectService.editClass(req.user.sub, id, editClassDto);
   }
 }
