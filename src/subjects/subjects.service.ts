@@ -10,6 +10,8 @@ import { AddClassDto } from './dtos/add-class.dto';
 import { SubjectResponseDto } from './dtos/subject-response.dto';
 import { ClassResponseDto } from './dtos/class-response.dto';
 import { ContradictoryTimeException } from './exceptions/contradictory-time.exception';
+import { EditSubjectDto } from './dtos/edit-subject.dto';
+import { EditClassDto } from './dtos/edit-class.dto';
 
 @Injectable()
 export class SubjectsService {
@@ -198,6 +200,48 @@ export class SubjectsService {
     return {
       status: 200,
       message: 'Class deleted successfully'
+    }
+  }
+
+  async editSubject(subjectId: number, editSubjectDto: EditSubjectDto): Promise<BaseResponseDto<null>> {
+    const subject = await this.subjectRepository.preload({
+      id: subjectId,
+      ...editSubjectDto
+    });
+
+    if(!subject){
+      throw new NotFoundException('The subject does not exist');
+    }
+
+    await this.subjectRepository.save(subject);
+
+    return {
+      status: 200,
+      message: 'Subject updated successfully'
+    }
+  }
+
+  async editClass(userId: number, classId: number, editClassDto: EditClassDto): Promise<BaseResponseDto<null>>{
+    const user = await this.userService.findOneById(userId);
+
+    if(!user){
+      throw new NotFoundException('User not found');
+    }
+        
+    const subjectClass = await this.subjectClassRepository.preload({
+      id: classId,
+      ...editClassDto
+    });
+
+    if(!subjectClass){
+      throw new NotFoundException('Class not found or not owned by user');
+    }
+
+    await this.subjectClassRepository.save(subjectClass);
+
+    return {
+      status: 200,
+      message: 'Class updated successfully'
     }
   }
 }

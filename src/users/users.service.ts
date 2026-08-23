@@ -55,4 +55,8 @@ export class UsersService {
       message: "User deleted successfully"
     }
   }
+
+  async save(user: User): Promise<User> {
+    return await this.userRepository.save(user);
+  }
 }

@@ -8,6 +8,7 @@ import { UsersService } from 'src/users/users.service';
 import { SubjectsService } from 'src/subjects/subjects.service';
 import { AssignmentResponseDto } from './dtos/assignment-response.dto';
 import { AssignmentResponseCompDto } from './dtos/assignment-response-comp.dto';
+import { UpdateAssignmentDto } from './dtos/update-assignment.dto';
 
 @Injectable()
 export class AssignmentsService {
@@ -115,6 +116,23 @@ export class AssignmentsService {
     return {
       status: 200,
       message: 'Assignment deleted successfully'
+    }
+  }
+  async editAssignment(assignmentId: number, updateAssignmentDto: UpdateAssignmentDto): Promise<BaseResponseDto<null>>{
+    const assignment = await this.assignmentRepository.preload({
+      id: assignmentId,
+      ...updateAssignmentDto
+    });
+
+    if(!assignment){
+      throw new NotFoundException('The assignment does not exist');
+    }
+
+    await this.assignmentRepository.save(assignment);
+
+    return {
+      status: 200,
+      message: 'Assignment updated successfully'
     }
   }
 }
