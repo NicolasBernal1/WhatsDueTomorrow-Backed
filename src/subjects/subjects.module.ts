@@ -8,12 +8,12 @@ import { SubjectClass } from './entities/subject-class.entity';
 
 @Module({
   imports: [
-      TypeOrmModule.forFeature([Subject]),
-      TypeOrmModule.forFeature([SubjectClass]),
-      UsersModule
-    ],
+    TypeOrmModule.forFeature([Subject]),
+    TypeOrmModule.forFeature([SubjectClass]),
+    UsersModule,
+  ],
   providers: [SubjectsService],
   controllers: [SubjectsController],
-  exports: [SubjectsService]
+  exports: [SubjectsService],
 })
 export class SubjectsModule {}

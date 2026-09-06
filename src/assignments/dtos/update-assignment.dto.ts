@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional } from "class-validator";
+import { IsInt, IsOptional, Min } from 'class-validator';
 
 export class UpdateAssignmentDto {
   @IsOptional()
@@ -9,4 +9,9 @@ export class UpdateAssignmentDto {
 
   @IsOptional()
   dueDate?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  reminderMinutes?: number | null;
 }

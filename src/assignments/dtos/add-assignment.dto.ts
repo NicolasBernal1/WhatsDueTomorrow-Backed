@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional } from "class-validator";
+import { IsInt, IsNotEmpty, IsOptional, Min } from 'class-validator';
 
 export class AddAssignmentDto {
   @IsNotEmpty()
@@ -9,4 +9,9 @@ export class AddAssignmentDto {
 
   @IsNotEmpty()
   dueDate: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  reminderMinutes?: number | null;
 }
