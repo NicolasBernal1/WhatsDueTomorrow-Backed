@@ -10,7 +10,7 @@ import { BaseResponseDto } from 'src/common/dtos/base-response.dto';
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private userRepository: Repository<User>
+    private readonly userRepository: Repository<User>
   ){}
 
   async findOneByEmail(email: string): Promise<User | null>{

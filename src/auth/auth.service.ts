@@ -12,8 +12,8 @@ import { LoggedInDto } from './dtos/logged-in.dto';
 import { ChangePasswordDto } from './dtos/change-password.dto';
 
 @Injectable()
-export class AuthService {
-  constructor(private userService: UsersService, private jwtService: JwtService){}
+export class  AuthService {
+  constructor(private readonly userService: UsersService, private readonly jwtService: JwtService){}
 
   async register(userDto: CreateUserDto): Promise<BaseResponseDto<UserDto>>{
     const exists = await this.userService.findOneByEmail(userDto.email);
