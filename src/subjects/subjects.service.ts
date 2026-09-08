@@ -62,10 +62,7 @@ export class SubjectsService {
     subjectId: number,
   ): Promise<BaseResponseDto<SubjectResponseDto>> {
     const subject = await this.getSubjectById(subjectId);
-
-    if (!subject) {
-      throw new NotFoundException('Subject not found');
-    }
+    
 
     return {
       status: 200,
