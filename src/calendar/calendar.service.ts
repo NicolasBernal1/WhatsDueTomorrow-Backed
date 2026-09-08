@@ -148,10 +148,10 @@ export class CalendarService {
   }
   private escape(value: string): string {
     return value
-      .replace(/\\/g, '\\\\')
-      .replace(/;/g, '\\;')
-      .replace(/,/g, '\\,')
-      .replace(/\r?\n/g, '\\n');
+      .replaceAll(/\\/g, '\\\\')
+      .replaceAll(/;/g, '\\;')
+      .replaceAll(/,/g, '\\,')
+      .replaceAll(/\r?\n/g, '\\n');
   }
   /** RFC 5545 content lines must be folded at 75 octets or fewer. */
   private fold(line: string): string {
