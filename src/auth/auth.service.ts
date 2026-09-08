@@ -69,31 +69,27 @@ export class AuthService {
     }
   }
 
-  async changePassword(userId: number, changePasswordDto: ChangePasswordDto): Promise<BaseResponseDto<null>> {
-    const user = await this.userService.findOneById(userId);
-
-    if(!user) {
-      throw new NotFoundException('The user does not exist');
-    }
-
-    const validPassword = await bcrypt.compare(changePasswordDto.currentPassword, user.password);
-
-    if(!validPassword) {
-      throw new UnauthorizedException('Incorrect current password');
-    }
-
-    const salt_rounds = 10;
-    const hashed_password = await bcrypt.hash(changePasswordDto.newPassword, salt_rounds);
-
-    user.password = hashed_password;
-
-    await this.userService.save(user);
-
-    return {
-      status: 200,
-      message: 'Password updated successfully'
-    }
+  async changePassword(userId: string, data: UpdatePasswordDto): Promise<void> {
+  if (!userId) {
+    throw new Error('ID de usuario requerido');
   }
+
+  
+  const user = await this.userService.findOneById(Number(userId));
+  if (!user) {
+    throw new Error('Usuario no encontrado');
+  }
+
+ 
+  const isMatch = await this.verifyPassword(data.oldPassword, user.password);
+  if (!isMatch) {
+    throw new Error('La contraseña actual es incorrecta');
+  }
+
+  
+  const newHash = await bcrypt.hash(data.newPassword, 10);
+  await this.userService.save({ ...user, password: newHash });
+}
 
   async verifyPassword(userId: number, password: string): Promise<BaseResponseDto<null>> {
     const user = await this.userService.findOneById(userId);
