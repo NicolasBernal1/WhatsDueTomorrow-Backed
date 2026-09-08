@@ -59,7 +59,10 @@ describe('AssignmentsService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AssignmentsService,
-        { provide: getRepositoryToken(Assignment), useValue: mockAssignmentRepository },
+        {
+          provide: getRepositoryToken(Assignment),
+          useValue: mockAssignmentRepository,
+        },
         { provide: UsersService, useValue: mockUsersService },
         { provide: SubjectsService, useValue: mockSubjectsService },
       ],
@@ -112,6 +115,23 @@ describe('AssignmentsService', () => {
       const result = await service.getAssignmentsByUser(1);
 
       expect(result.data![0].description).toBe('');
+    });
+  });
+
+  describe('getUrgentAssignmentsByUser', () => {
+    it('should request future assignments in the next 24 hours ordered by due date', async () => {
+      mockAssignmentRepository.find.mockResolvedValue([mockAssignment]);
+
+      const result = await service.getUrgentAssignmentsByUser(1);
+
+      expect(mockAssignmentRepository.find).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ user: { id: 1 } }),
+          order: { dueDate: 'ASC' },
+        }),
+      );
+      expect(result.status).toBe(200);
+      expect(result.data![0]).toMatchObject({ id: 100, subjectName: 'Math' });
     });
   });
 
@@ -182,7 +202,9 @@ describe('AssignmentsService', () => {
         user: mockUser,
         subject: mockSubject,
       });
-      expect(mockAssignmentRepository.save).toHaveBeenCalledWith(mockAssignment);
+      expect(mockAssignmentRepository.save).toHaveBeenCalledWith(
+        mockAssignment,
+      );
     });
 
     it('should throw NotFoundException when the user does not exist', async () => {
@@ -190,7 +212,9 @@ describe('AssignmentsService', () => {
       // getSubjectById puede retornar lo que sea; el if(!user) llega primero
       mockSubjectsService.getSubjectById.mockResolvedValue(mockSubject);
 
-      await expect(service.addAssignment(999, 10, addDto)).rejects.toThrow(NotFoundException);
+      await expect(service.addAssignment(999, 10, addDto)).rejects.toThrow(
+        NotFoundException,
+      );
       expect(mockAssignmentRepository.create).not.toHaveBeenCalled();
     });
 
@@ -198,7 +222,9 @@ describe('AssignmentsService', () => {
       mockUsersService.findOneById.mockResolvedValue(mockUser);
       mockSubjectsService.getSubjectById.mockResolvedValue(null);
 
-      await expect(service.addAssignment(1, 999, addDto)).rejects.toThrow(NotFoundException);
+      await expect(service.addAssignment(1, 999, addDto)).rejects.toThrow(
+        NotFoundException,
+      );
       expect(mockAssignmentRepository.create).not.toHaveBeenCalled();
     });
   });
@@ -219,7 +245,9 @@ describe('AssignmentsService', () => {
     it('should throw NotFoundException when the assignment does not exist', async () => {
       mockAssignmentRepository.findOneBy.mockResolvedValue(null);
 
-      await expect(service.deleteAssignment(999)).rejects.toThrow(NotFoundException);
+      await expect(service.deleteAssignment(999)).rejects.toThrow(
+        NotFoundException,
+      );
       expect(mockAssignmentRepository.delete).not.toHaveBeenCalled();
     });
   });

@@ -7,15 +7,15 @@ import { UserDto } from 'src/common/dtos/user.dto';
 @UseGuards(AuthGuard('jwt'))
 @Controller('users')
 export class UsersController {
-  constructor(private readonly userService: UsersService){}
+  constructor(private readonly userService: UsersService) {}
 
   @Get('profile')
-  async profile(@Request() req): Promise<BaseResponseDto<UserDto>>{
+  async profile(@Request() req): Promise<BaseResponseDto<UserDto>> {
     return await this.userService.getProfile(req.user.email);
   }
 
   @Delete('profile')
-  async deleteAccount(@Request() req):Promise<BaseResponseDto<null>>{
+  async deleteAccount(@Request() req): Promise<BaseResponseDto<null>> {
     return await this.userService.remove(req.user.sub);
   }
 }
