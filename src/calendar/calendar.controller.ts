@@ -25,12 +25,11 @@ export class CalendarController {
   ): Promise<BaseResponseDto<CalendarSubscriptionDto>> {
     const token = await this.calendarService.getOrCreateToken(req.user.sub);
     const host = req.get('host');
-    const protocol = req.get('x-forwarded-proto') || req.protocol;
     return {
       status: 200,
       message: 'Calendar subscription created successfully',
       data: {
-        webcalUrl: `${protocol === 'https' ? 'webcal' : 'webcal'}://${host}/calendar/feed/${token}.ics`,
+        webcalUrl: `webcal://${host}/calendar/feed/${token}.ics`,
       },
     };
   }
