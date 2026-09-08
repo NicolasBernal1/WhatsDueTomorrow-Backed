@@ -48,7 +48,9 @@ describe('UsersService', () => {
 
       const result = await service.findOneByEmail('test@example.com');
 
-      expect(mockUserRepository.findOneBy).toHaveBeenCalledWith({ email: 'test@example.com' });
+      expect(mockUserRepository.findOneBy).toHaveBeenCalledWith({
+        email: 'test@example.com',
+      });
       expect(result).toEqual(mockUser);
     });
 
@@ -85,7 +87,11 @@ describe('UsersService', () => {
   // ─── create ──────────────────────────────────────────────────────────────────
 
   describe('create', () => {
-    const createDto = { name: 'New User', email: 'new@example.com', password: 'hashed' };
+    const createDto = {
+      name: 'New User',
+      email: 'new@example.com',
+      password: 'hashed',
+    };
 
     it('should create and return a user', async () => {
       mockUserRepository.create.mockReturnValue(mockUser);
@@ -118,7 +124,9 @@ describe('UsersService', () => {
     it('should throw NotFoundException when user does not exist', async () => {
       mockUserRepository.findOneBy.mockResolvedValue(null);
 
-      await expect(service.getProfile('ghost@example.com')).rejects.toThrow(NotFoundException);
+      await expect(service.getProfile('ghost@example.com')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 

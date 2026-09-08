@@ -1,7 +1,7 @@
-import { Assignment } from "src/assignments/entities/assignment.entity";
-import { SubjectClass } from "src/subjects/entities/subject-class.entity";
-import { Subject } from "src/subjects/entities/subject.entity";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Assignment } from 'src/assignments/entities/assignment.entity';
+import { SubjectClass } from 'src/subjects/entities/subject-class.entity';
+import { Subject } from 'src/subjects/entities/subject.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class User {

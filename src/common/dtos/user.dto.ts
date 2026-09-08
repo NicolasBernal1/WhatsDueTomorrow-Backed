@@ -1,6 +1,6 @@
-import { IsNotEmpty, IsOptional } from "class-validator";
+import { IsNotEmpty, IsOptional } from 'class-validator';
 
-export class UserDto{
+export class UserDto {
   @IsOptional()
   id?: number;
 

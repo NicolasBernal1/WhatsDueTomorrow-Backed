@@ -20,44 +20,50 @@ export class SubjectsService {
     private readonly subjectRepository: Repository<Subject>,
     private readonly userService: UsersService,
     @InjectRepository(SubjectClass)
-    private readonly subjectClassRepository: Repository<SubjectClass>
-  ){}
+    private readonly subjectClassRepository: Repository<SubjectClass>,
+  ) {}
 
-  async getSubjects(userId: number): Promise<BaseResponseDto<SubjectResponseDto[]>>{
+  async getSubjects(
+    userId: number,
+  ): Promise<BaseResponseDto<SubjectResponseDto[]>> {
     const user = await this.userService.findOneById(userId);
 
-    if(!user){
+    if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    const subjects = await this.subjectRepository.findBy({ user: { id: userId } });
+    const subjects = await this.subjectRepository.findBy({
+      user: { id: userId },
+    });
 
-    if(subjects.length === 0){
+    if (subjects.length === 0) {
       return {
         status: 200,
-        message: "The user has no subjects",
-        data: []
-      }
+        message: 'The user has no subjects',
+        data: [],
+      };
     }
 
     const response: SubjectResponseDto[] = subjects.map((subject) => ({
       id: subject.id,
       name: subject.name,
       professor: subject.professor,
-      color: subject.color
+      color: subject.color,
     }));
 
     return {
       status: 200,
-      message: "Subjects retrieved successfully",
-      data: response
-    }
+      message: 'Subjects retrieved successfully',
+      data: response,
+    };
   }
 
-  async getSubject(subjectId: number): Promise<BaseResponseDto<SubjectResponseDto>>{
+  async getSubject(
+    subjectId: number,
+  ): Promise<BaseResponseDto<SubjectResponseDto>> {
     const subject = await this.getSubjectById(subjectId);
 
-    if(!subject){
+    if (!subject) {
       throw new NotFoundException('Subject not found');
     }
 
@@ -68,15 +74,18 @@ export class SubjectsService {
         id: subject.id,
         name: subject.name,
         professor: subject.professor,
-        color: subject.color
-      }
-    }
+        color: subject.color,
+      },
+    };
   }
 
-  async addSubject(userId: number, addSubjectDto: AddSubjectDto): Promise<BaseResponseDto<null>>{
+  async addSubject(
+    userId: number,
+    addSubjectDto: AddSubjectDto,
+  ): Promise<BaseResponseDto<null>> {
     const user = await this.userService.findOneById(userId);
 
-    if(!user){
+    if (!user) {
       throw new NotFoundException('User not found');
     }
 
@@ -84,54 +93,58 @@ export class SubjectsService {
       name: addSubjectDto.name,
       professor: addSubjectDto.professor,
       color: addSubjectDto.color,
-      user: user
+      user: user,
     });
 
     await this.subjectRepository.save(newSubject);
 
     return {
       status: 201,
-      message: "Subject created successfully"
-    }
+      message: 'Subject created successfully',
+    };
   }
 
-  async remove(id: number):Promise<BaseResponseDto<null>>{
+  async remove(id: number): Promise<BaseResponseDto<null>> {
     const subject = await this.subjectRepository.findOneBy({ id: id });
-    if(!subject){
-      throw new NotFoundException("The subject does not exist");
+    if (!subject) {
+      throw new NotFoundException('The subject does not exist');
     }
 
     await this.subjectRepository.delete(id);
 
     return {
       status: 200,
-      message: "Subject deleted successfully"
-    }
+      message: 'Subject deleted successfully',
+    };
   }
 
-  async getSubjectById(subjectId: number): Promise<Subject>{
+  async getSubjectById(subjectId: number): Promise<Subject> {
     const subject = await this.subjectRepository.findOneBy({ id: subjectId });
-    if(!subject){
+    if (!subject) {
       throw new NotFoundException('The subject does not exist');
     }
     return subject;
   }
 
-  async getClassesByid(userId: number): Promise<BaseResponseDto<ClassResponseDto[]>>{
+  async getClassesByid(
+    userId: number,
+  ): Promise<BaseResponseDto<ClassResponseDto[]>> {
     const user = await this.userService.findOneById(userId);
 
-    if(!user){
+    if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    const userClasses = await this.subjectClassRepository.findBy({ user: { id: userId } });
+    const userClasses = await this.subjectClassRepository.findBy({
+      user: { id: userId },
+    });
 
-    if(userClasses.length === 0){
+    if (userClasses.length === 0) {
       return {
         status: 200,
-        message: "The user has no classes",
-        data: []
-      }
+        message: 'The user has no classes',
+        data: [],
+      };
     }
 
     const response: ClassResponseDto[] = userClasses.map((userClass) => ({
@@ -143,32 +156,35 @@ export class SubjectsService {
         id: userClass.subject.id,
         name: userClass.subject.name,
         professor: userClass.subject.professor,
-        color: userClass.subject.color
-      }
+        color: userClass.subject.color,
+      },
     }));
 
     return {
       status: 200,
-      message: "Classes retrieved successfully",
-      data: response
-    }
+      message: 'Classes retrieved successfully',
+      data: response,
+    };
   }
 
-  async addClass(userId: number, addClassDto: AddClassDto): Promise<BaseResponseDto<null>>{
+  async addClass(
+    userId: number,
+    addClassDto: AddClassDto,
+  ): Promise<BaseResponseDto<null>> {
     const user = await this.userService.findOneById(userId);
 
-    if(!user){
+    if (!user) {
       throw new NotFoundException('User not found');
     } //la comprobacion de usuario deberia estar mejor en una funcion en userService, si meda tiempo locambio luego pero ya esta en muchas partes:b
-    
+
     const subject = await this.getSubjectById(addClassDto.subjectId);
 
-    if(!subject){
+    if (!subject) {
       throw new NotFoundException('Subject not found');
     }
 
-    if(addClassDto.endTime < addClassDto.startTime){
-      console.log("ERRRRRORRRRRRRRRRRRRRRR")
+    if (addClassDto.endTime < addClassDto.startTime) {
+      console.log('ERRRRRORRRRRRRRRRRRRRRR');
       throw new ContradictoryTimeException();
     }
 
@@ -177,39 +193,47 @@ export class SubjectsService {
       startTime: addClassDto.startTime,
       endTime: addClassDto.endTime,
       subject: subject,
-      user: user
+      user: user,
     });
 
     await this.subjectClassRepository.save(newClass);
 
     return {
       status: 201,
-      message: 'Class created successfully'
+      message: 'Class created successfully',
+    };
+  }
+
+  async removeClass(
+    userId: number,
+    classId: number,
+  ): Promise<BaseResponseDto<null>> {
+    const subjectClass = await this.subjectClassRepository.findOne({
+      where: { id: classId, user: { id: userId } },
+    });
+
+    if (!subjectClass) {
+      throw new NotFoundException('Class not found or not owned by user');
     }
-  }
-
-  async removeClass(userId: number, classId: number): Promise<BaseResponseDto<null>>{
-  const subjectClass = await this.subjectClassRepository.findOne({ where: { id: classId, user: { id: userId } } });
-
-  if (!subjectClass) {
-    throw new NotFoundException('Class not found or not owned by user');
-  }
 
     await this.subjectClassRepository.delete(classId);
 
     return {
       status: 200,
-      message: 'Class deleted successfully'
-    }
+      message: 'Class deleted successfully',
+    };
   }
 
-  async editSubject(subjectId: number, editSubjectDto: EditSubjectDto): Promise<BaseResponseDto<null>> {
+  async editSubject(
+    subjectId: number,
+    editSubjectDto: EditSubjectDto,
+  ): Promise<BaseResponseDto<null>> {
     const subject = await this.subjectRepository.preload({
       id: subjectId,
-      ...editSubjectDto
+      ...editSubjectDto,
     });
 
-    if(!subject){
+    if (!subject) {
       throw new NotFoundException('The subject does not exist');
     }
 
@@ -217,23 +241,27 @@ export class SubjectsService {
 
     return {
       status: 200,
-      message: 'Subject updated successfully'
-    }
+      message: 'Subject updated successfully',
+    };
   }
 
-  async editClass(userId: number, classId: number, editClassDto: EditClassDto): Promise<BaseResponseDto<null>>{
+  async editClass(
+    userId: number,
+    classId: number,
+    editClassDto: EditClassDto,
+  ): Promise<BaseResponseDto<null>> {
     const user = await this.userService.findOneById(userId);
 
-    if(!user){
+    if (!user) {
       throw new NotFoundException('User not found');
     }
-        
+
     const subjectClass = await this.subjectClassRepository.preload({
       id: classId,
-      ...editClassDto
+      ...editClassDto,
     });
 
-    if(!subjectClass){
+    if (!subjectClass) {
       throw new NotFoundException('Class not found or not owned by user');
     }
 
@@ -241,7 +269,7 @@ export class SubjectsService {
 
     return {
       status: 200,
-      message: 'Class updated successfully'
-    }
+      message: 'Class updated successfully',
+    };
   }
 }
