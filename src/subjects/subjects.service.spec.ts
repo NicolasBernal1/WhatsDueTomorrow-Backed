@@ -6,6 +6,7 @@ import { Subject } from './entities/subject.entity';
 import { SubjectClass } from './entities/subject-class.entity';
 import { UsersService } from 'src/users/users.service';
 import { NotFoundException } from '@nestjs/common';
+import { ContradictoryTimeException } from './exceptions/contradictory-time.exception';
 
 describe('SubjectsService - Módulo de clases', () => {
   let service: SubjectsService;
@@ -20,8 +21,8 @@ describe('SubjectsService - Módulo de clases', () => {
 
   const subjectMock = {
     id: 10,
-    name: 'validación',
-    professor: 'Gabriel',
+    name: 'validacion',
+    professor: 'gabriel',
     color: '#0078d4',
     user: userMock,
   } as any;
@@ -80,8 +81,6 @@ describe('SubjectsService - Módulo de clases', () => {
     service = module.get<SubjectsService>(SubjectsService);
   });
 
-  //Consultar horario
-
   describe('Consultar horario', () => {
     // Camino:
     // 1,2,3,4,5,10
@@ -97,7 +96,7 @@ describe('SubjectsService - Módulo de clases', () => {
 
     // Camino:
     // 1,2,3,4,6,7,8,10
-    it('debe retornar arreglo vacío cuando el usuario no tiene clases', async () => {
+    it('debe retornar arreglo vacio cuando el usuario no tiene clases', async () => {
       userService.findOneById.mockResolvedValue(userMock);
 
       subjectClassRepository.findBy.mockResolvedValue([]);
@@ -119,7 +118,7 @@ describe('SubjectsService - Módulo de clases', () => {
 
     // Camino:
     // 1,2,3,4,6,7,9,10
-    it('debe retornar las clases del usuario con la información de su asignatura', async () => {
+    it('debe retornar las clases del usuario con la informacion de su asignatura', async () => {
       userService.findOneById.mockResolvedValue(userMock);
 
       subjectClassRepository.findBy.mockResolvedValue([classMock]);
@@ -137,8 +136,8 @@ describe('SubjectsService - Módulo de clases', () => {
             endTime: '10:00',
             subject: {
               id: 10,
-              name: 'validación',
-              professor: 'Gabriel',
+              name: 'validacion',
+              professor: 'gabriel',
               color: '#0078d4',
             },
           },
@@ -146,8 +145,6 @@ describe('SubjectsService - Módulo de clases', () => {
       });
     });
   });
-
-  //Registrar clase
 
   describe('Registrar clase', () => {
     const addClassDto = {
@@ -185,6 +182,40 @@ describe('SubjectsService - Módulo de clases', () => {
       });
     });
 
+    it('debe lanzar error "Subject not found" si getSubjectById resuelve un valor falso', async () => {
+      userService.findOneById.mockResolvedValue(userMock);
+
+      jest
+        .spyOn(service, 'getSubjectById')
+        .mockResolvedValue(undefined as any);
+
+      await expect(service.addClass(1, addClassDto)).rejects.toThrow(
+        new NotFoundException('Subject not found'),
+      );
+
+      expect(service.getSubjectById).toHaveBeenCalledWith(10);
+      expect(subjectClassRepository.create).not.toHaveBeenCalled();
+    });
+
+    it('debe lanzar ContradictoryTimeException cuando endTime es anterior a startTime', async () => {
+      userService.findOneById.mockResolvedValue(userMock);
+
+      subjectRepository.findOneBy.mockResolvedValue(subjectMock);
+
+      const dtoConHorarioInvalido = {
+        ...addClassDto,
+        startTime: '10:00',
+        endTime: '08:00',
+      };
+
+      await expect(
+        service.addClass(1, dtoConHorarioInvalido),
+      ).rejects.toThrow(new ContradictoryTimeException());
+
+      expect(subjectClassRepository.create).not.toHaveBeenCalled();
+      expect(subjectClassRepository.save).not.toHaveBeenCalled();
+    });
+
     // Camino:
     // 1,2,3,4,5,7,8,9,10
     it('debe crear la clase correctamente cuando usuario y asignatura existen', async () => {
@@ -214,8 +245,6 @@ describe('SubjectsService - Módulo de clases', () => {
       });
     });
   });
-
-  //Eliminar clase
 
   describe('Eliminar clase', () => {
     // Camino:
@@ -257,8 +286,6 @@ describe('SubjectsService - Módulo de clases', () => {
       });
     });
   });
-
-  //Editar clase
 
   describe('Editar clase', () => {
     const editClassDto = {
