@@ -1,4 +1,15 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Request, UseGuards, Patch } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Request,
+  UseGuards,
+  Patch,
+} from '@nestjs/common';
 import { SubjectsService } from './subjects.service';
 import { BaseResponseDto } from 'src/common/dtos/base-response.dto';
 import { AddSubjectDto } from './dtos/add-subject.dto';
@@ -12,50 +23,74 @@ import { EditClassDto } from './dtos/edit-class.dto';
 @UseGuards(AuthGuard('jwt'))
 @Controller('subjects')
 export class SubjectsController {
-  constructor(private readonly subjectService: SubjectsService){}
+  constructor(private readonly subjectService: SubjectsService) {}
 
   @Get()
-  async getSubjects(@Request() req): Promise<BaseResponseDto<SubjectResponseDto[]>>{
+  async getSubjects(
+    @Request() req,
+  ): Promise<BaseResponseDto<SubjectResponseDto[]>> {
     return this.subjectService.getSubjects(req.user.sub);
   }
 
   @Get('/classes')
-  async getUserClasses(@Request() req): Promise<BaseResponseDto<ClassResponseDto[]>>{
+  async getUserClasses(
+    @Request() req,
+  ): Promise<BaseResponseDto<ClassResponseDto[]>> {
     return this.subjectService.getClassesByid(req.user.sub);
   }
 
-  @Get("/:id")
-  async getSubjectById(@Param('id', ParseIntPipe) id: number): Promise<BaseResponseDto<SubjectResponseDto>> {
+  @Get('/:id')
+  async getSubjectById(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<BaseResponseDto<SubjectResponseDto>> {
     return this.subjectService.getSubject(id);
   }
 
   @Post()
-  async addSubject(@Request() req, @Body() addSubjectDto: AddSubjectDto): Promise<BaseResponseDto<null>>{
+  async addSubject(
+    @Request() req,
+    @Body() addSubjectDto: AddSubjectDto,
+  ): Promise<BaseResponseDto<null>> {
     return this.subjectService.addSubject(req.user.sub, addSubjectDto);
   }
 
   @Delete('/:id')
-  async removeSubject(@Param('id', ParseIntPipe) id: number):Promise<BaseResponseDto<null>>{
+  async removeSubject(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<BaseResponseDto<null>> {
     return this.subjectService.remove(id);
   }
 
   @Post('/classes')
-  async addClass(@Request() req, @Body() addClassDto: AddClassDto): Promise<BaseResponseDto<null>>{
+  async addClass(
+    @Request() req,
+    @Body() addClassDto: AddClassDto,
+  ): Promise<BaseResponseDto<null>> {
     return this.subjectService.addClass(req.user.sub, addClassDto);
   }
 
   @Delete('/classes/:id')
-  async deleteClass(@Request() req, @Param('id', ParseIntPipe) id: number): Promise<BaseResponseDto<null>>{
+  async deleteClass(
+    @Request() req,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<BaseResponseDto<null>> {
     return this.subjectService.removeClass(req.user.sub, id);
   }
 
   @Patch('/:id')
-  async editSubject(@Param('id', ParseIntPipe) id: number, @Body() editSubjectDto: EditSubjectDto): Promise<BaseResponseDto<null>> {
+  async editSubject(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() editSubjectDto: EditSubjectDto,
+  ): Promise<BaseResponseDto<null>> {
     return this.subjectService.editSubject(id, editSubjectDto);
   }
 
   @Patch('/classes/:id')
-  async editClass(@Request() req, @Param('id', ParseIntPipe) id: number, @Body() editClassDto: EditClassDto): Promise<BaseResponseDto<null>> {
+  async editClass(
+    @Request() req,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() editClassDto: EditClassDto,
+  ): Promise<BaseResponseDto<null>> {
     return this.subjectService.editClass(req.user.sub, id, editClassDto);
   }
 }

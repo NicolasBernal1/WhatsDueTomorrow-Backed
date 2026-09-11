@@ -1,5 +1,5 @@
-import { IsNotEmpty } from "class-validator";
-import { UserDto } from "src/common/dtos/user.dto";
+import { IsNotEmpty } from 'class-validator';
+import { UserDto } from 'src/common/dtos/user.dto';
 
 export class LoggedInDto {
   @IsNotEmpty()

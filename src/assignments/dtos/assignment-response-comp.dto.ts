@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional } from "class-validator";
+import { IsNotEmpty, IsOptional } from 'class-validator';
 
 export class AssignmentResponseCompDto {
   @IsNotEmpty()
@@ -18,4 +18,7 @@ export class AssignmentResponseCompDto {
 
   @IsNotEmpty()
   subjectName: string;
+
+  @IsOptional()
+  reminderMinutes?: number | null;
 }

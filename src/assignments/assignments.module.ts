@@ -10,10 +10,10 @@ import { SubjectsModule } from 'src/subjects/subjects.module';
   imports: [
     TypeOrmModule.forFeature([Assignment]),
     UsersModule,
-    SubjectsModule
+    SubjectsModule,
   ],
   providers: [AssignmentsService],
   controllers: [AssignmentsController],
-  exports: [AssignmentsService]
+  exports: [AssignmentsService],
 })
 export class AssignmentsModule {}

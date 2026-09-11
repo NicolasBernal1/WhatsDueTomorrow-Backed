@@ -1,6 +1,6 @@
 import { IsEmail, IsNotEmpty, Matches } from 'class-validator';
 
-export class CreateUserDto{
+export class CreateUserDto {
   @IsNotEmpty()
   @Matches(/^[\p{L}]+(?:[ '-][\p{L}]+)*$/u, {
     message: 'name must contain only letters and spaces',

@@ -8,7 +8,6 @@ import { UsersService } from 'src/users/users.service';
 import { NotFoundException } from '@nestjs/common';
 
 describe('SubjectsService - Módulo de asignaturas', () => {
-
   let service: SubjectsService;
 
   let subjectRepository: jest.Mocked<Repository<Subject>>;
@@ -27,9 +26,7 @@ describe('SubjectsService - Módulo de asignaturas', () => {
     user: userMock,
   } as any;
 
-
   beforeEach(async () => {
-
     subjectRepository = {
       findBy: jest.fn(),
       findOneBy: jest.fn(),
@@ -53,64 +50,115 @@ describe('SubjectsService - Módulo de asignaturas', () => {
       findOneById: jest.fn(),
     } as any;
 
-    const module: TestingModule =
-      await Test.createTestingModule({
-        providers: [
-          SubjectsService,
-          {
-            provide: getRepositoryToken(Subject),
-            useValue: subjectRepository,
-          },
-          {
-            provide: getRepositoryToken(SubjectClass),
-            useValue: subjectClassRepository,
-          },
-          {
-            provide: UsersService,
-            useValue: userService,
-          },
-        ],
-      }).compile();
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        SubjectsService,
+        {
+          provide: getRepositoryToken(Subject),
+          useValue: subjectRepository,
+        },
+        {
+          provide: getRepositoryToken(SubjectClass),
+          useValue: subjectClassRepository,
+        },
+        {
+          provide: UsersService,
+          useValue: userService,
+        },
+      ],
+    }).compile();
 
     service = module.get<SubjectsService>(SubjectsService);
   });
 
+  //Listar asignaturas del estudiante
 
-  //Consultar detalle de asignatura (F08)
+  describe('Listar asignaturas', () => {
+    // Camino: 1,2,3,4,5,11
 
-  describe('Consultar detalle', () => {
+    it('debe lanzar error cuando el usuario no existe', async () => {
+      userService.findOneById.mockResolvedValue(null);
 
-    // Camino:
-    // 1,2,3,4,5,6,9
-    it('debe lanzar error cuando la asignatura no existe', async () => {
-
-      subjectRepository.findOneBy.mockResolvedValue(null);
-
-      await expect(
-        service.getSubject(999)
-      ).rejects.toThrow(
-        new NotFoundException('The subject does not exist')
+      await expect(service.getSubjects(1)).rejects.toThrow(
+        new NotFoundException('User not found'),
       );
 
-      expect(subjectRepository.findOneBy)
-        .toHaveBeenCalledWith({
-          id: 999,
-        });
+      expect(userService.findOneById).toHaveBeenCalledWith(1);
+
+      expect(subjectRepository.findBy).not.toHaveBeenCalled();
     });
 
+    // Camino: 1,2,3,4,6,7,8,11
 
-    // Camino:
-    // 1,2,3,4,5,7,8,9
+    it('debe retornar arreglo vacío cuando el usuario no tiene asignaturas', async () => {
+      userService.findOneById.mockResolvedValue(userMock);
+
+      subjectRepository.findBy.mockResolvedValue([]);
+
+      const result = await service.getSubjects(1);
+
+      expect(subjectRepository.findBy).toHaveBeenCalledWith({
+        user: {
+          id: 1,
+        },
+      });
+
+      expect(result).toEqual({
+        status: 200,
+        message: 'The user has no subjects',
+        data: [],
+      });
+    });
+
+    // Camino: 1,2,3,4,6,7,9,10,11
+
+    it('debe retornar las asignaturas del usuario mapeadas', async () => {
+      userService.findOneById.mockResolvedValue(userMock);
+
+      subjectRepository.findBy.mockResolvedValue([subjectMock]);
+
+      const result = await service.getSubjects(1);
+
+      expect(result).toEqual({
+        status: 200,
+        message: 'Subjects retrieved successfully',
+        data: [
+          {
+            id: 10,
+            name: 'validación',
+            professor: 'Gabriel',
+            color: '#0078d4',
+          },
+        ],
+      });
+    });
+  });
+
+  //Consultar detalle de asignatura
+
+  describe('Consultar detalle', () => {
+    // Camino: 1,2,3,4,5,6,9
+    it('debe lanzar error cuando la asignatura no existe', async () => {
+      subjectRepository.findOneBy.mockResolvedValue(null);
+
+      await expect(service.getSubject(999)).rejects.toThrow(
+        new NotFoundException('The subject does not exist'),
+      );
+
+      expect(subjectRepository.findOneBy).toHaveBeenCalledWith({
+        id: 999,
+      });
+    });
+
+    // Camino: 1,2,3,4,5,7,8,9
     it('debe retornar la asignatura cuando existe', async () => {
-
       subjectRepository.findOneBy.mockResolvedValue(subjectMock);
 
       const result = await service.getSubject(10);
 
-      expect(subjectRepository.findOneBy)
-        .toHaveBeenCalledWith({
-          id: 10,
-        });
+      expect(subjectRepository.findOneBy).toHaveBeenCalledWith({
+        id: 10,
+      });
 
       expect(result).toEqual({
         status: 200,
@@ -123,44 +171,32 @@ describe('SubjectsService - Módulo de asignaturas', () => {
         },
       });
     });
-
   });
 
-
-  //Registrar asignatura académica (F09)
+  //Registrar asignatura académica
 
   describe('Registrar asignatura', () => {
-
     const addSubjectDto = {
       name: 'validación',
       professor: 'Gabriel',
       color: '#0078d4',
     };
 
-
-    // Camino:
-    // 1,2,3,4,5,9
+    // Camino: 1,2,3,4,5,9
     it('debe lanzar error cuando el usuario no existe', async () => {
-
       userService.findOneById.mockResolvedValue(null);
 
-      await expect(
-        service.addSubject(1, addSubjectDto)
-      ).rejects.toThrow(
-        new NotFoundException('User not found')
+      await expect(service.addSubject(1, addSubjectDto)).rejects.toThrow(
+        new NotFoundException('User not found'),
       );
 
-      expect(userService.findOneById)
-        .toHaveBeenCalledWith(1);
+      expect(userService.findOneById).toHaveBeenCalledWith(1);
 
       expect(subjectRepository.create).not.toHaveBeenCalled();
     });
 
-
-    // Camino:
-    // 1,2,3,4,6,7,8,9
+    // Camino: 1,2,3,4,6,7,8,9
     it('debe crear la asignatura correctamente cuando el usuario existe', async () => {
-
       userService.findOneById.mockResolvedValue(userMock);
 
       subjectRepository.create.mockReturnValue(subjectMock);
@@ -169,61 +205,47 @@ describe('SubjectsService - Módulo de asignaturas', () => {
 
       const result = await service.addSubject(1, addSubjectDto);
 
-      expect(subjectRepository.create)
-        .toHaveBeenCalledWith({
-          name: 'validación',
-          professor: 'Gabriel',
-          color: '#0078d4',
-          user: userMock,
-        });
+      expect(subjectRepository.create).toHaveBeenCalledWith({
+        name: 'validación',
+        professor: 'Gabriel',
+        color: '#0078d4',
+        user: userMock,
+      });
 
-      expect(subjectRepository.save)
-        .toHaveBeenCalledWith(subjectMock);
+      expect(subjectRepository.save).toHaveBeenCalledWith(subjectMock);
 
       expect(result).toEqual({
         status: 201,
         message: 'Subject created successfully',
       });
     });
-
   });
 
-
-  //Editar asignatura académica (F10)
+  //Editar asignatura académica
 
   describe('Editar asignatura', () => {
-
     const editSubjectDto = {
       name: 'estructuras de datos',
     };
 
-
-    // Camino:
-    // 1,2,3,4,5,8
+    // Camino: 1,2,3,4,5,8
     it('debe lanzar error cuando la asignatura no existe', async () => {
-
       subjectRepository.preload.mockResolvedValue(undefined);
 
-      await expect(
-        service.editSubject(999, editSubjectDto)
-      ).rejects.toThrow(
-        new NotFoundException('The subject does not exist')
+      await expect(service.editSubject(999, editSubjectDto)).rejects.toThrow(
+        new NotFoundException('The subject does not exist'),
       );
 
-      expect(subjectRepository.preload)
-        .toHaveBeenCalledWith({
-          id: 999,
-          ...editSubjectDto,
-        });
+      expect(subjectRepository.preload).toHaveBeenCalledWith({
+        id: 999,
+        ...editSubjectDto,
+      });
 
       expect(subjectRepository.save).not.toHaveBeenCalled();
     });
 
-
-    // Camino:
-    // 1,2,3,4,6,7,8
+    // Camino: 1,2,3,4,6,7,8
     it('debe actualizar la asignatura correctamente', async () => {
-
       const preloaded = { ...subjectMock, name: 'estructuras de datos' };
 
       subjectRepository.preload.mockResolvedValue(preloaded);
@@ -232,53 +254,40 @@ describe('SubjectsService - Módulo de asignaturas', () => {
 
       const result = await service.editSubject(10, editSubjectDto);
 
-      expect(subjectRepository.preload)
-        .toHaveBeenCalledWith({
-          id: 10,
-          ...editSubjectDto,
-        });
+      expect(subjectRepository.preload).toHaveBeenCalledWith({
+        id: 10,
+        ...editSubjectDto,
+      });
 
-      expect(subjectRepository.save)
-        .toHaveBeenCalledWith(preloaded);
+      expect(subjectRepository.save).toHaveBeenCalledWith(preloaded);
 
       expect(result).toEqual({
         status: 200,
         message: 'Subject updated successfully',
       });
     });
-
   });
 
-
-  //Eliminar asignatura académica (F11)
+  //Eliminar asignatura académica
 
   describe('Eliminar asignatura', () => {
-
-    // Camino:
-    // 1,2,3,4,5,8
+    // Camino: 1,2,3,4,5,8
     it('debe lanzar error cuando la asignatura no existe', async () => {
-
       subjectRepository.findOneBy.mockResolvedValue(null);
 
-      await expect(
-        service.remove(999)
-      ).rejects.toThrow(
-        new NotFoundException('The subject does not exist')
+      await expect(service.remove(999)).rejects.toThrow(
+        new NotFoundException('The subject does not exist'),
       );
 
-      expect(subjectRepository.findOneBy)
-        .toHaveBeenCalledWith({
-          id: 999,
-        });
+      expect(subjectRepository.findOneBy).toHaveBeenCalledWith({
+        id: 999,
+      });
 
       expect(subjectRepository.delete).not.toHaveBeenCalled();
     });
 
-
-    // Camino:
-    // 1,2,3,4,6,7,8
+    // Camino: 1,2,3,4,6,7,8
     it('debe eliminar la asignatura correctamente', async () => {
-
       subjectRepository.findOneBy.mockResolvedValue(subjectMock);
 
       subjectRepository.delete.mockResolvedValue({
@@ -288,20 +297,16 @@ describe('SubjectsService - Módulo de asignaturas', () => {
 
       const result = await service.remove(10);
 
-      expect(subjectRepository.findOneBy)
-        .toHaveBeenCalledWith({
-          id: 10,
-        });
+      expect(subjectRepository.findOneBy).toHaveBeenCalledWith({
+        id: 10,
+      });
 
-      expect(subjectRepository.delete)
-        .toHaveBeenCalledWith(10);
+      expect(subjectRepository.delete).toHaveBeenCalledWith(10);
 
       expect(result).toEqual({
         status: 200,
         message: 'Subject deleted successfully',
       });
     });
-
   });
-
 });

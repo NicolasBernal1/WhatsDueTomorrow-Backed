@@ -61,7 +61,9 @@ describe('AuthService', () => {
 
       const result = await service.register(registerDto);
 
-      expect(mockUsersService.findOneByEmail).toHaveBeenCalledWith(registerDto.email);
+      expect(mockUsersService.findOneByEmail).toHaveBeenCalledWith(
+        registerDto.email,
+      );
       expect(bcrypt.hash).toHaveBeenCalledWith(registerDto.password, 10);
       expect(mockUsersService.create).toHaveBeenCalledWith({
         email: registerDto.email,
@@ -79,7 +81,9 @@ describe('AuthService', () => {
     it('should throw ExistingUserException if the email is already in use', async () => {
       mockUsersService.findOneByEmail.mockResolvedValue(mockUser);
 
-      await expect(service.register(registerDto)).rejects.toThrow(ExistingUserException);
+      await expect(service.register(registerDto)).rejects.toThrow(
+        ExistingUserException,
+      );
       expect(mockUsersService.create).not.toHaveBeenCalled();
     });
   });
@@ -115,7 +119,9 @@ describe('AuthService', () => {
       mockUsersService.findOneByEmail.mockResolvedValue(mockUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
-      await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
+      await expect(service.login(loginDto)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
   });
 });

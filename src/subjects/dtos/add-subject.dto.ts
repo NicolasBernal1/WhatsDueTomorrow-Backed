@@ -1,6 +1,6 @@
-import { IsNotEmpty, IsOptional } from "class-validator";
+import { IsNotEmpty, IsOptional } from 'class-validator';
 
-export class AddSubjectDto{
+export class AddSubjectDto {
   @IsNotEmpty()
   name: string;
 
@@ -8,5 +8,5 @@ export class AddSubjectDto{
   professor: string;
 
   @IsOptional()
-  color?: string; 
+  color?: string;
 }
