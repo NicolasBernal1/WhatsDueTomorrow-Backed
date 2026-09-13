@@ -57,6 +57,54 @@ export class SubjectsService {
       data: response,
     };
   }
+  //Agrego nueva funcionalidad de buscar/filtrar asignaturas
+  async searchSubjects(userId: number, query: string): Promise<BaseResponseDto<SubjectResponseDto[]>> {
+  const user = await this.userService.findOneById(userId);
+
+  if (!user) {
+    throw new NotFoundException('User not found');
+  }
+
+  const term = query?.trim();
+
+  if (!term) {
+    return {
+      status: 200,
+      message: 'Search query is required',
+      data: [],
+    };
+  }
+
+  const subjects = await this.subjectRepository
+    .createQueryBuilder('subject')
+    .leftJoin('subject.user', 'user')
+    .where('user.id = :userId', { userId })
+    .andWhere('(subject.name LIKE :term OR subject.professor LIKE :term)', {
+      term: `%${term}%`,
+    })
+    .getMany();
+
+  if (subjects.length === 0) {
+    return {
+      status: 200,
+      message: 'No subjects found matching the search',
+      data: [],
+    };
+  }
+
+  const response: SubjectResponseDto[] = subjects.map((subject) => ({
+    id: subject.id,
+    name: subject.name,
+    professor: subject.professor,
+    color: subject.color,
+  }));
+
+  return {
+    status: 200,
+    message: 'Subjects retrieved successfully',
+    data: response,
+  };
+}
 
   async getSubject(
     subjectId: number,

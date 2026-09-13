@@ -1,15 +1,3 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  ParseIntPipe,
-  Post,
-  Request,
-  UseGuards,
-  Patch,
-} from '@nestjs/common';
 import { SubjectsService } from './subjects.service';
 import { BaseResponseDto } from 'src/common/dtos/base-response.dto';
 import { AddSubjectDto } from './dtos/add-subject.dto';
@@ -19,6 +7,7 @@ import { SubjectResponseDto } from './dtos/subject-response.dto';
 import { ClassResponseDto } from './dtos/class-response.dto';
 import { EditSubjectDto } from './dtos/edit-subject.dto';
 import { EditClassDto } from './dtos/edit-class.dto';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query, Request, UseGuards, Patch } from '@nestjs/common';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('subjects')
@@ -38,6 +27,16 @@ export class SubjectsController {
   ): Promise<BaseResponseDto<ClassResponseDto[]>> {
     return this.subjectService.getClassesByid(req.user.sub);
   }
+
+  //Agrego nueva funcionalidad de buscar/filtrar asignaturas
+  @Get('/search')
+  async searchSubjects(
+
+    @Request() req,
+    @Query('q') query: string,
+  ): Promise<BaseResponseDto<SubjectResponseDto[]>> {
+    return this.subjectService.searchSubjects(req.user.sub, query);
+}
 
   @Get('/:id')
   async getSubjectById(
