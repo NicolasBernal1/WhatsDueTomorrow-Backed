@@ -14,6 +14,7 @@ import { LoggedInDto } from './dtos/logged-in.dto';
 import { LoginDto } from './dtos/login.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ChangePasswordDto } from './dtos/change-password.dto';
+import { VerifyPasswordDto } from './dtos/verify-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -49,8 +50,11 @@ export class AuthController {
   @UseGuards(AuthGuard('jwt'))
   async verifyPassword(
     @Request() req,
-    @Body('password') password: string,
+    @Body() verifyPasswordDto: VerifyPasswordDto,
   ): Promise<BaseResponseDto<null>> {
-    return await this.authService.verifyPassword(req.user.sub, password);
+    return await this.authService.verifyPassword(
+      req.user.sub,
+      verifyPasswordDto.password,
+    );
   }
 }
