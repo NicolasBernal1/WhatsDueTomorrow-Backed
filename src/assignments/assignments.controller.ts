@@ -1,15 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  ParseIntPipe,
-  Patch,
-  Post,
-  Request,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Request, UseGuards } from '@nestjs/common';
 import { AssignmentsService } from './assignments.service';
 import { BaseResponseDto } from 'src/common/dtos/base-response.dto';
 import { AddAssignmentDto } from './dtos/add-assignment.dto';
@@ -21,61 +10,36 @@ import { UpdateAssignmentDto } from './dtos/update-assignment.dto';
 @UseGuards(AuthGuard('jwt'))
 @Controller('assignments')
 export class AssignmentsController {
-  constructor(private readonly assignmentService: AssignmentsService) {}
+  constructor(private readonly assignmentService: AssignmentsService){}
 
   @Get()
-  async getAll(
-    @Request() req,
-  ): Promise<BaseResponseDto<AssignmentResponseCompDto[]>> {
+  async getAll(@Request() req): Promise<BaseResponseDto<AssignmentResponseCompDto[]>>{
     return this.assignmentService.getAssignmentsByUser(req.user.sub);
   }
 
-  @Get('urgent')
-  async getUrgent(
-    @Request() req,
-  ): Promise<BaseResponseDto<AssignmentResponseCompDto[]>> {
-    return this.assignmentService.getUrgentAssignmentsByUser(req.user.sub);
+  @Get('upcoming')
+  async getUpcoming(@Request() req): Promise<BaseResponseDto<AssignmentResponseCompDto[]>>{
+    return this.assignmentService.getUpcomingAssignments(req.user.sub);
   }
 
   @Get('subject/:subjectId')
-  async getAssignmentsBySubject(
-    @Request() req,
-    @Param('subjectId', ParseIntPipe) subjectId: number,
-  ): Promise<BaseResponseDto<AssignmentResponseDto[]>> {
-    return this.assignmentService.getAssignmentsBySubject(
-      req.user.sub,
-      subjectId,
-    );
+  async getAssignmentsBySubject(@Request() req, @Param('subjectId', ParseIntPipe) subjectId: number): Promise<BaseResponseDto<AssignmentResponseDto[]>>{
+    return this.assignmentService.getAssignmentsBySubject(req.user.sub, subjectId);
   }
 
   @Post('subject/:subjectId')
-  async addAssignment(
-    @Request() req,
-    @Param('subjectId', ParseIntPipe) subjectId: number,
-    @Body() addAssignmentDto: AddAssignmentDto,
-  ): Promise<BaseResponseDto<null>> {
-    return this.assignmentService.addAssignment(
-      req.user.sub,
-      subjectId,
-      addAssignmentDto,
-    );
+  async addAssignment(@Request() req, @Param('subjectId', ParseIntPipe) subjectId: number, @Body() addAssignmentDto: AddAssignmentDto): Promise<BaseResponseDto<null>>{
+    return this.assignmentService.addAssignment(req.user.sub, subjectId, addAssignmentDto);
   }
 
   @Delete('/:assignmentId')
-  async removeAssignment(
-    @Param('assignmentId', ParseIntPipe) assignmentId: number,
-  ): Promise<BaseResponseDto<null>> {
+  async removeAssignment(@Param('assignmentId', ParseIntPipe) assignmentId: number): Promise<BaseResponseDto<null>>{
     return this.assignmentService.deleteAssignment(assignmentId);
   }
 
   @Patch('/:assignmentId')
-  async editAssignment(
-    @Param('assignmentId', ParseIntPipe) assignmentId: number,
-    @Body() updateAssignmentDto: UpdateAssignmentDto,
-  ): Promise<BaseResponseDto<null>> {
-    return this.assignmentService.editAssignment(
-      assignmentId,
-      updateAssignmentDto,
-    );
+  async editAssignment(@Param('assignmentId', ParseIntPipe) assignmentId: number, @Body() updateAssignmentDto: UpdateAssignmentDto): Promise<BaseResponseDto<null>> {
+    return this.assignmentService.editAssignment(assignmentId, updateAssignmentDto);
   }
+
 }
