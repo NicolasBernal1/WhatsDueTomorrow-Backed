@@ -27,6 +27,10 @@ export class Assignment {
   @Column({ type: 'int', nullable: true })
   reminderMinutes?: number | null;
 
+  // Set once the daily due-tomorrow digest email has been sent for this assignment.
+  @Column({ type: 'datetime', nullable: true })
+  emailReminderSentAt?: Date | null;
+
   @ManyToOne(() => User, (user) => user.assignments, {
     eager: true,
     onDelete: 'CASCADE',
