@@ -12,6 +12,8 @@ import { SubtasksModule } from './subtasks/subtasks.module';
 import { CalendarModule } from './calendar/calendar.module';
 import { NotesModule } from './notes/notes.module';
 import { EvaluationsModule } from './evaluations/evaluations.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { RemindersModule } from './reminders/reminders.module';
 
 @Module({
   imports: [
@@ -40,7 +42,9 @@ import { EvaluationsModule } from './evaluations/evaluations.module';
     CalendarModule,
     NotesModule,
     EvaluationsModule,
+    RemindersModule,
     AuthModule,
+    ScheduleModule.forRoot(),
     PrometheusModule.register(),
   ],
   controllers: [AppController],
