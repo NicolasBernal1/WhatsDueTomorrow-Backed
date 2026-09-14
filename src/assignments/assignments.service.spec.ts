@@ -59,10 +59,7 @@ describe('AssignmentsService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AssignmentsService,
-        {
-          provide: getRepositoryToken(Assignment),
-          useValue: mockAssignmentRepository,
-        },
+        { provide: getRepositoryToken(Assignment), useValue: mockAssignmentRepository },
         { provide: UsersService, useValue: mockUsersService },
         { provide: SubjectsService, useValue: mockSubjectsService },
       ],
@@ -77,8 +74,6 @@ describe('AssignmentsService', () => {
   });
 
   // ─── getAssignmentsByUser ─────────────────────────────────────────────────
-  // No valida existencia del usuario: consulta directo al repo y
-  // devuelve vacío si no hay resultados.
 
   describe('getAssignmentsByUser', () => {
     it('should return assignments mapped to AssignmentResponseCompDto', async () => {
@@ -118,11 +113,11 @@ describe('AssignmentsService', () => {
     });
   });
 
-  describe('getUrgentAssignmentsByUser', () => {
-    it('should request future assignments in the next 24 hours ordered by due date', async () => {
+  describe('getUpcomingAssignments', () => {
+    it('should query with a date range between now and the window limit', async () => {
       mockAssignmentRepository.find.mockResolvedValue([mockAssignment]);
 
-      const result = await service.getUrgentAssignmentsByUser(1);
+      await service.getUpcomingAssignments(1);
 
       expect(mockAssignmentRepository.find).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -130,14 +125,43 @@ describe('AssignmentsService', () => {
           order: { dueDate: 'ASC' },
         }),
       );
+    });
+
+    it('should map results to AssignmentResponseCompDto when there are upcoming assignments', async () => {
+      mockAssignmentRepository.find.mockResolvedValue([mockAssignment]);
+
+      const result = await service.getUpcomingAssignments(1);
+
       expect(result.status).toBe(200);
-      expect(result.data![0]).toMatchObject({ id: 100, subjectName: 'Math' });
+      expect(result.data).toHaveLength(1);
+      expect(result.data![0]).toMatchObject({
+        id: 100,
+        title: 'Tarea 1',
+        subjectId: 10,
+        subjectName: 'Math',
+      });
+    });
+
+    it('should return empty data when there are no upcoming assignments', async () => {
+      mockAssignmentRepository.find.mockResolvedValue([]);
+
+      const result = await service.getUpcomingAssignments(1);
+
+      expect(result.status).toBe(200);
+      expect(result.message).toBe('No upcoming assignments');
+      expect(result.data).toEqual([]);
+    });
+
+    it('should accept a custom hoursAhead window', async () => {
+      mockAssignmentRepository.find.mockResolvedValue([]);
+
+      await service.getUpcomingAssignments(1, 24);
+
+      expect(mockAssignmentRepository.find).toHaveBeenCalled();
     });
   });
 
   // ─── getAssignmentsBySubject ──────────────────────────────────────────────
-  // Igual que el anterior: no valida usuario ni materia,
-  // filtra directamente por where.
 
   describe('getAssignmentsBySubject', () => {
     it('should return assignments for a given user and subject', async () => {
@@ -177,7 +201,6 @@ describe('AssignmentsService', () => {
   });
 
   // ─── addAssignment ────────────────────────────────────────────────────────
-  // Primero busca usuario y materia, luego valida con if(!user)/if(!subject).
 
   describe('addAssignment', () => {
     const addDto = {
@@ -202,19 +225,14 @@ describe('AssignmentsService', () => {
         user: mockUser,
         subject: mockSubject,
       });
-      expect(mockAssignmentRepository.save).toHaveBeenCalledWith(
-        mockAssignment,
-      );
+      expect(mockAssignmentRepository.save).toHaveBeenCalledWith(mockAssignment);
     });
 
     it('should throw NotFoundException when the user does not exist', async () => {
       mockUsersService.findOneById.mockResolvedValue(null);
-      // getSubjectById puede retornar lo que sea; el if(!user) llega primero
       mockSubjectsService.getSubjectById.mockResolvedValue(mockSubject);
 
-      await expect(service.addAssignment(999, 10, addDto)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.addAssignment(999, 10, addDto)).rejects.toThrow(NotFoundException);
       expect(mockAssignmentRepository.create).not.toHaveBeenCalled();
     });
 
@@ -222,9 +240,7 @@ describe('AssignmentsService', () => {
       mockUsersService.findOneById.mockResolvedValue(mockUser);
       mockSubjectsService.getSubjectById.mockResolvedValue(null);
 
-      await expect(service.addAssignment(1, 999, addDto)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.addAssignment(1, 999, addDto)).rejects.toThrow(NotFoundException);
       expect(mockAssignmentRepository.create).not.toHaveBeenCalled();
     });
   });
@@ -245,9 +261,7 @@ describe('AssignmentsService', () => {
     it('should throw NotFoundException when the assignment does not exist', async () => {
       mockAssignmentRepository.findOneBy.mockResolvedValue(null);
 
-      await expect(service.deleteAssignment(999)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.deleteAssignment(999)).rejects.toThrow(NotFoundException);
       expect(mockAssignmentRepository.delete).not.toHaveBeenCalled();
     });
   });
