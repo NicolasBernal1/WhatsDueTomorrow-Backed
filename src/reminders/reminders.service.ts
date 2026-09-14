@@ -94,15 +94,35 @@ export class RemindersService {
     const items = assignments
       .map(
         (a) =>
-          `<li><strong>${this.escapeHtml(a.title)}</strong> — ${this.escapeHtml(a.subject.name)} (${a.dueDate})</li>`,
+          `<li><strong>${this.escapeHtml(a.title)}</strong> — ${this.escapeHtml(a.subject.name)} (${this.formatDueDate(a.dueDate)})</li>`,
       )
       .join('');
     return `<p>Tienes ${assignments.length} tarea(s) que vencen mañana:</p><ul>${items}</ul>`;
   }
 
   private buildText(assignments: Assignment[]): string {
-    const lines = assignments.map((a) => `- ${a.title} — ${a.subject.name} (${a.dueDate})`);
+    const lines = assignments.map(
+      (a) => `- ${a.title} — ${a.subject.name} (${this.formatDueDate(a.dueDate)})`,
+    );
     return `Tienes ${assignments.length} tarea(s) que vencen mañana:\n${lines.join('\n')}`;
+  }
+
+  /**
+   * dueDate arrives as a JS Date at runtime (TypeORM returns MySQL `datetime`
+   * columns as Date objects, despite the entity typing it as `string`) — never
+   * interpolate it directly, or you get raw Date#toString() output like
+   * "Tue Sep 15 2026 23:59:00 GMT-0500 (hora estándar de Colombia)".
+   */
+  private formatDueDate(dueDate: string | Date): string {
+    return new Date(dueDate).toLocaleString('es-CO', {
+      timeZone: 'America/Bogota',
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
   }
 
   private escapeHtml(value: string): string {

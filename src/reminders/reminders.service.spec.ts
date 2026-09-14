@@ -133,6 +133,22 @@ describe('RemindersService', () => {
       expect(call.text).toContain('Tarea Dos');
     });
 
+    it('should format the due date naturally in Spanish, not as a raw JS Date string', async () => {
+      // 2026-09-16T04:59:00.000Z = 2026-09-15 23:59 in America/Bogota
+      const assignment = makeAssignment({ dueDate: '2026-09-16T04:59:00.000Z' });
+      mockAssignmentRepository.find.mockResolvedValue([assignment]);
+      mockEmailService.send.mockResolvedValue(undefined);
+      mockAssignmentRepository.save.mockResolvedValue([]);
+
+      await service.sendDueTomorrowReminders();
+
+      const call = mockEmailService.send.mock.calls[0][0];
+      expect(call.html).toContain('martes, 15 de septiembre, 11:59 p. m.');
+      expect(call.text).toContain('martes, 15 de septiembre, 11:59 p. m.');
+      expect(call.html).not.toContain('GMT');
+      expect(call.html).not.toContain('Tue Sep');
+    });
+
     it('should mark emailReminderSentAt on assignments after a successful send', async () => {
       const assignment = makeAssignment({ id: 1 });
       mockAssignmentRepository.find.mockResolvedValue([assignment]);
