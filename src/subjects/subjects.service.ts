@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Subject } from './entities/subject.entity';
 import { Repository } from 'typeorm';
@@ -12,6 +12,11 @@ import { ClassResponseDto } from './dtos/class-response.dto';
 import { ContradictoryTimeException } from './exceptions/contradictory-time.exception';
 import { EditSubjectDto } from './dtos/edit-subject.dto';
 import { EditClassDto } from './dtos/edit-class.dto';
+import { AcademicLoadStatus, AcademicLoadSummaryDto } from './dtos/academic-load-summary.dto';
+
+export const MIN_BALANCED_CREDITS = 12;
+export const MAX_BALANCED_CREDITS = 18;
+export const AUTONOMOUS_HOURS_MULTIPLIER = 2;
 
 @Injectable()
 export class SubjectsService {
@@ -49,6 +54,7 @@ export class SubjectsService {
       name: subject.name,
       professor: subject.professor,
       color: subject.color,
+      credits: subject.credits ?? 3,
     }));
 
     return {
@@ -56,6 +62,20 @@ export class SubjectsService {
       message: 'Subjects retrieved successfully',
       data: response,
     };
+  }
+
+  private validateCredits(credits: any): void {
+    const num = Number(credits);
+    if (
+      credits === null ||
+      credits === undefined ||
+      isNaN(num) ||
+      !Number.isInteger(num) ||
+      num < 1 ||
+      num > 12
+    ) {
+      throw new BadRequestException('The credits must be an integer between 1 and 12');
+    }
   }
   //Agrego nueva funcionalidad de buscar/filtrar asignaturas
   async searchSubjects(userId: number, query: string): Promise<BaseResponseDto<SubjectResponseDto[]>> {
@@ -97,6 +117,7 @@ export class SubjectsService {
     name: subject.name,
     professor: subject.professor,
     color: subject.color,
+    credits: subject.credits ?? 3,
   }));
 
   return {
@@ -110,7 +131,6 @@ export class SubjectsService {
     subjectId: number,
   ): Promise<BaseResponseDto<SubjectResponseDto>> {
     const subject = await this.getSubjectById(subjectId);
-    
 
     return {
       status: 200,
@@ -120,6 +140,7 @@ export class SubjectsService {
         name: subject.name,
         professor: subject.professor,
         color: subject.color,
+        credits: subject.credits ?? 3,
       },
     };
   }
@@ -134,10 +155,15 @@ export class SubjectsService {
       throw new NotFoundException('User not found');
     }
 
+    if (addSubjectDto.credits !== undefined) {
+      this.validateCredits(addSubjectDto.credits);
+    }
+
     const newSubject = this.subjectRepository.create({
       name: addSubjectDto.name,
       professor: addSubjectDto.professor,
       color: addSubjectDto.color,
+      credits: addSubjectDto.credits !== undefined ? Number(addSubjectDto.credits) : 3,
       user: user,
     });
 
@@ -202,6 +228,7 @@ export class SubjectsService {
         name: userClass.subject.name,
         professor: userClass.subject.professor,
         color: userClass.subject.color,
+        credits: userClass.subject.credits ?? 3,
       },
     }));
 
@@ -273,9 +300,14 @@ export class SubjectsService {
     subjectId: number,
     editSubjectDto: EditSubjectDto,
   ): Promise<BaseResponseDto<null>> {
+    if (editSubjectDto.credits !== undefined) {
+      this.validateCredits(editSubjectDto.credits);
+    }
+
     const subject = await this.subjectRepository.preload({
       id: subjectId,
       ...editSubjectDto,
+      credits: editSubjectDto.credits !== undefined ? Number(editSubjectDto.credits) : undefined,
     });
 
     if (!subject) {
@@ -315,6 +347,71 @@ export class SubjectsService {
     return {
       status: 200,
       message: 'Class updated successfully',
+    };
+  }
+
+  async getAcademicLoadSummary(
+    userId: number,
+  ): Promise<BaseResponseDto<AcademicLoadSummaryDto>> {
+    const user = await this.userService.findOneById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const subjects = await this.subjectRepository.findBy({
+      user: { id: userId },
+    });
+
+    const userClasses = await this.subjectClassRepository.findBy({
+      user: { id: userId },
+    });
+
+    const totalCredits = subjects.reduce(
+      (sum, sub) => sum + (sub.credits !== undefined && sub.credits !== null ? Number(sub.credits) : 3),
+      0,
+    );
+
+    let status: AcademicLoadStatus = 'baja';
+    let statusLabel = 'Carga baja';
+
+    if (totalCredits < MIN_BALANCED_CREDITS) {
+      status = 'baja';
+      statusLabel = 'Carga baja';
+    } else if (totalCredits <= MAX_BALANCED_CREDITS) {
+      status = 'balanceada';
+      statusLabel = 'Carga balanceada';
+    } else {
+      status = 'sobrecarga';
+      statusLabel = 'Sobrecarga';
+    }
+
+    let totalPresentialMinutes = 0;
+    for (const cls of userClasses) {
+      if (cls.startTime && cls.endTime) {
+        const [startH, startM = 0] = cls.startTime.split(':').map(Number);
+        const [endH, endM = 0] = cls.endTime.split(':').map(Number);
+        const startTotal = startH * 60 + (startM || 0);
+        const endTotal = endH * 60 + (endM || 0);
+        const duration = Math.max(0, endTotal - startTotal);
+        totalPresentialMinutes += duration;
+      }
+    }
+
+    const weeklyPresentialHours = Math.round((totalPresentialMinutes / 60 + Number.EPSILON) * 100) / 100;
+    const weeklyAutonomousHours = Math.round((weeklyPresentialHours * AUTONOMOUS_HOURS_MULTIPLIER + Number.EPSILON) * 100) / 100;
+
+    return {
+      status: 200,
+      message: 'Academic load summary calculated successfully',
+      data: {
+        totalCredits,
+        status,
+        statusLabel,
+        weeklyPresentialHours,
+        weeklyAutonomousHours,
+        subjectsCount: subjects.length,
+        classesCount: userClasses.length,
+      },
     };
   }
 }

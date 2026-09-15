@@ -23,6 +23,7 @@ describe('SubjectsService - Módulo de asignaturas', () => {
     name: 'validación',
     professor: 'Gabriel',
     color: '#0078d4',
+    credits: 3,
     user: userMock,
   } as any;
 
@@ -128,6 +129,7 @@ describe('SubjectsService - Módulo de asignaturas', () => {
             name: 'validación',
             professor: 'Gabriel',
             color: '#0078d4',
+            credits: 3,
           },
         ],
       });
@@ -168,6 +170,7 @@ describe('SubjectsService - Módulo de asignaturas', () => {
           name: 'validación',
           professor: 'Gabriel',
           color: '#0078d4',
+          credits: 3,
         },
       });
     });
@@ -209,6 +212,7 @@ describe('SubjectsService - Módulo de asignaturas', () => {
         name: 'validación',
         professor: 'Gabriel',
         color: '#0078d4',
+        credits: 3,
         user: userMock,
       });
 

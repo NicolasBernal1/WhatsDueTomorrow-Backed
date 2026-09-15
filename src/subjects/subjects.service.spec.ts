@@ -24,6 +24,7 @@ describe('SubjectsService - Módulo de clases', () => {
     name: 'validacion',
     professor: 'gabriel',
     color: '#0078d4',
+    credits: 3,
     user: userMock,
   } as any;
 
@@ -139,6 +140,7 @@ describe('SubjectsService - Módulo de clases', () => {
               name: 'validacion',
               professor: 'gabriel',
               color: '#0078d4',
+              credits: 3,
             },
           },
         ],

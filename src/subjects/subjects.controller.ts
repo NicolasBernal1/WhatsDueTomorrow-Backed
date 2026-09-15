@@ -7,6 +7,7 @@ import { SubjectResponseDto } from './dtos/subject-response.dto';
 import { ClassResponseDto } from './dtos/class-response.dto';
 import { EditSubjectDto } from './dtos/edit-subject.dto';
 import { EditClassDto } from './dtos/edit-class.dto';
+import { AcademicLoadSummaryDto } from './dtos/academic-load-summary.dto';
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query, Request, UseGuards, Patch } from '@nestjs/common';
 
 @UseGuards(AuthGuard('jwt'))
@@ -36,7 +37,14 @@ export class SubjectsController {
     @Query('q') query: string,
   ): Promise<BaseResponseDto<SubjectResponseDto[]>> {
     return this.subjectService.searchSubjects(req.user.sub, query);
-}
+  }
+
+  @Get('/academic-load')
+  async getAcademicLoadSummary(
+    @Request() req,
+  ): Promise<BaseResponseDto<AcademicLoadSummaryDto>> {
+    return this.subjectService.getAcademicLoadSummary(req.user.sub);
+  }
 
   @Get('/:id')
   async getSubjectById(
