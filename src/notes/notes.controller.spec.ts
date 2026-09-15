@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/unbound-method, @typescript-eslint/no-unsafe-assignment */
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotesController } from './notes.controller';
 import { NotesService } from './notes.service';
 
-describe('NotesController', () => {
+describe('NotesController (F24 — Controlador de Bitácora de Apuntes - Tabla 26)', () => {
   let controller: NotesController;
   let service: jest.Mocked<NotesService>;
 
@@ -24,74 +23,112 @@ describe('NotesController', () => {
     controller = module.get<NotesController>(NotesController);
   });
 
-  it('getAll calls service.getBySubject with userId and subjectId', async () => {
-    const req = { user: { sub: 1 } };
-    service.getBySubject.mockResolvedValue({
-      status: 200,
-      message: 'ok',
-      data: [],
-    });
-
-    const res = await controller.getAll(req, 10);
-    expect(service.getBySubject).toHaveBeenCalledWith(1, 10);
-    expect(res.status).toBe(200);
+  it('debe estar definido el controlador NotesController', () => {
+    expect(controller).toBeDefined();
   });
 
-  it('getById calls service.getById with userId, subjectId, and noteId', async () => {
-    const req = { user: { sub: 1 } };
-    service.getById.mockResolvedValue({
-      status: 200,
-      message: 'ok',
-      data: {} as any,
+  // Camino P1: 1-2-3-20
+  describe('Camino P1 (1-2-3-20): Verificación de guardias de seguridad JWT', () => {
+    it('debe proteger todas las rutas del controlador con AuthGuard("jwt")', () => {
+      const guards = Reflect.getMetadata('__guards__', NotesController);
+      expect(guards).toBeDefined();
+      expect(guards.length).toBeGreaterThan(0);
     });
-
-    const res = await controller.getById(req, 10, 5);
-    expect(service.getById).toHaveBeenCalledWith(1, 10, 5);
-    expect(res.status).toBe(200);
   });
 
-  it('create calls service.create with userId, subjectId, and dto', async () => {
-    const req = { user: { sub: 1 } };
-    const dto = {
-      title: 'Nota',
-      content: 'Contenido',
-      linkUrl: 'https://test.com',
-    };
-    service.create.mockResolvedValue({
-      status: 201,
-      message: 'created',
-      data: {} as any,
-    });
+  // Camino P4: 1-2-4-5-7-9-10-20
+  describe('Camino P4 (1-2-4-5-7-9-10-20): GET /subjects/:subjectId/notes', () => {
+    it('debe delegar en notesService.getBySubject con req.user.sub y subjectId', async () => {
+      const req = { user: { sub: 1 } };
+      const expected = {
+        status: 200,
+        message: 'Notes retrieved successfully',
+        data: [],
+      };
+      service.getBySubject.mockResolvedValue(expected as any);
 
-    const res = await controller.create(req, 10, dto);
-    expect(service.create).toHaveBeenCalledWith(1, 10, dto);
-    expect(res.status).toBe(201);
+      const result = await controller.getAll(req, 10);
+
+      expect(service.getBySubject).toHaveBeenCalledWith(1, 10);
+      expect(result).toBe(expected);
+    });
   });
 
-  it('update calls service.update with userId, subjectId, noteId, and dto', async () => {
-    const req = { user: { sub: 1 } };
-    const dto = { title: 'Nuevo título' };
-    service.update.mockResolvedValue({
-      status: 200,
-      message: 'updated',
-      data: {} as any,
-    });
+  // Camino P6: 1-2-4-5-7-9-11-20
+  describe('Camino P6 (1-2-4-5-7-9-11-20): GET /subjects/:subjectId/notes/:noteId', () => {
+    it('debe delegar en notesService.getById con req.user.sub, subjectId y noteId', async () => {
+      const req = { user: { sub: 1 } };
+      const expected = {
+        status: 200,
+        message: 'Note retrieved successfully',
+        data: { id: 5, title: 'Nota' } as any,
+      };
+      service.getById.mockResolvedValue(expected as any);
 
-    const res = await controller.update(req, 10, 5, dto);
-    expect(service.update).toHaveBeenCalledWith(1, 10, 5, dto);
-    expect(res.status).toBe(200);
+      const result = await controller.getById(req, 10, 5);
+
+      expect(service.getById).toHaveBeenCalledWith(1, 10, 5);
+      expect(result).toBe(expected);
+    });
   });
 
-  it('remove calls service.remove with userId, subjectId, and noteId', async () => {
-    const req = { user: { sub: 1 } };
-    service.remove.mockResolvedValue({
-      status: 200,
-      message: 'deleted',
-      data: null,
-    });
+  // Camino P9: 1-2-4-5-7-9-13-15-20
+  describe('Camino P9 (1-2-4-5-7-9-13-15-20): POST /subjects/:subjectId/notes', () => {
+    it('debe delegar en notesService.create con dto de nuevo apunte', async () => {
+      const req = { user: { sub: 1 } };
+      const dto = {
+        title: 'Nueva Nota',
+        content: 'Contenido relevante',
+        linkUrl: 'https://recurso.edu',
+      };
+      const expected = {
+        status: 201,
+        message: 'Note created successfully',
+        data: { id: 101, ...dto } as any,
+      };
+      service.create.mockResolvedValue(expected as any);
 
-    const res = await controller.remove(req, 10, 5);
-    expect(service.remove).toHaveBeenCalledWith(1, 10, 5);
-    expect(res.status).toBe(200);
+      const result = await controller.create(req, 10, dto);
+
+      expect(service.create).toHaveBeenCalledWith(1, 10, dto);
+      expect(result).toBe(expected);
+    });
+  });
+
+  // Camino P12: 1-2-4-5-7-9-16-17-20
+  describe('Camino P12 (1-2-4-5-7-9-16-17-20): PATCH /subjects/:subjectId/notes/:noteId', () => {
+    it('debe delegar en notesService.update con dto de actualización', async () => {
+      const req = { user: { sub: 1 } };
+      const dto = { title: 'Título actualizado' };
+      const expected = {
+        status: 200,
+        message: 'Note updated successfully',
+        data: { id: 5, title: 'Título actualizado' } as any,
+      };
+      service.update.mockResolvedValue(expected as any);
+
+      const result = await controller.update(req, 10, 5, dto);
+
+      expect(service.update).toHaveBeenCalledWith(1, 10, 5, dto);
+      expect(result).toBe(expected);
+    });
+  });
+
+  // Camino P14: 1-2-4-5-7-9-18-19-20
+  describe('Camino P14 (1-2-4-5-7-9-18-19-20): DELETE /subjects/:subjectId/notes/:noteId', () => {
+    it('debe delegar en notesService.remove con subjectId y noteId', async () => {
+      const req = { user: { sub: 1 } };
+      const expected = {
+        status: 200,
+        message: 'Note deleted successfully',
+        data: null,
+      };
+      service.remove.mockResolvedValue(expected as any);
+
+      const result = await controller.remove(req, 10, 5);
+
+      expect(service.remove).toHaveBeenCalledWith(1, 10, 5);
+      expect(result).toBe(expected);
+    });
   });
 });
