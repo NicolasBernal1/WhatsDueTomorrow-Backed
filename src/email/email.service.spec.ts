@@ -61,6 +61,21 @@ describe('EmailService', () => {
     });
   });
 
+  it('should fall back to the default sender when EMAIL_FROM is not set', async () => {
+    delete process.env.EMAIL_FROM;
+    fetchMock.mockResolvedValue({ ok: true, status: 200, text: async () => '' });
+
+    await service.send({
+      to: 'user@example.com',
+      subject: 'Hello',
+      html: '<p>Hi</p>',
+      text: 'Hi',
+    });
+
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(body.from).toBe('WhatsDueTomorrow <onboarding@resend.dev>');
+  });
+
   it('should use the input "from" over EMAIL_FROM when provided', async () => {
     fetchMock.mockResolvedValue({ ok: true, status: 200, text: async () => '' });
 

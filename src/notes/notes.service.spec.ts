@@ -444,4 +444,48 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
       expect(result.data.linkUrl).toBe('http://a/');
     });
   });
+
+  describe('Ramas de asignación por defecto no cubiertas por los Caminos Básicos', () => {
+    it('debe rechazar nota sin título (campo ausente, no solo vacío)', async () => {
+      subjectRepository.findOne.mockResolvedValue(ownedSubject);
+      const dto = { content: 'Algún contenido' } as CreateNoteDto;
+
+      await expect(service.create(studentId, subjectId, dto)).rejects.toThrow(
+        BadRequestException,
+      );
+      expect(noteRepository.save).not.toHaveBeenCalled();
+    });
+
+    it('debe rechazar nota sin contenido (campo ausente, no solo vacío)', async () => {
+      subjectRepository.findOne.mockResolvedValue(ownedSubject);
+      const dto = { title: 'Título válido' } as CreateNoteDto;
+
+      await expect(service.create(studentId, subjectId, dto)).rejects.toThrow(
+        BadRequestException,
+      );
+      expect(noteRepository.save).not.toHaveBeenCalled();
+    });
+
+    it('debe actualizar solo el título sin tocar el enlace existente', async () => {
+      subjectRepository.findOne.mockResolvedValue(ownedSubject);
+      const existingNote: Note = {
+        id: 7,
+        title: 'Título viejo',
+        content: 'Contenido',
+        linkUrl: 'https://old.com',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        subject: ownedSubject,
+      };
+      noteRepository.findOne.mockResolvedValue(existingNote);
+      noteRepository.save.mockImplementation(async (n: any) => n);
+
+      const result = await service.update(studentId, subjectId, 7, {
+        title: 'Título nuevo',
+      });
+
+      expect(result.data.title).toBe('Título nuevo');
+      expect(result.data.linkUrl).toBe('https://old.com');
+    });
+  });
 });

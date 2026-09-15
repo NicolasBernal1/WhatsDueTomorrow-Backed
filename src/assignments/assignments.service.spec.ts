@@ -303,4 +303,35 @@ describe('AssignmentsService', () => {
       expect(mockAssignmentRepository.delete).not.toHaveBeenCalled();
     });
   });
+
+  // ─── editAssignment ───────────────────────────────────────────────────────
+
+  describe('editAssignment', () => {
+    const updateDto = { title: 'Tarea actualizada' };
+
+    it('should update an assignment and return status 200', async () => {
+      const preloaded = { ...mockAssignment, ...updateDto };
+      (mockAssignmentRepository as any).preload = jest.fn().mockResolvedValue(preloaded);
+      mockAssignmentRepository.save.mockResolvedValue(preloaded);
+
+      const result = await service.editAssignment(100, updateDto as any);
+
+      expect((mockAssignmentRepository as any).preload).toHaveBeenCalledWith({
+        id: 100,
+        ...updateDto,
+      });
+      expect(mockAssignmentRepository.save).toHaveBeenCalledWith(preloaded);
+      expect(result.status).toBe(200);
+      expect(result.message).toBe('Assignment updated successfully');
+    });
+
+    it('should throw NotFoundException when the assignment does not exist', async () => {
+      (mockAssignmentRepository as any).preload = jest.fn().mockResolvedValue(null);
+
+      await expect(service.editAssignment(999, updateDto as any)).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(mockAssignmentRepository.save).not.toHaveBeenCalled();
+    });
+  });
 });
