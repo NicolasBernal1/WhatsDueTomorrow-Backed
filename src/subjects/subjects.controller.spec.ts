@@ -12,6 +12,7 @@ describe('SubjectsController', () => {
     addSubject: jest.Mock;
     editSubject: jest.Mock;
     remove: jest.Mock;
+    getAcademicLoadSummary: jest.Mock;
   };
 
   beforeEach(async () => {
@@ -21,6 +22,7 @@ describe('SubjectsController', () => {
       addSubject: jest.fn(),
       editSubject: jest.fn(),
       remove: jest.fn(),
+      getAcademicLoadSummary: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -116,6 +118,32 @@ describe('SubjectsController', () => {
       const result = await controller.removeSubject(1);
 
       expect(service.remove).toHaveBeenCalledWith(1);
+      expect(result).toEqual(expected);
+    });
+  });
+
+  // F26 - GET /subjects/academic-load
+  describe('getAcademicLoadSummary (F26 — Camino P3/P4/P5)', () => {
+    it('debe delegar en subjectService.getAcademicLoadSummary(userId)', async () => {
+      const expected = {
+        status: 200,
+        message: 'Academic load summary calculated successfully',
+        data: {
+          totalCredits: 15,
+          status: 'balanceada' as const,
+          statusLabel: 'Carga balanceada',
+          weeklyPresentialHours: 6,
+          weeklyAutonomousHours: 12,
+          subjectsCount: 4,
+          classesCount: 3,
+        },
+      };
+      service.getAcademicLoadSummary.mockResolvedValue(expected);
+      const req = { user: { sub: 1 } };
+
+      const result = await controller.getAcademicLoadSummary(req);
+
+      expect(service.getAcademicLoadSummary).toHaveBeenCalledWith(1);
       expect(result).toEqual(expected);
     });
   });
