@@ -48,6 +48,9 @@ describe('EmailService', () => {
 
     expect(createTransportMock).toHaveBeenCalledWith({
       service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
       auth: { user: 'test@gmail.com', pass: 'test-app-password' },
     });
     expect(sendMailMock).toHaveBeenCalledWith({
