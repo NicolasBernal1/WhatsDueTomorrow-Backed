@@ -167,7 +167,7 @@ describe('RemindersService', () => {
       const assignmentB = makeAssignment({ id: 2, user: mockUserB as any });
       mockAssignmentRepository.find.mockResolvedValue([assignmentA, assignmentB]);
       mockEmailService.send
-        .mockRejectedValueOnce(new Error('Gmail SMTP error: boom'))
+        .mockRejectedValueOnce(new Error('Resend API error (500): boom'))
         .mockResolvedValueOnce(undefined);
       mockAssignmentRepository.save.mockResolvedValue([]);
 
