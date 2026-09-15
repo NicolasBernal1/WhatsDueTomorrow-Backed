@@ -32,7 +32,13 @@ export class EmailService {
     }
 
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      requireTLS: true,
+      // Fail fast instead of hanging for minutes if the port is blocked
+      // by the hosting provider (some PaaS block outbound SMTP entirely).
+      connectionTimeout: 10000,
       auth: { user: gmailUser, pass: gmailAppPassword },
     });
 
