@@ -42,16 +42,33 @@ describe('AssignmentsController', () => {
     });
   });
 
-  describe('getUpcoming', () => {
-    it('should call assignmentService.getUpcomingAssignments with req.user.sub', async () => {
-      const req = { user: { sub: 1 } };
-      const expected = { status: 200, message: 'ok', data: [] };
+  // ─── F21: getUpcoming (AssignmentsController) ───────────────────────────
+  describe('F21 — getUpcoming', () => {
+    it('should extract req.user.sub and return upcoming assignments from service', async () => {
+      // Arrange
+      const req = { user: { sub: 42 } };
+      const expected = {
+        status: 200,
+        message: 'Upcoming assignments retrieved successfully',
+        data: [{ id: 1, title: 'Exam', description: '', dueDate: '2026-09-15T00:00:00Z', subjectId: 2, subjectName: 'Physics' }],
+      };
       assignmentService.getUpcomingAssignments.mockResolvedValue(expected as any);
 
+      // Act
       const result = await controller.getUpcoming(req);
 
-      expect(assignmentService.getUpcomingAssignments).toHaveBeenCalledWith(1);
+      // Assert
+      expect(assignmentService.getUpcomingAssignments).toHaveBeenCalledWith(42);
       expect(result).toBe(expected);
+    });
+
+    it('should propagate service errors when upcoming assignments retrieval fails', async () => {
+      // Arrange
+      const req = { user: { sub: 42 } };
+      assignmentService.getUpcomingAssignments.mockRejectedValue(new Error('Internal database failure'));
+
+      // Act & Assert
+      await expect(controller.getUpcoming(req)).rejects.toThrow('Internal database failure');
     });
   });
 

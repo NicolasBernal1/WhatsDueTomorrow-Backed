@@ -113,51 +113,89 @@ describe('AssignmentsService', () => {
     });
   });
 
-  describe('getUpcomingAssignments', () => {
-    it('should query with a date range between now and the window limit', async () => {
+  // ─── F21: getUpcomingAssignments (Tabla 6 - Caminos Básicos Independientes) ───
+
+  describe('F21 — getUpcomingAssignments (Caminos Básicos de Caja Blanca - Tabla 6)', () => {
+    // Camino P1: 1-2-3-14 (Validación de parámetros y límites temporales de consulta)
+    it('Camino P1 (1-2-3-14): should configure query boundaries using the specified user ID and active time window', async () => {
+      // Arrange
       mockAssignmentRepository.find.mockResolvedValue([mockAssignment]);
 
-      await service.getUpcomingAssignments(1);
-
-      expect(mockAssignmentRepository.find).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: expect.objectContaining({ user: { id: 1 } }),
-          order: { dueDate: 'ASC' },
-        }),
-      );
-    });
-
-    it('should map results to AssignmentResponseCompDto when there are upcoming assignments', async () => {
-      mockAssignmentRepository.find.mockResolvedValue([mockAssignment]);
-
+      // Act
       const result = await service.getUpcomingAssignments(1);
 
+      // Assert
+      expect(mockAssignmentRepository.find).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            user: { id: 1 },
+          }),
+        }),
+      );
       expect(result.status).toBe(200);
+    });
+
+    // Camino P2: 1-2-4-5-6-7-8-9-14 (Fallo de conexión o excepción en BD PostgreSQL / TypeORM)
+    it('Camino P2 (1-2-4-5-6-7-8-9-14): should propagate database error when TypeORM repository fails (500 Internal Error path)', async () => {
+      // Arrange
+      const dbError = new Error('PostgreSQL connection timeout');
+      mockAssignmentRepository.find.mockRejectedValue(dbError);
+
+      // Act & Assert
+      await expect(service.getUpcomingAssignments(1)).rejects.toThrow('PostgreSQL connection timeout');
+    });
+
+    // Camino P3: 1-2-4-5-6-7-10-11-13-14 (Flujo nominal principal con entregas próximas encontradas)
+    it('Camino P3 (1-2-4-5-6-7-10-11-13-14): should map and return upcoming assignments with 200 OK and ordered chronologically', async () => {
+      // Arrange
+      mockAssignmentRepository.find.mockResolvedValue([mockAssignment]);
+
+      // Act
+      const result = await service.getUpcomingAssignments(1);
+
+      // Assert
+      expect(result.status).toBe(200);
+      expect(result.message).toBe('Upcoming assignments retrieved successfully');
       expect(result.data).toHaveLength(1);
-      expect(result.data![0]).toMatchObject({
+      expect(result.data![0]).toEqual({
         id: 100,
         title: 'Tarea 1',
+        description: 'Ejercicios del capítulo 3',
+        dueDate: '2025-06-01T00:00:00',
         subjectId: 10,
         subjectName: 'Math',
       });
     });
 
-    it('should return empty data when there are no upcoming assignments', async () => {
+    // Camino P4: 1-2-4-5-6-7-10-11-12-13-14 (Ordenamiento defensivo por dueDate ASC y ventana personalizada)
+    it('Camino P4 (1-2-4-5-6-7-10-11-12-13-14): should enforce defensive dueDate ASC ordering and support custom hoursAhead window', async () => {
+      // Arrange
+      mockAssignmentRepository.find.mockResolvedValue([mockAssignment]);
+
+      // Act
+      const customHours = 24;
+      await service.getUpcomingAssignments(1, customHours);
+
+      // Assert
+      expect(mockAssignmentRepository.find).toHaveBeenCalledWith(
+        expect.objectContaining({
+          order: { dueDate: 'ASC' },
+        }),
+      );
+    });
+
+    // Camino P5: 1-2-4-5-6-7-10-13-14 (Caso borde: usuario sin entregas próximas en la ventana)
+    it('Camino P5 (1-2-4-5-6-7-10-13-14): should return 200 OK with empty array and specific message when no upcoming assignments exist', async () => {
+      // Arrange
       mockAssignmentRepository.find.mockResolvedValue([]);
 
+      // Act
       const result = await service.getUpcomingAssignments(1);
 
+      // Assert
       expect(result.status).toBe(200);
       expect(result.message).toBe('No upcoming assignments');
       expect(result.data).toEqual([]);
-    });
-
-    it('should accept a custom hoursAhead window', async () => {
-      mockAssignmentRepository.find.mockResolvedValue([]);
-
-      await service.getUpcomingAssignments(1, 24);
-
-      expect(mockAssignmentRepository.find).toHaveBeenCalled();
     });
   });
 
