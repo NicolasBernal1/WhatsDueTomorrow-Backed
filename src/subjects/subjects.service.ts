@@ -49,6 +49,7 @@ export class SubjectsService {
       name: subject.name,
       professor: subject.professor,
       color: subject.color,
+      credits: subject.credits,
     }));
 
     return {
@@ -97,6 +98,7 @@ export class SubjectsService {
     name: subject.name,
     professor: subject.professor,
     color: subject.color,
+    credits: subject.credits,
   }));
 
   return {
@@ -120,6 +122,7 @@ export class SubjectsService {
         name: subject.name,
         professor: subject.professor,
         color: subject.color,
+        credits: subject.credits,
       },
     };
   }
@@ -138,6 +141,7 @@ export class SubjectsService {
       name: addSubjectDto.name,
       professor: addSubjectDto.professor,
       color: addSubjectDto.color,
+      credits: addSubjectDto.credits,
       user: user,
     });
 
@@ -202,6 +206,7 @@ export class SubjectsService {
         name: userClass.subject.name,
         professor: userClass.subject.professor,
         color: userClass.subject.color,
+        credits: userClass.subject.credits,
       },
     }));
 

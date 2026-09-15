@@ -12,4 +12,7 @@ export class SubjectResponseDto {
 
   @IsNotEmpty()
   color: string;
+
+  @IsNotEmpty()
+  credits: number;
 }

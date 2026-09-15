@@ -23,6 +23,7 @@ describe('SubjectsService - Módulo de asignaturas', () => {
     name: 'validación',
     professor: 'Gabriel',
     color: '#0078d4',
+    credits: 4,
     user: userMock,
   } as any;
 
@@ -128,6 +129,7 @@ describe('SubjectsService - Módulo de asignaturas', () => {
             name: 'validación',
             professor: 'Gabriel',
             color: '#0078d4',
+            credits: 4,
           },
         ],
       });
@@ -168,6 +170,7 @@ describe('SubjectsService - Módulo de asignaturas', () => {
           name: 'validación',
           professor: 'Gabriel',
           color: '#0078d4',
+          credits: 4,
         },
       });
     });
@@ -180,6 +183,7 @@ describe('SubjectsService - Módulo de asignaturas', () => {
       name: 'validación',
       professor: 'Gabriel',
       color: '#0078d4',
+      credits: 4,
     };
 
     // Camino: 1,2,3,4,5,9
@@ -209,6 +213,7 @@ describe('SubjectsService - Módulo de asignaturas', () => {
         name: 'validación',
         professor: 'Gabriel',
         color: '#0078d4',
+        credits: 4,
         user: userMock,
       });
 
@@ -257,6 +262,28 @@ describe('SubjectsService - Módulo de asignaturas', () => {
       expect(subjectRepository.preload).toHaveBeenCalledWith({
         id: 10,
         ...editSubjectDto,
+      });
+
+      expect(subjectRepository.save).toHaveBeenCalledWith(preloaded);
+
+      expect(result).toEqual({
+        status: 200,
+        message: 'Subject updated successfully',
+      });
+    });
+
+    it('debe permitir actualizar solo los créditos de la asignatura', async () => {
+      const creditsOnlyDto = { credits: 5 };
+      const preloaded = { ...subjectMock, credits: 5 };
+
+      subjectRepository.preload.mockResolvedValue(preloaded);
+      subjectRepository.save.mockResolvedValue(preloaded);
+
+      const result = await service.editSubject(10, creditsOnlyDto);
+
+      expect(subjectRepository.preload).toHaveBeenCalledWith({
+        id: 10,
+        ...creditsOnlyDto,
       });
 
       expect(subjectRepository.save).toHaveBeenCalledWith(preloaded);

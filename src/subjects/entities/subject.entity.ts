@@ -25,6 +25,9 @@ export class Subject {
   @Column({ default: '#007bff' }) // mirar mejor luego al hacer el front
   color: string;
 
+  @Column({ type: 'int', default: 3 })
+  credits: number;
+
   @ManyToOne(() => User, (user) => user.subjects, {
     onDelete: 'CASCADE',
     eager: true,

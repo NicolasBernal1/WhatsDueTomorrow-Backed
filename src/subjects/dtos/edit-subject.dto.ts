@@ -1,4 +1,4 @@
-import { IsOptional } from 'class-validator';
+import { IsInt, IsOptional, Max, Min } from 'class-validator';
 
 export class EditSubjectDto {
   @IsOptional()
@@ -9,4 +9,10 @@ export class EditSubjectDto {
 
   @IsOptional()
   color?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(12)
+  credits?: number;
 }
