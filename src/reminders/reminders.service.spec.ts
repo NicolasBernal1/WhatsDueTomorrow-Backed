@@ -179,5 +179,40 @@ describe('RemindersService', () => {
         expect.objectContaining({ id: 2, emailReminderSentAt: expect.any(Date) }),
       ]);
     });
+
+    it('should report per-user send failures in the response data instead of only logging them', async () => {
+      const assignmentA = makeAssignment({ id: 1, user: mockUserA as any });
+      const assignmentB = makeAssignment({ id: 2, user: mockUserB as any });
+      mockAssignmentRepository.find.mockResolvedValue([assignmentA, assignmentB]);
+      mockEmailService.send
+        .mockRejectedValueOnce(new Error('Gmail SMTP error: Connection timeout'))
+        .mockResolvedValueOnce(undefined);
+      mockAssignmentRepository.save.mockResolvedValue([]);
+
+      const result = await service.sendDueTomorrowReminders();
+
+      expect(result.data).toEqual({
+        totalUsers: 2,
+        sentUsers: 1,
+        failedUsers: [
+          { userId: 1, email: 'ana@example.com', error: 'Gmail SMTP error: Connection timeout' },
+        ],
+      });
+    });
+
+    it('should report zero failures when every send succeeds', async () => {
+      const assignment = makeAssignment({ id: 1 });
+      mockAssignmentRepository.find.mockResolvedValue([assignment]);
+      mockEmailService.send.mockResolvedValue(undefined);
+      mockAssignmentRepository.save.mockResolvedValue([]);
+
+      const result = await service.sendDueTomorrowReminders();
+
+      expect(result.data).toEqual({
+        totalUsers: 1,
+        sentUsers: 1,
+        failedUsers: [],
+      });
+    });
   });
 });

@@ -14,6 +14,12 @@ const BOGOTA_UTC_OFFSET_HOURS = 5;
  * matching how the rest of this codebase compares dueDate with plain
  * ISO strings (see AssignmentsService.getUpcomingAssignments).
  */
+export type ReminderRunResult = {
+  totalUsers: number;
+  sentUsers: number;
+  failedUsers: { userId: number; email: string; error: string }[];
+};
+
 export function getBogotaTomorrowRange(now: Date = new Date()): { start: string; end: string } {
   const bogotaNow = new Date(now.getTime() - BOGOTA_UTC_OFFSET_HOURS * 60 * 60 * 1000);
   const bogotaTomorrowStartUtc = Date.UTC(
@@ -44,7 +50,7 @@ export class RemindersService {
   ) {}
 
   @Cron('0 8 * * *', { timeZone: 'America/Bogota' })
-  async sendDueTomorrowReminders(): Promise<BaseResponseDto<null>> {
+  async sendDueTomorrowReminders(): Promise<BaseResponseDto<ReminderRunResult>> {
     const { start, end } = getBogotaTomorrowRange();
 
     const assignments = await this.assignmentRepository.find({
@@ -65,6 +71,9 @@ export class RemindersService {
       byUser.set(assignment.user.id, list);
     }
 
+    const failedUsers: ReminderRunResult['failedUsers'] = [];
+    let sentUsers = 0;
+
     for (const userAssignments of byUser.values()) {
       const user = userAssignments[0].user;
       try {
@@ -80,14 +89,19 @@ export class RemindersService {
           assignment.emailReminderSentAt = sentAt;
         }
         await this.assignmentRepository.save(userAssignments);
+        sentUsers += 1;
       } catch (error) {
-        this.logger.error(
-          `Failed to send due-tomorrow reminder to user ${user.id}: ${(error as Error).message}`,
-        );
+        const message = (error as Error).message;
+        this.logger.error(`Failed to send due-tomorrow reminder to user ${user.id}: ${message}`);
+        failedUsers.push({ userId: user.id, email: user.email, error: message });
       }
     }
 
-    return { status: 200, message: 'Due-tomorrow reminders processed' };
+    return {
+      status: 200,
+      message: 'Due-tomorrow reminders processed',
+      data: { totalUsers: byUser.size, sentUsers, failedUsers },
+    };
   }
 
   private buildHtml(assignments: Assignment[]): string {
