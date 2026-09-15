@@ -32,4 +32,4 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            - Dsonar.projectVersion=1.0.${{ github.run_number }}
+            -Dsonar.projectVersion=1.0.${{ github.run_number }}
