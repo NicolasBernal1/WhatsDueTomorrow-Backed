@@ -46,6 +46,7 @@ describe('SubjectsService - Módulo de clases', () => {
       save: jest.fn(),
       delete: jest.fn(),
       preload: jest.fn(),
+      createQueryBuilder: jest.fn(),
     } as any;
 
     subjectClassRepository = {
@@ -347,6 +348,77 @@ describe('SubjectsService - Módulo de clases', () => {
         status: 200,
         message: 'Class updated successfully',
       });
+    });
+  });
+
+  describe('searchSubjects', () => {
+    function mockQueryBuilder(returnValue: any[]) {
+      const qb = {
+        leftJoin: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        getMany: jest.fn().mockResolvedValue(returnValue),
+      };
+      (subjectRepository.createQueryBuilder as jest.Mock).mockReturnValue(qb);
+      return qb;
+    }
+
+    it('should throw NotFoundException when the user does not exist', async () => {
+      userService.findOneById.mockResolvedValue(null);
+
+      await expect(service.searchSubjects(999, 'algo')).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(subjectRepository.createQueryBuilder).not.toHaveBeenCalled();
+    });
+
+    it('should return an empty result without querying when the search term is blank', async () => {
+      userService.findOneById.mockResolvedValue(userMock);
+
+      const result = await service.searchSubjects(1, '   ');
+
+      expect(result).toEqual({
+        status: 200,
+        message: 'Search query is required',
+        data: [],
+      });
+      expect(subjectRepository.createQueryBuilder).not.toHaveBeenCalled();
+    });
+
+    it('should return an empty result when no subjects match the search', async () => {
+      userService.findOneById.mockResolvedValue(userMock);
+      const qb = mockQueryBuilder([]);
+
+      const result = await service.searchSubjects(1, 'inexistente');
+
+      expect(qb.andWhere).toHaveBeenCalledWith(
+        '(subject.name LIKE :term OR subject.professor LIKE :term)',
+        { term: '%inexistente%' },
+      );
+      expect(result).toEqual({
+        status: 200,
+        message: 'No subjects found matching the search',
+        data: [],
+      });
+    });
+
+    it('should return matching subjects, defaulting credits to 3 when unset', async () => {
+      userService.findOneById.mockResolvedValue(userMock);
+      mockQueryBuilder([{ ...subjectMock, credits: undefined }]);
+
+      const result = await service.searchSubjects(1, 'valid');
+
+      expect(result.status).toBe(200);
+      expect(result.message).toBe('Subjects retrieved successfully');
+      expect(result.data).toEqual([
+        {
+          id: subjectMock.id,
+          name: subjectMock.name,
+          professor: subjectMock.professor,
+          color: subjectMock.color,
+          credits: 3,
+        },
+      ]);
     });
   });
 });
