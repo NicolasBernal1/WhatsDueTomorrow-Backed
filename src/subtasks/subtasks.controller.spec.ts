@@ -28,6 +28,15 @@ describe('SubtasksController (F22 — Controlador de Subtareas)', () => {
     expect(controller).toBeDefined();
   });
 
+  // Camino P1: 1-2-3-21 (Verificación de guardias de seguridad JWT)
+  describe('Camino P1 (1-2-3-21): Verificación de guardias de seguridad JWT', () => {
+    it('debe proteger todas las rutas del controlador con AuthGuard("jwt")', () => {
+      const guards = Reflect.getMetadata('__guards__', SubtasksController);
+      expect(guards).toBeDefined();
+      expect(guards.length).toBeGreaterThan(0);
+    });
+  });
+
   it('getAll: debe delegar en subtasksService.getByAssignment con req.user.sub y assignmentId', async () => {
     const req = { user: { sub: 1 } };
     const expected = { status: 200, message: 'OK', data: { subtasks: [], progress: 0 } };

@@ -186,20 +186,25 @@ describe('SubtasksService (F22 — Desglosar tareas en subtareas con avance porc
 
   // Camino P9: 1-2-4-5-7-9-13-15-20-21 (PATCH :subtaskId con completed o título válido)
   it('Camino P9 (1-2-4-5-7-9-13-15-20-21): debe actualizar estado completado o título y recalcular el avance porcentual', async () => {
-    // Arrange
+    // Arrange: actualizar solo completed
     const subtaskToUpdate = { ...mockSubtask2 };
     mockAssignmentRepository.findOne.mockResolvedValue(mockAssignment);
     mockSubtaskRepository.findOne.mockResolvedValue(subtaskToUpdate);
     mockSubtaskRepository.save.mockResolvedValue({ ...subtaskToUpdate, completed: true });
-    // getByAssignment posterior: ambas completadas (100%)
     mockSubtaskRepository.find.mockResolvedValue([mockSubtask1, { ...subtaskToUpdate, completed: true }]);
 
     // Act
-    const result = await service.update(1, 10, 102, { completed: true });
+    const resultCompleted = await service.update(1, 10, 102, { completed: true });
 
     // Assert
     expect(mockSubtaskRepository.save).toHaveBeenCalled();
-    expect(result.data?.progress).toBe(100);
+    expect(resultCompleted.data?.progress).toBe(100);
+
+    // Arrange: actualizar solo título
+    mockSubtaskRepository.save.mockResolvedValue({ ...subtaskToUpdate, title: 'Título Actualizado' });
+    const resultTitle = await service.update(1, 10, 102, { title: 'Título Actualizado' });
+    expect(subtaskToUpdate.title).toBe('Título Actualizado');
+    expect(resultTitle.status).toBe(200);
   });
 
   // Camino P10: 1-2-4-5-7-9-16-14-21 (DELETE :subtaskId inexistente en BD)

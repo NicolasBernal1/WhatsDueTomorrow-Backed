@@ -69,7 +69,7 @@ export class SubjectsService {
     if (
       credits === null ||
       credits === undefined ||
-      isNaN(num) ||
+      Number.isNaN(num) ||
       !Number.isInteger(num) ||
       num < 1 ||
       num > 12
