@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import * as nodemailer from 'nodemailer';
 
 export type SendEmailInput = {
   to: string;
@@ -15,43 +14,42 @@ export class EmailService {
   private readonly logger = new Logger(EmailService.name);
 
   async send(input: SendEmailInput): Promise<void> {
-    const gmailUser = process.env.GMAIL_USER;
-    const gmailAppPassword = process.env.GMAIL_APP_PASSWORD;
-    const from = input.from || process.env.EMAIL_FROM || gmailUser || 'WhatsDueTomorrow';
+    const resendApiKey = process.env.RESEND_API_KEY;
+    const from =
+      input.from ||
+      process.env.EMAIL_FROM ||
+      'WhatsDueTomorrow <onboarding@resend.dev>';
 
-    if (!gmailUser || !gmailAppPassword) {
+    if (!resendApiKey) {
       if (process.env.ALLOW_EMAIL_LOG_FALLBACK === 'true') {
         this.logger.warn(
-          `GMAIL_USER/GMAIL_APP_PASSWORD not set — logging instead of sending. to=${input.to} subject="${input.subject}"`,
+          `RESEND_API_KEY not set — logging instead of sending. to=${input.to} subject="${input.subject}"`,
         );
         return;
       }
       throw new Error(
-        'GMAIL_USER and GMAIL_APP_PASSWORD must both be set (or ALLOW_EMAIL_LOG_FALLBACK="true")',
+        'RESEND_API_KEY is not set and ALLOW_EMAIL_LOG_FALLBACK is not "true"',
       );
     }
 
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false,
-      requireTLS: true,
-      // Fail fast instead of hanging for minutes if the port is blocked
-      // by the hosting provider (some PaaS block outbound SMTP entirely).
-      connectionTimeout: 10000,
-      auth: { user: gmailUser, pass: gmailAppPassword },
-    });
-
-    try {
-      await transporter.sendMail({
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
         from,
         to: input.to,
         subject: input.subject,
         html: input.html,
         text: input.text,
-      });
-    } catch (error) {
-      throw new Error(`Gmail SMTP error: ${(error as Error).message}`);
+      }),
+    });
+
+    if (!response.ok) {
+      const body = await response.text();
+      throw new Error(`Resend API error (${response.status}): ${body}`);
     }
   }
 }

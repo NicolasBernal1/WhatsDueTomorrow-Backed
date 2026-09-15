@@ -1,26 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import * as nodemailer from 'nodemailer';
 import { EmailService } from './email.service';
-
-jest.mock('nodemailer');
 
 describe('EmailService', () => {
   let service: EmailService;
   const originalEnv = process.env;
-  let sendMailMock: jest.Mock;
-  let createTransportMock: jest.Mock;
+  let fetchMock: jest.Mock;
 
   beforeEach(async () => {
     process.env = {
       ...originalEnv,
-      GMAIL_USER: 'test@gmail.com',
-      GMAIL_APP_PASSWORD: 'test-app-password',
-      EMAIL_FROM: 'Test <test@gmail.com>',
+      RESEND_API_KEY: 're_test_key',
+      EMAIL_FROM: 'Test <test@example.com>',
     };
-
-    sendMailMock = jest.fn().mockResolvedValue({ messageId: 'abc' });
-    createTransportMock = nodemailer.createTransport as jest.Mock;
-    createTransportMock.mockReturnValue({ sendMail: sendMailMock });
+    fetchMock = jest.fn();
+    (global as any).fetch = fetchMock;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [EmailService],
@@ -31,14 +24,16 @@ describe('EmailService', () => {
 
   afterEach(() => {
     process.env = originalEnv;
-    jest.clearAllMocks();
+    jest.restoreAllMocks();
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  it('should send via nodemailer using Gmail SMTP auth', async () => {
+  it('should POST to the Resend API with the right payload', async () => {
+    fetchMock.mockResolvedValue({ ok: true, status: 200, text: async () => '' });
+
     await service.send({
       to: 'user@example.com',
       subject: 'Hello',
@@ -46,16 +41,19 @@ describe('EmailService', () => {
       text: 'Hi',
     });
 
-    expect(createTransportMock).toHaveBeenCalledWith({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false,
-      requireTLS: true,
-      connectionTimeout: 10000,
-      auth: { user: 'test@gmail.com', pass: 'test-app-password' },
-    });
-    expect(sendMailMock).toHaveBeenCalledWith({
-      from: 'Test <test@gmail.com>',
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://api.resend.com/emails',
+      expect.objectContaining({
+        method: 'POST',
+        headers: expect.objectContaining({
+          Authorization: 'Bearer re_test_key',
+          'Content-Type': 'application/json',
+        }),
+      }),
+    );
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(body).toEqual({
+      from: 'Test <test@example.com>',
       to: 'user@example.com',
       subject: 'Hello',
       html: '<p>Hi</p>',
@@ -64,6 +62,8 @@ describe('EmailService', () => {
   });
 
   it('should use the input "from" over EMAIL_FROM when provided', async () => {
+    fetchMock.mockResolvedValue({ ok: true, status: 200, text: async () => '' });
+
     await service.send({
       to: 'user@example.com',
       subject: 'Hello',
@@ -72,36 +72,39 @@ describe('EmailService', () => {
       from: 'Custom <custom@example.com>',
     });
 
-    expect(sendMailMock.mock.calls[0][0].from).toBe('Custom <custom@example.com>');
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(body.from).toBe('Custom <custom@example.com>');
   });
 
-  it('should throw a descriptive error when sendMail rejects', async () => {
-    sendMailMock.mockRejectedValue(new Error('Invalid login'));
+  it('should throw when the Resend API responds with an error status', async () => {
+    fetchMock.mockResolvedValue({
+      ok: false,
+      status: 422,
+      text: async () => 'Invalid from address',
+    });
 
     await expect(
       service.send({ to: 'user@example.com', subject: 'Hi', html: '<p>Hi</p>', text: 'Hi' }),
-    ).rejects.toThrow('Gmail SMTP error: Invalid login');
+    ).rejects.toThrow('Resend API error (422): Invalid from address');
   });
 
-  it('should throw when GMAIL_USER/GMAIL_APP_PASSWORD are missing and fallback is not enabled', async () => {
-    delete process.env.GMAIL_USER;
-    delete process.env.GMAIL_APP_PASSWORD;
+  it('should throw when RESEND_API_KEY is missing and fallback is not enabled', async () => {
+    delete process.env.RESEND_API_KEY;
     delete process.env.ALLOW_EMAIL_LOG_FALLBACK;
 
     await expect(
       service.send({ to: 'user@example.com', subject: 'Hi', html: '<p>Hi</p>', text: 'Hi' }),
-    ).rejects.toThrow('GMAIL_USER and GMAIL_APP_PASSWORD must both be set');
-    expect(createTransportMock).not.toHaveBeenCalled();
+    ).rejects.toThrow('RESEND_API_KEY is not set');
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it('should log instead of throwing when credentials are missing and fallback is enabled', async () => {
-    delete process.env.GMAIL_USER;
-    delete process.env.GMAIL_APP_PASSWORD;
+  it('should log instead of throwing when RESEND_API_KEY is missing and fallback is enabled', async () => {
+    delete process.env.RESEND_API_KEY;
     process.env.ALLOW_EMAIL_LOG_FALLBACK = 'true';
 
     await expect(
       service.send({ to: 'user@example.com', subject: 'Hi', html: '<p>Hi</p>', text: 'Hi' }),
     ).resolves.toBeUndefined();
-    expect(createTransportMock).not.toHaveBeenCalled();
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });
