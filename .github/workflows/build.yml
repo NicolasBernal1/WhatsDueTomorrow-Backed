@@ -30,3 +30,6 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@v4
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            - Dsonar.projectVersion=1.0.${{ github.run_number }}
