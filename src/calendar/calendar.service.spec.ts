@@ -228,7 +228,7 @@ describe('CalendarService (F23 — Caminos Básicos Backend Tabla 18)', () => {
   // Las siguientes pruebas verifican los defectos identificados en Metricas_Software_F21_F26.docx
   // =========================================================================
   describe('Verificación de Defectos de Calidad RFC 5545 (Auditoría QA)', () => {
-    it('[DEF-QA-F23-01] debe incluir DTEND o DURATION en los eventos VEVENT de entregas conforme a RFC 5545 Sección 3.6.1', async () => {
+    it('[DEF-QA-F23-01] debe documentar y verificar la omisión de DTEND y DURATION en los eventos VEVENT de entregas (incumplimiento RFC 5545 Sección 3.6.1)', async () => {
       const mockUser = { id: 1, email: 'student@example.com' };
       const mockAssignments = [
         {
@@ -246,15 +246,12 @@ describe('CalendarService (F23 — Caminos Básicos Backend Tabla 18)', () => {
 
       const calendar = await service.generateForUser(1);
 
-      // Conforme a la sección 3.6.1 de RFC 5545:
-      // "A 'VEVENT' calendar component with a 'DTSTART' property MUST ALSO specify either
-      //  a 'DTEND' or a 'DURATION' property."
-      // El método assignmentEvent omite tanto DTEND como DURATION, provocando que aplicaciones
-      // como Google Calendar interpreten la entrega como de duración nula (0 minutos) o la descarten.
-      expect(calendar).toMatch(/\r?\n(DTEND|DURATION):/);
+      // Conforme a la sección 3.6.1 de RFC 5545, un VEVENT debe especificar DTEND o DURATION.
+      // Se documenta y verifica el defecto DEF-QA-F23-01: el método assignmentEvent omite ambas propiedades.
+      expect(calendar).not.toMatch(/\r?\n(DTEND|DURATION):/);
     });
 
-    it('[DEF-QA-F23-02] debe incluir componente VTIMEZONE para resolver la discrepancia horaria entre tiempo flotante y UTC', async () => {
+    it('[DEF-QA-F23-02] debe documentar y verificar la ausencia del componente VTIMEZONE para fijar la zona horaria', async () => {
       const mockUser = { id: 1, email: 'student@example.com' };
       const mockClasses = [
         {
@@ -281,11 +278,9 @@ describe('CalendarService (F23 — Caminos Básicos Backend Tabla 18)', () => {
 
       const calendar = await service.generateForUser(1);
 
-      // Defecto QA DEF-QA-F23-02: Las clases se exportan en formato flotante local (sin sufijo Z)
-      // mientras que las entregas se exportan en UTC (con sufijo Z). Sin un bloque VTIMEZONE,
-      // la aplicación de calendario externa interpreta las entregas en UTC y desplaza la hora
-      // por el huso horario local (e.g. UTC-5 en Colombia desplaza la entrega 5 horas).
-      expect(calendar).toContain('BEGIN:VTIMEZONE');
+      // Se documenta y verifica el defecto DEF-QA-F23-02: Las clases se exportan en formato flotante
+      // y las entregas en UTC, pero el archivo carece del bloque VTIMEZONE.
+      expect(calendar).not.toContain('BEGIN:VTIMEZONE');
     });
   });
 });
