@@ -26,7 +26,7 @@ pipeline {
 
         stage('SonarCloud Analysis') {
             steps {
-                withSonarQubeEnv('SonarCloud') {
+                withSonarQubeEnv('SonarCloud-Backend') {
                     sh "${SCANNER_HOME}/bin/sonar-scanner"
                 }
             }
