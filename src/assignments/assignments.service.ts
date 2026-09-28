@@ -59,30 +59,11 @@ export class AssignmentsService {
       where: { user: { id: userId } },
     });
 
-    if (assignments.length === 0) {
-      return {
-        status: 200,
-        message: 'No assignments found for this user',
-        data: [],
-      };
-    }
-
-    const response: AssignmentResponseCompDto[] = assignments.map(
-      (assignment) => ({
-        id: assignment.id,
-        title: assignment.title,
-        description: assignment.description || '',
-        dueDate: assignment.dueDate,
-        subjectId: assignment.subject.id,
-        subjectName: assignment.subject.name,
-      }),
+    return this.buildComprehensiveResponse(
+      assignments,
+      'No assignments found for this user',
+      'Assignments retrieved successfully',
     );
-
-    return {
-      status: 200,
-      message: 'Assignments retrieved successfully',
-      data: response,
-    };
   }
 
   async getUpcomingAssignments(
@@ -100,10 +81,22 @@ export class AssignmentsService {
       order: { dueDate: 'ASC' },
     });
 
+    return this.buildComprehensiveResponse(
+      assignments,
+      'No upcoming assignments',
+      'Upcoming assignments retrieved successfully',
+    );
+  }
+
+  private buildComprehensiveResponse(
+    assignments: Assignment[],
+    emptyMessage: string,
+    successMessage: string,
+  ): BaseResponseDto<AssignmentResponseCompDto[]> {
     if (assignments.length === 0) {
       return {
         status: 200,
-        message: 'No upcoming assignments',
+        message: emptyMessage,
         data: [],
       };
     }
@@ -121,7 +114,7 @@ export class AssignmentsService {
 
     return {
       status: 200,
-      message: 'Upcoming assignments retrieved successfully',
+      message: successMessage,
       data: response,
     };
   }
