@@ -58,8 +58,8 @@ export class CalendarService {
     assignments: Assignment[],
   ): string {
     const events = [
-      ...classes.map((item) => this.classEvent(userId, item)),
-      ...assignments.map((item) => this.assignmentEvent(userId, item)),
+      ...classes.flatMap((item) => this.classEvent(userId, item)),
+      ...assignments.flatMap((item) => this.assignmentEvent(userId, item)),
     ];
     return (
       [
