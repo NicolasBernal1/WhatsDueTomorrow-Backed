@@ -11,6 +11,7 @@ import { CreateNoteDto } from './dtos/create-note.dto';
 import { UpdateNoteDto } from './dtos/update-note.dto';
 import { Note } from './entities/note.entity';
 import { NotesService } from './notes.service';
+import { Should } from '../common/fluent-assertions';
 
 const studentId = 1;
 const otherStudentId = 999;
@@ -56,7 +57,7 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
   });
 
   it('debe estar definido el servicio NotesService', () => {
-    expect(service).toBeDefined();
+    service.Should().BeDefined();
   });
 
   // Camino P2: 1-2-4-5-6-20
@@ -64,13 +65,10 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
     it('debe lanzar NotFoundException("The subject does not exist") al intentar consultar notas', async () => {
       subjectRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.getBySubject(studentId, 404)).rejects.toThrow(
+      (await Should(() => service.getBySubject(studentId, 404)).ThrowAsync(
         NotFoundException,
-      );
-      await expect(service.getBySubject(studentId, 404)).rejects.toThrow(
-        'The subject does not exist',
-      );
-      expect(noteRepository.find).not.toHaveBeenCalled();
+      )).WithMessage('The subject does not exist');
+      Should(noteRepository.find).NotHaveBeenCalled();
     });
   });
 
@@ -79,13 +77,10 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
     it('debe lanzar ForbiddenException("You cannot access this subject") si la asignatura no pertenece al usuario autenticado', async () => {
       subjectRepository.findOne.mockResolvedValue(foreignSubject);
 
-      await expect(service.getBySubject(studentId, subjectId)).rejects.toThrow(
+      (await Should(() => service.getBySubject(studentId, subjectId)).ThrowAsync(
         ForbiddenException,
-      );
-      await expect(service.getBySubject(studentId, subjectId)).rejects.toThrow(
-        'You cannot access this subject',
-      );
-      expect(noteRepository.find).not.toHaveBeenCalled();
+      )).WithMessage('You cannot access this subject');
+      Should(noteRepository.find).NotHaveBeenCalled();
     });
   });
 
@@ -117,18 +112,18 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
 
       const result = await service.getBySubject(studentId, subjectId);
 
-      expect(subjectRepository.findOne).toHaveBeenCalledWith({
+      Should(subjectRepository.findOne).HaveBeenCalledWith({
         where: { id: subjectId },
         relations: { user: true },
       });
-      expect(noteRepository.find).toHaveBeenCalledWith({
+      Should(noteRepository.find).HaveBeenCalledWith({
         where: { subject: { id: subjectId } },
         order: { createdAt: 'DESC' },
       });
-      expect(result.status).toBe(200);
-      expect(result.data).toHaveLength(2);
-      expect(result.data[0].id).toBe(2);
-      expect(result.data[1].id).toBe(1);
+      result.status.Should().Be(200);
+      result.data.Should().HaveCount(2);
+      result.data[0].id.Should().Be(2);
+      result.data[1].id.Should().Be(1);
     });
 
     it('debe retornar arreglo vacío cuando la asignatura no registra notas previas', async () => {
@@ -137,8 +132,8 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
 
       const result = await service.getBySubject(studentId, subjectId);
 
-      expect(result.status).toBe(200);
-      expect(result.data).toEqual([]);
+      result.status.Should().Be(200);
+      result.data.Should().BeEquivalentTo([]);
     });
   });
 
@@ -148,12 +143,9 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
       subjectRepository.findOne.mockResolvedValue(ownedSubject);
       noteRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.getById(studentId, subjectId, 999)).rejects.toThrow(
+      (await Should(() => service.getById(studentId, subjectId, 999)).ThrowAsync(
         NotFoundException,
-      );
-      await expect(service.getById(studentId, subjectId, 999)).rejects.toThrow(
-        'The note does not exist',
-      );
+      )).WithMessage('The note does not exist');
     });
   });
 
@@ -174,10 +166,10 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
 
       const result = await service.getById(studentId, subjectId, 5);
 
-      expect(result.status).toBe(200);
-      expect(result.data.id).toBe(5);
-      expect(result.data.title).toBe('Fórmula de Euler');
-      expect(result.data.linkUrl).toBe('https://campus.edu/euler');
+      result.status.Should().Be(200);
+      result.data.id.Should().Be(5);
+      result.data.title.Should().Be('Fórmula de Euler');
+      result.data.linkUrl.Should().Be('https://campus.edu/euler');
     });
   });
 
@@ -187,26 +179,20 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
       subjectRepository.findOne.mockResolvedValue(ownedSubject);
       const dto = { title: '   ', content: 'Contenido válido' };
 
-      await expect(service.create(studentId, subjectId, dto)).rejects.toThrow(
+      (await Should(() => service.create(studentId, subjectId, dto)).ThrowAsync(
         BadRequestException,
-      );
-      await expect(service.create(studentId, subjectId, dto)).rejects.toThrow(
-        'The note title cannot be empty',
-      );
-      expect(noteRepository.save).not.toHaveBeenCalled();
+      )).WithMessage('The note title cannot be empty');
+      Should(noteRepository.save).NotHaveBeenCalled();
     });
 
     it('debe rechazar la creación si content está vacío o solo contiene espacios', async () => {
       subjectRepository.findOne.mockResolvedValue(ownedSubject);
       const dto = { title: 'Título válido', content: '   ' };
 
-      await expect(service.create(studentId, subjectId, dto)).rejects.toThrow(
+      (await Should(() => service.create(studentId, subjectId, dto)).ThrowAsync(
         BadRequestException,
-      );
-      await expect(service.create(studentId, subjectId, dto)).rejects.toThrow(
-        'The note content cannot be empty',
-      );
-      expect(noteRepository.save).not.toHaveBeenCalled();
+      )).WithMessage('The note content cannot be empty');
+      Should(noteRepository.save).NotHaveBeenCalled();
     });
   });
 
@@ -220,13 +206,10 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
         linkUrl: 'javascript:alert(1)',
       };
 
-      await expect(service.create(studentId, subjectId, dto)).rejects.toThrow(
+      (await Should(() => service.create(studentId, subjectId, dto)).ThrowAsync(
         BadRequestException,
-      );
-      await expect(service.create(studentId, subjectId, dto)).rejects.toThrow(
-        'The link URL must use http or https protocol',
-      );
-      expect(noteRepository.save).not.toHaveBeenCalled();
+      )).WithMessage('The link URL must use http or https protocol');
+      Should(noteRepository.save).NotHaveBeenCalled();
     });
 
     it('debe rechazar linkUrl con formato completamente malformado', async () => {
@@ -237,13 +220,10 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
         linkUrl: 'esto-no-es-una-url',
       };
 
-      await expect(service.create(studentId, subjectId, dto)).rejects.toThrow(
+      (await Should(() => service.create(studentId, subjectId, dto)).ThrowAsync(
         BadRequestException,
-      );
-      await expect(service.create(studentId, subjectId, dto)).rejects.toThrow(
-        'The link URL format is invalid',
-      );
-      expect(noteRepository.save).not.toHaveBeenCalled();
+      )).WithMessage('The link URL format is invalid');
+      Should(noteRepository.save).NotHaveBeenCalled();
     });
   });
 
@@ -270,16 +250,16 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
 
       const result = await service.create(studentId, subjectId, dto);
 
-      expect(noteRepository.create).toHaveBeenCalledWith({
+      Should(noteRepository.create).HaveBeenCalledWith({
         title: 'Apunte de Laboratorio',
         content: 'Procedimiento de calibración',
         linkUrl: 'https://laboratorio.edu/guia.pdf',
         subject: ownedSubject,
       });
-      expect(noteRepository.save).toHaveBeenCalledWith(createdNote);
-      expect(result.status).toBe(201);
-      expect(result.data.id).toBe(101);
-      expect(result.data.title).toBe('Apunte de Laboratorio');
+      Should(noteRepository.save).HaveBeenCalledWith(createdNote);
+      result.status.Should().Be(201);
+      result.data.id.Should().Be(101);
+      result.data.title.Should().Be('Apunte de Laboratorio');
     });
 
     it('debe permitir crear apunte sin enlace (linkUrl omitido o nulo)', async () => {
@@ -302,8 +282,8 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
 
       const result = await service.create(studentId, subjectId, dto);
 
-      expect(result.status).toBe(201);
-      expect(result.data.linkUrl).toBeNull();
+      result.status.Should().Be(201);
+      Should(result.data.linkUrl).BeNull();
     });
   });
 
@@ -313,9 +293,9 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
       subjectRepository.findOne.mockResolvedValue(ownedSubject);
       noteRepository.findOne.mockResolvedValue(null);
 
-      await expect(
+      (await Should(() =>
         service.update(studentId, subjectId, 999, { title: 'Nuevo' }),
-      ).rejects.toThrow(NotFoundException);
+      ).ThrowAsync(NotFoundException));
     });
   });
 
@@ -334,12 +314,12 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
       };
       noteRepository.findOne.mockResolvedValue(existingNote);
 
-      await expect(
+      (await Should(() =>
         service.update(studentId, subjectId, 7, { title: '   ' }),
-      ).rejects.toThrow(BadRequestException);
-      await expect(
+      ).ThrowAsync(BadRequestException));
+      (await Should(() =>
         service.update(studentId, subjectId, 7, { content: '   ' }),
-      ).rejects.toThrow(BadRequestException);
+      ).ThrowAsync(BadRequestException));
     });
   });
 
@@ -367,10 +347,10 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
 
       const result = await service.update(studentId, subjectId, 7, updateDto);
 
-      expect(result.status).toBe(200);
-      expect(result.data.title).toBe('Título modificado');
-      expect(result.data.content).toBe('Contenido modificado');
-      expect(result.data.linkUrl).toBeNull();
+      result.status.Should().Be(200);
+      result.data.title.Should().Be('Título modificado');
+      result.data.content.Should().Be('Contenido modificado');
+      Should(result.data.linkUrl).BeNull();
     });
   });
 
@@ -380,10 +360,10 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
       subjectRepository.findOne.mockResolvedValue(ownedSubject);
       noteRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.remove(studentId, subjectId, 999)).rejects.toThrow(
+      (await Should(() => service.remove(studentId, subjectId, 999)).ThrowAsync(
         NotFoundException,
-      );
-      expect(noteRepository.remove).not.toHaveBeenCalled();
+      ));
+      Should(noteRepository.remove).NotHaveBeenCalled();
     });
   });
 
@@ -405,10 +385,10 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
 
       const result = await service.remove(studentId, subjectId, 8);
 
-      expect(noteRepository.remove).toHaveBeenCalledWith(existingNote);
-      expect(result.status).toBe(200);
-      expect(result.message).toBe('Note deleted successfully');
-      expect(result.data).toBeNull();
+      Should(noteRepository.remove).HaveBeenCalledWith(existingNote);
+      result.status.Should().Be(200);
+      result.message.Should().Be('Note deleted successfully');
+      Should(result.data).BeNull();
     });
   });
 
@@ -440,8 +420,8 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
         subjectId,
         dtoInvalidoSemantico,
       );
-      expect(result.status).toBe(201);
-      expect(result.data.linkUrl).toBe('http://a/');
+      result.status.Should().Be(201);
+      result.data.linkUrl.Should().Be('http://a/');
     });
   });
 
@@ -450,20 +430,20 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
       subjectRepository.findOne.mockResolvedValue(ownedSubject);
       const dto = { content: 'Algún contenido' } as CreateNoteDto;
 
-      await expect(service.create(studentId, subjectId, dto)).rejects.toThrow(
+      (await Should(() => service.create(studentId, subjectId, dto)).ThrowAsync(
         BadRequestException,
-      );
-      expect(noteRepository.save).not.toHaveBeenCalled();
+      ));
+      Should(noteRepository.save).NotHaveBeenCalled();
     });
 
     it('debe rechazar nota sin contenido (campo ausente, no solo vacío)', async () => {
       subjectRepository.findOne.mockResolvedValue(ownedSubject);
       const dto = { title: 'Título válido' } as CreateNoteDto;
 
-      await expect(service.create(studentId, subjectId, dto)).rejects.toThrow(
+      (await Should(() => service.create(studentId, subjectId, dto)).ThrowAsync(
         BadRequestException,
-      );
-      expect(noteRepository.save).not.toHaveBeenCalled();
+      ));
+      Should(noteRepository.save).NotHaveBeenCalled();
     });
 
     it('debe actualizar solo el título sin tocar el enlace existente', async () => {
@@ -484,8 +464,8 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
         title: 'Título nuevo',
       });
 
-      expect(result.data.title).toBe('Título nuevo');
-      expect(result.data.linkUrl).toBe('https://old.com');
+      result.data.title.Should().Be('Título nuevo');
+      result.data.linkUrl.Should().Be('https://old.com');
     });
   });
 });

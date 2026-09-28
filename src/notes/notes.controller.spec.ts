@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotesController } from './notes.controller';
 import { NotesService } from './notes.service';
+import { Should } from '../common/fluent-assertions';
 
 describe('NotesController (F24 — Controlador de Bitácora de Apuntes - Tabla 26)', () => {
   let controller: NotesController;
@@ -24,15 +25,15 @@ describe('NotesController (F24 — Controlador de Bitácora de Apuntes - Tabla 2
   });
 
   it('debe estar definido el controlador NotesController', () => {
-    expect(controller).toBeDefined();
+    controller.Should().BeDefined();
   });
 
   // Camino P1: 1-2-3-20
   describe('Camino P1 (1-2-3-20): Verificación de guardias de seguridad JWT', () => {
     it('debe proteger todas las rutas del controlador con AuthGuard("jwt")', () => {
       const guards = Reflect.getMetadata('__guards__', NotesController);
-      expect(guards).toBeDefined();
-      expect(guards.length).toBeGreaterThan(0);
+      Should(guards).BeDefined();
+      guards.length.Should().BeGreaterThan(0);
     });
   });
 
@@ -49,8 +50,8 @@ describe('NotesController (F24 — Controlador de Bitácora de Apuntes - Tabla 2
 
       const result = await controller.getAll(req, 10);
 
-      expect(service.getBySubject).toHaveBeenCalledWith(1, 10);
-      expect(result).toBe(expected);
+      Should(service.getBySubject).HaveBeenCalledWith(1, 10);
+      result.Should().Be(expected);
     });
   });
 
@@ -67,8 +68,8 @@ describe('NotesController (F24 — Controlador de Bitácora de Apuntes - Tabla 2
 
       const result = await controller.getById(req, 10, 5);
 
-      expect(service.getById).toHaveBeenCalledWith(1, 10, 5);
-      expect(result).toBe(expected);
+      Should(service.getById).HaveBeenCalledWith(1, 10, 5);
+      result.Should().Be(expected);
     });
   });
 
@@ -90,8 +91,8 @@ describe('NotesController (F24 — Controlador de Bitácora de Apuntes - Tabla 2
 
       const result = await controller.create(req, 10, dto);
 
-      expect(service.create).toHaveBeenCalledWith(1, 10, dto);
-      expect(result).toBe(expected);
+      Should(service.create).HaveBeenCalledWith(1, 10, dto);
+      result.Should().Be(expected);
     });
   });
 
@@ -109,8 +110,8 @@ describe('NotesController (F24 — Controlador de Bitácora de Apuntes - Tabla 2
 
       const result = await controller.update(req, 10, 5, dto);
 
-      expect(service.update).toHaveBeenCalledWith(1, 10, 5, dto);
-      expect(result).toBe(expected);
+      Should(service.update).HaveBeenCalledWith(1, 10, 5, dto);
+      result.Should().Be(expected);
     });
   });
 
@@ -127,8 +128,8 @@ describe('NotesController (F24 — Controlador de Bitácora de Apuntes - Tabla 2
 
       const result = await controller.remove(req, 10, 5);
 
-      expect(service.remove).toHaveBeenCalledWith(1, 10, 5);
-      expect(result).toBe(expected);
+      Should(service.remove).HaveBeenCalledWith(1, 10, 5);
+      result.Should().Be(expected);
     });
   });
 });

@@ -3,6 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { RemindersService, getBogotaTomorrowRange } from './reminders.service';
 import { Assignment } from 'src/assignments/entities/assignment.entity';
 import { EmailService } from 'src/email/email.service';
+import { Should } from '../common/fluent-assertions';
 
 const mockUserA = { id: 1, name: 'Ana', email: 'ana@example.com', password: 'x' };
 const mockUserB = { id: 2, name: 'Beto', email: 'beto@example.com', password: 'x' };
@@ -49,7 +50,7 @@ describe('RemindersService', () => {
   });
 
   it('should be defined', () => {
-    expect(service).toBeDefined();
+    service.Should().NotBeNull().And.BeDefined();
   });
 
   describe('getBogotaTomorrowRange', () => {
@@ -59,8 +60,8 @@ describe('RemindersService', () => {
 
       const { start, end } = getBogotaTomorrowRange(now);
 
-      expect(start).toBe('2026-01-02T05:00:00.000Z'); // 2026-01-02 00:00 Bogota
-      expect(end).toBe('2026-01-03T05:00:00.000Z'); // 2026-01-03 00:00 Bogota
+      start.Should().Be('2026-01-02T05:00:00.000Z'); // 2026-01-02 00:00 Bogota
+      end.Should().Be('2026-01-03T05:00:00.000Z'); // 2026-01-03 00:00 Bogota
     });
 
     it('should roll over correctly when "now" is already past midnight UTC', () => {
@@ -69,8 +70,8 @@ describe('RemindersService', () => {
 
       const { start, end } = getBogotaTomorrowRange(now);
 
-      expect(start).toBe('2026-03-10T05:00:00.000Z');
-      expect(end).toBe('2026-03-11T05:00:00.000Z');
+      start.Should().Be('2026-03-10T05:00:00.000Z');
+      end.Should().Be('2026-03-11T05:00:00.000Z');
     });
   });
 
@@ -80,7 +81,7 @@ describe('RemindersService', () => {
 
       await service.sendDueTomorrowReminders();
 
-      expect(mockAssignmentRepository.find).toHaveBeenCalledWith({
+      Should(mockAssignmentRepository.find).HaveBeenCalledWith({
         where: expect.objectContaining({
           dueDate: expect.anything(),
           emailReminderSentAt: expect.anything(),
@@ -93,9 +94,9 @@ describe('RemindersService', () => {
 
       const result = await service.sendDueTomorrowReminders();
 
-      expect(result.status).toBe(200);
-      expect(result.message).toBe('No assignments due tomorrow');
-      expect(mockEmailService.send).not.toHaveBeenCalled();
+      result.status.Should().Be(200);
+      result.message.Should().Be('No assignments due tomorrow');
+      Should(mockEmailService.send).NotHaveBeenCalled();
     });
 
     it('should group assignments by user and send one email per user', async () => {
@@ -108,11 +109,11 @@ describe('RemindersService', () => {
 
       await service.sendDueTomorrowReminders();
 
-      expect(mockEmailService.send).toHaveBeenCalledTimes(2);
-      expect(mockEmailService.send).toHaveBeenCalledWith(
+      Should(mockEmailService.send).HaveBeenCalledTimes(2);
+      Should(mockEmailService.send).HaveBeenCalledWith(
         expect.objectContaining({ to: 'ana@example.com' }),
       );
-      expect(mockEmailService.send).toHaveBeenCalledWith(
+      Should(mockEmailService.send).HaveBeenCalledWith(
         expect.objectContaining({ to: 'beto@example.com' }),
       );
     });
@@ -127,10 +128,8 @@ describe('RemindersService', () => {
       await service.sendDueTomorrowReminders();
 
       const call = mockEmailService.send.mock.calls[0][0];
-      expect(call.html).toContain('Tarea Uno');
-      expect(call.html).toContain('Tarea Dos');
-      expect(call.text).toContain('Tarea Uno');
-      expect(call.text).toContain('Tarea Dos');
+      call.html.Should().Contain('Tarea Uno').And.Contain('Tarea Dos');
+      call.text.Should().Contain('Tarea Uno').And.Contain('Tarea Dos');
     });
 
     it('should format the due date naturally in Spanish, not as a raw JS Date string', async () => {
@@ -143,10 +142,10 @@ describe('RemindersService', () => {
       await service.sendDueTomorrowReminders();
 
       const call = mockEmailService.send.mock.calls[0][0];
-      expect(call.html).toContain('martes, 15 de septiembre, 11:59 p. m.');
-      expect(call.text).toContain('martes, 15 de septiembre, 11:59 p. m.');
-      expect(call.html).not.toContain('GMT');
-      expect(call.html).not.toContain('Tue Sep');
+      call.html.Should().Contain('martes, 15 de septiembre, 11:59 p. m.');
+      call.text.Should().Contain('martes, 15 de septiembre, 11:59 p. m.');
+      (call.html.indexOf('GMT') === -1).Should().BeTrue();
+      (call.html.indexOf('Tue Sep') === -1).Should().BeTrue();
     });
 
     it('should mark emailReminderSentAt on assignments after a successful send', async () => {
@@ -157,7 +156,7 @@ describe('RemindersService', () => {
 
       await service.sendDueTomorrowReminders();
 
-      expect(mockAssignmentRepository.save).toHaveBeenCalledWith([
+      Should(mockAssignmentRepository.save).HaveBeenCalledWith([
         expect.objectContaining({ id: 1, emailReminderSentAt: expect.any(Date) }),
       ]);
     });
@@ -173,9 +172,9 @@ describe('RemindersService', () => {
 
       await service.sendDueTomorrowReminders();
 
-      expect(mockEmailService.send).toHaveBeenCalledTimes(2);
-      expect(mockAssignmentRepository.save).toHaveBeenCalledTimes(1);
-      expect(mockAssignmentRepository.save).toHaveBeenCalledWith([
+      Should(mockEmailService.send).HaveBeenCalledTimes(2);
+      Should(mockAssignmentRepository.save).HaveBeenCalledTimes(1);
+      Should(mockAssignmentRepository.save).HaveBeenCalledWith([
         expect.objectContaining({ id: 2, emailReminderSentAt: expect.any(Date) }),
       ]);
     });

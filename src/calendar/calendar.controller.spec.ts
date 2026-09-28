@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CalendarController } from './calendar.controller';
 import { CalendarService } from './calendar.service';
+import { Should, fluent } from '../common/fluent-assertions';
 
 describe('CalendarController (F23 — Caminos Básicos Backend Tabla 18)', () => {
   let controller: CalendarController;
@@ -27,7 +28,7 @@ describe('CalendarController (F23 — Caminos Básicos Backend Tabla 18)', () =>
   });
 
   it('debe estar definido el controlador', () => {
-    expect(controller).toBeDefined();
+    controller.Should().BeDefined();
   });
 
   // Camino P1: 1-2-3-4-20
@@ -37,11 +38,11 @@ describe('CalendarController (F23 — Caminos Básicos Backend Tabla 18)', () =>
       const guardsDl = Reflect.getMetadata('__guards__', CalendarController.prototype.download);
       const guardsFeed = Reflect.getMetadata('__guards__', CalendarController.prototype.feed);
 
-      expect(guardsSub).toBeDefined();
-      expect(guardsSub.length).toBeGreaterThan(0);
-      expect(guardsDl).toBeDefined();
-      expect(guardsDl.length).toBeGreaterThan(0);
-      expect(guardsFeed).toBeUndefined();
+      guardsSub.Should().BeDefined();
+      guardsSub.length.Should().BeGreaterThan(0);
+      guardsDl.Should().BeDefined();
+      guardsDl.length.Should().BeGreaterThan(0);
+      Should(guardsFeed).BeUndefined();
     });
   });
 
@@ -56,9 +57,9 @@ describe('CalendarController (F23 — Caminos Básicos Backend Tabla 18)', () =>
 
       const result = await controller.createSubscription(mockReq);
 
-      expect(calendarService.getOrCreateToken).toHaveBeenCalledWith(1);
-      expect(mockReq.get).toHaveBeenCalledWith('host');
-      expect(result).toEqual({
+      Should(calendarService.getOrCreateToken).HaveBeenCalledWith(1);
+      Should(mockReq.get).HaveBeenCalledWith('host');
+      result.Should().BeEquivalentTo({
         status: 200,
         message: 'Calendar subscription created successfully',
         data: {
@@ -79,10 +80,10 @@ describe('CalendarController (F23 — Caminos Básicos Backend Tabla 18)', () =>
 
       const result = await controller.createSubscription(mockReq);
 
-      expect(calendarService.getOrCreateToken).toHaveBeenCalledWith(2);
-      expect(mockReq.get).toHaveBeenCalledWith('host');
-      expect(result.status).toBe(200);
-      expect(result.data.webcalUrl).toBe('webcal://api.whatsdue.app/calendar/feed/newly-generated-hex-token-456.ics');
+      Should(calendarService.getOrCreateToken).HaveBeenCalledWith(2);
+      Should(mockReq.get).HaveBeenCalledWith('host');
+      result.status.Should().Be(200);
+      result.data.webcalUrl.Should().Be('webcal://api.whatsdue.app/calendar/feed/newly-generated-hex-token-456.ics');
     });
   });
 
@@ -99,13 +100,13 @@ describe('CalendarController (F23 — Caminos Básicos Backend Tabla 18)', () =>
 
       await controller.download(mockReq, mockRes);
 
-      expect(calendarService.generateForUser).toHaveBeenCalledWith(1);
-      expect(mockRes.setHeader).toHaveBeenCalledWith('Content-Type', 'text/calendar; charset=utf-8');
-      expect(mockRes.setHeader).toHaveBeenCalledWith(
+      Should(calendarService.generateForUser).HaveBeenCalledWith(1);
+      Should(mockRes.setHeader).HaveBeenCalledWith('Content-Type', 'text/calendar; charset=utf-8');
+      Should(mockRes.setHeader).HaveBeenCalledWith(
         'Content-Disposition',
         'attachment; filename="whats-due-tomorrow.ics"',
       );
-      expect(mockRes.send).toHaveBeenCalledWith(mockCalendarContent);
+      Should(mockRes.send).HaveBeenCalledWith(mockCalendarContent);
     });
   });
 
@@ -118,8 +119,8 @@ describe('CalendarController (F23 — Caminos Básicos Backend Tabla 18)', () =>
 
       const result = await controller.feed(token);
 
-      expect(calendarService.generateForToken).toHaveBeenCalledWith(token);
-      expect(result).toBe(mockIcs);
+      Should(calendarService.generateForToken).HaveBeenCalledWith(token);
+      result.Should().Be(mockIcs);
     });
   });
 });

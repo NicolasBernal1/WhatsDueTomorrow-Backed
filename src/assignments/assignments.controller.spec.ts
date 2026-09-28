@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AssignmentsController } from './assignments.controller';
 import { AssignmentsService } from './assignments.service';
+import { Should } from '../common/fluent-assertions';
 
 describe('AssignmentsController', () => {
   let controller: AssignmentsController;
@@ -57,9 +58,9 @@ describe('AssignmentsController', () => {
       // Act
       const result = await controller.getUpcoming(req);
 
-      // Assert
-      expect(assignmentService.getUpcomingAssignments).toHaveBeenCalledWith(42);
-      expect(result).toBe(expected);
+      // Assert (Fluent Assertions)
+      Should(assignmentService.getUpcomingAssignments).HaveBeenCalledWith(42);
+      result.Should().Be(expected);
     });
 
     it('should propagate service errors when upcoming assignments retrieval fails', async () => {
@@ -67,8 +68,8 @@ describe('AssignmentsController', () => {
       const req = { user: { sub: 42 } };
       assignmentService.getUpcomingAssignments.mockRejectedValue(new Error('Internal database failure'));
 
-      // Act & Assert
-      await expect(controller.getUpcoming(req)).rejects.toThrow('Internal database failure');
+      // Act & Assert (Fluent Exception Assertion)
+      await Should(async () => controller.getUpcoming(req)).ThrowAsync('Internal database failure');
     });
   });
 

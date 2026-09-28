@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SubtasksController } from './subtasks.controller';
 import { SubtasksService } from './subtasks.service';
+import { Should } from '../common/fluent-assertions';
 
 describe('SubtasksController (F22 — Controlador de Subtareas)', () => {
   let controller: SubtasksController;
@@ -25,15 +26,15 @@ describe('SubtasksController (F22 — Controlador de Subtareas)', () => {
   });
 
   it('debe estar definido el controlador', () => {
-    expect(controller).toBeDefined();
+    controller.Should().NotBeNull().And.BeDefined();
   });
 
   // Camino P1: 1-2-3-21 (Verificación de guardias de seguridad JWT)
   describe('Camino P1 (1-2-3-21): Verificación de guardias de seguridad JWT', () => {
     it('debe proteger todas las rutas del controlador con AuthGuard("jwt")', () => {
       const guards = Reflect.getMetadata('__guards__', SubtasksController);
-      expect(guards).toBeDefined();
-      expect(guards.length).toBeGreaterThan(0);
+      Should(guards).NotBeNull().And.BeDefined();
+      guards.length.Should().BeGreaterThan(0);
     });
   });
 
@@ -44,8 +45,8 @@ describe('SubtasksController (F22 — Controlador de Subtareas)', () => {
 
     const result = await controller.getAll(req, 10);
 
-    expect(service.getByAssignment).toHaveBeenCalledWith(1, 10);
-    expect(result).toBe(expected);
+    Should(service.getByAssignment).HaveBeenCalledWith(1, 10);
+    result.Should().Be(expected);
   });
 
   it('create: debe delegar en subtasksService.create con dto de subtarea', async () => {
@@ -56,8 +57,8 @@ describe('SubtasksController (F22 — Controlador de Subtareas)', () => {
 
     const result = await controller.create(req, 10, dto);
 
-    expect(service.create).toHaveBeenCalledWith(1, 10, dto);
-    expect(result).toBe(expected);
+    Should(service.create).HaveBeenCalledWith(1, 10, dto);
+    result.Should().Be(expected);
   });
 
   it('reorder: debe delegar en subtasksService.reorder con orden posicional', async () => {
@@ -68,8 +69,8 @@ describe('SubtasksController (F22 — Controlador de Subtareas)', () => {
 
     const result = await controller.reorder(req, 10, dto);
 
-    expect(service.reorder).toHaveBeenCalledWith(1, 10, dto);
-    expect(result).toBe(expected);
+    Should(service.reorder).HaveBeenCalledWith(1, 10, dto);
+    result.Should().Be(expected);
   });
 
   it('update: debe delegar en subtasksService.update con subtaskId y cambios', async () => {
@@ -80,8 +81,8 @@ describe('SubtasksController (F22 — Controlador de Subtareas)', () => {
 
     const result = await controller.update(req, 10, 101, dto);
 
-    expect(service.update).toHaveBeenCalledWith(1, 10, 101, dto);
-    expect(result).toBe(expected);
+    Should(service.update).HaveBeenCalledWith(1, 10, 101, dto);
+    result.Should().Be(expected);
   });
 
   it('remove: debe delegar en subtasksService.remove con subtaskId', async () => {
@@ -91,7 +92,7 @@ describe('SubtasksController (F22 — Controlador de Subtareas)', () => {
 
     const result = await controller.remove(req, 10, 101);
 
-    expect(service.remove).toHaveBeenCalledWith(1, 10, 101);
-    expect(result).toBe(expected);
+    Should(service.remove).HaveBeenCalledWith(1, 10, 101);
+    result.Should().Be(expected);
   });
 });

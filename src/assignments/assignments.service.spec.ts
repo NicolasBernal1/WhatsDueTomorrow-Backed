@@ -5,6 +5,7 @@ import { Assignment } from './entities/assignment.entity';
 import { UsersService } from 'src/users/users.service';
 import { SubjectsService } from 'src/subjects/subjects.service';
 import { NotFoundException } from '@nestjs/common';
+import { Should } from '../common/fluent-assertions';
 
 // ─── Datos de prueba ─────────────────────────────────────────────────────────
 
@@ -124,15 +125,15 @@ describe('AssignmentsService', () => {
       // Act
       const result = await service.getUpcomingAssignments(1);
 
-      // Assert
-      expect(mockAssignmentRepository.find).toHaveBeenCalledWith(
+      // Assert (Fluent Assertions)
+      Should(mockAssignmentRepository.find).HaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
             user: { id: 1 },
           }),
         }),
       );
-      expect(result.status).toBe(200);
+      result.status.Should().Be(200);
     });
 
     // Camino P2: 1-2-4-5-6-7-8-9-14 (Fallo de conexión o excepción en BD PostgreSQL / TypeORM)
@@ -141,8 +142,9 @@ describe('AssignmentsService', () => {
       const dbError = new Error('PostgreSQL connection timeout');
       mockAssignmentRepository.find.mockRejectedValue(dbError);
 
-      // Act & Assert
-      await expect(service.getUpcomingAssignments(1)).rejects.toThrow('PostgreSQL connection timeout');
+      // Act & Assert (Fluent Exception Assertion)
+      await Should(async () => service.getUpcomingAssignments(1))
+        .ThrowAsync('PostgreSQL connection timeout');
     });
 
     // Camino P3: 1-2-4-5-6-7-10-11-13-14 (Flujo nominal principal con entregas próximas encontradas)
@@ -153,11 +155,11 @@ describe('AssignmentsService', () => {
       // Act
       const result = await service.getUpcomingAssignments(1);
 
-      // Assert
-      expect(result.status).toBe(200);
-      expect(result.message).toBe('Upcoming assignments retrieved successfully');
-      expect(result.data).toHaveLength(1);
-      expect(result.data![0]).toEqual({
+      // Assert (Fluent Assertions)
+      result.status.Should().Be(200);
+      result.message.Should().Be('Upcoming assignments retrieved successfully');
+      result.data!.Should().HaveCount(1);
+      result.data![0].Should().BeEquivalentTo({
         id: 100,
         title: 'Tarea 1',
         description: 'Ejercicios del capítulo 3',
@@ -176,8 +178,8 @@ describe('AssignmentsService', () => {
       const customHours = 24;
       await service.getUpcomingAssignments(1, customHours);
 
-      // Assert
-      expect(mockAssignmentRepository.find).toHaveBeenCalledWith(
+      // Assert (Fluent Assertions)
+      Should(mockAssignmentRepository.find).HaveBeenCalledWith(
         expect.objectContaining({
           order: { dueDate: 'ASC' },
         }),
@@ -192,10 +194,10 @@ describe('AssignmentsService', () => {
       // Act
       const result = await service.getUpcomingAssignments(1);
 
-      // Assert
-      expect(result.status).toBe(200);
-      expect(result.message).toBe('No upcoming assignments');
-      expect(result.data).toEqual([]);
+      // Assert (Fluent Assertions)
+      result.status.Should().Be(200);
+      result.message.Should().Be('No upcoming assignments');
+      result.data!.Should().BeEmpty();
     });
   });
 
