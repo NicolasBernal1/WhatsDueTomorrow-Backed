@@ -66,18 +66,22 @@ describe('EvaluationsService (F25 — Caminos Básicos Backend Tabla 38)', () =>
     it('[P2: 1 → 2 → 3 → 5 → 6 → 7 → 26] debe lanzar NotFoundException si la asignatura no existe en BD', async () => {
       subjectRepository.findOne.mockResolvedValue(null);
 
-      (await Should(() => service.getBySubject(studentId, 404)).ThrowAsync(
-        NotFoundException,
-      )).WithMessage('The subject does not exist');
+      (
+        await Should(() => service.getBySubject(studentId, 404)).ThrowAsync(
+          NotFoundException,
+        )
+      ).WithMessage('The subject does not exist');
       Should(evaluationRepository.find).NotHaveBeenCalled();
     });
 
     it('[P3: 1 → 2 → 3 → 5 → 6 → 8 → 9 → 26] debe lanzar ForbiddenException si la asignatura pertenece a otro estudiante', async () => {
       subjectRepository.findOne.mockResolvedValue(foreignSubject);
 
-      (await Should(() => service.getBySubject(studentId, subjectId)).ThrowAsync(
-        ForbiddenException,
-      )).WithMessage('You cannot access this subject');
+      (
+        await Should(() =>
+          service.getBySubject(studentId, subjectId),
+        ).ThrowAsync(ForbiddenException)
+      ).WithMessage('You cannot access this subject');
       Should(evaluationRepository.find).NotHaveBeenCalled();
     });
   });
@@ -126,57 +130,69 @@ describe('EvaluationsService (F25 — Caminos Básicos Backend Tabla 38)', () =>
     });
 
     it('[P5] debe rechazar creación cuando el nombre está vacío o sólo contiene espacios', async () => {
-      (await Should(() =>
-        service.create(studentId, subjectId, {
-          name: '   ',
-          weight: 20,
-          score: 4.0,
-        }),
-      ).ThrowAsync(BadRequestException)).WithMessage('The evaluation name cannot be empty');
+      (
+        await Should(() =>
+          service.create(studentId, subjectId, {
+            name: '   ',
+            weight: 20,
+            score: 4.0,
+          }),
+        ).ThrowAsync(BadRequestException)
+      ).WithMessage('The evaluation name cannot be empty');
 
-      (await Should(() =>
-        service.create(studentId, subjectId, {
-          name: '',
-          weight: 20,
-          score: 4.0,
-        }),
-      ).ThrowAsync(BadRequestException)).WithMessage('The evaluation name cannot be empty');
+      (
+        await Should(() =>
+          service.create(studentId, subjectId, {
+            name: '',
+            weight: 20,
+            score: 4.0,
+          }),
+        ).ThrowAsync(BadRequestException)
+      ).WithMessage('The evaluation name cannot be empty');
     });
 
     it('[P5] debe rechazar creación con peso fuera de rango (< 1 o > 100)', async () => {
-      (await Should(() =>
-        service.create(studentId, subjectId, {
-          name: 'Quiz 1',
-          weight: 0,
-          score: 4.0,
-        }),
-      ).ThrowAsync(BadRequestException)).WithMessage('The weight percentage must be between 1 and 100');
+      (
+        await Should(() =>
+          service.create(studentId, subjectId, {
+            name: 'Quiz 1',
+            weight: 0,
+            score: 4.0,
+          }),
+        ).ThrowAsync(BadRequestException)
+      ).WithMessage('The weight percentage must be between 1 and 100');
 
-      (await Should(() =>
-        service.create(studentId, subjectId, {
-          name: 'Quiz 1',
-          weight: 101,
-          score: 4.0,
-        }),
-      ).ThrowAsync(BadRequestException)).WithMessage('The weight percentage must be between 1 and 100');
+      (
+        await Should(() =>
+          service.create(studentId, subjectId, {
+            name: 'Quiz 1',
+            weight: 101,
+            score: 4.0,
+          }),
+        ).ThrowAsync(BadRequestException)
+      ).WithMessage('The weight percentage must be between 1 and 100');
     });
 
     it('[P5] debe rechazar creación con calificación fuera de rango (< 0.0 o > 5.0)', async () => {
-      (await Should(() =>
-        service.create(studentId, subjectId, {
-          name: 'Quiz 1',
-          weight: 20,
-          score: -0.1,
-        }),
-      ).ThrowAsync(BadRequestException)).WithMessage('The score must be between 0.0 and 5.0');
+      (
+        await Should(() =>
+          service.create(studentId, subjectId, {
+            name: 'Quiz 1',
+            weight: 20,
+            score: -0.1,
+          }),
+        ).ThrowAsync(BadRequestException)
+      ).WithMessage('The score must be between 0.0 and 5.0');
 
-      (await Should(() =>
-        service.create(studentId, subjectId, {
-          name: 'Quiz 1',
-          weight: 20,
-          score: 5.1,
-        }),
-      ).ThrowAsync(BadRequestException)).WithMessage('The score must be between 0.0 and 5.0');
+      (
+        await Should(() =>
+          service.create(studentId, subjectId, {
+            name: 'Quiz 1',
+            weight: 20,
+            score: 5.1,
+          }),
+        ).ThrowAsync(BadRequestException)
+      ).WithMessage('The score must be between 0.0 and 5.0');
     });
   });
 
@@ -462,9 +478,7 @@ describe('EvaluationsService (F25 — Caminos Básicos Backend Tabla 38)', () =>
         await Should(() =>
           service.simulate(studentId, subjectId, { targetGrade: 3.5 }),
         )
-      ).ThrowAsync(
-        new NotFoundException('Evaluations could not be retrieved'),
-      );
+      ).ThrowAsync(new NotFoundException('Evaluations could not be retrieved'));
     });
   });
 
@@ -520,16 +534,34 @@ describe('EvaluationsService (F25 — Caminos Básicos Backend Tabla 38)', () =>
 
       summary.totalWeight.Should().Be(100.0);
       summary.remainingWeight.Should().Be(0.0);
-      summary.currentContribution.toString().Should().Match(/^\d+(\.\d{1,2})?$/);
-      summary.currentAverage.toString().Should().Match(/^\d+(\.\d{1,2})?$/);
+      summary.currentContribution
+        .toString()
+        .Should()
+        .Match(/^\d+(\.\d{1,2})?$/);
+      summary.currentAverage
+        .toString()
+        .Should()
+        .Match(/^\d+(\.\d{1,2})?$/);
     });
   });
 
   describe('Auditoría QA y Caracterización de Defectos (Metricas_Software_F21_F26.docx)', () => {
     it('[DEF-QA-F25-01] Comportamiento caracterizado: Backend permite evaluaciones individuales <= 100% que en conjunto superan el 100%', async () => {
       subjectRepository.findOne.mockResolvedValue(ownedSubject);
-      const eval1 = { id: 1, name: 'Corte 1', weight: 60, score: 3.5, subject: ownedSubject } as Evaluation;
-      const eval2 = { id: 2, name: 'Corte 2', weight: 50, score: 4.0, subject: ownedSubject } as Evaluation;
+      const eval1 = {
+        id: 1,
+        name: 'Corte 1',
+        weight: 60,
+        score: 3.5,
+        subject: ownedSubject,
+      } as Evaluation;
+      const eval2 = {
+        id: 2,
+        name: 'Corte 2',
+        weight: 50,
+        score: 4.0,
+        subject: ownedSubject,
+      } as Evaluation;
 
       evaluationRepository.find.mockResolvedValue([eval1, eval2]);
 
@@ -545,13 +577,27 @@ describe('EvaluationsService (F25 — Caminos Básicos Backend Tabla 38)', () =>
 
     it('[DEF-QA-F25-02] Comportamiento caracterizado: Simulación ante sobreponderación o peso negativo', async () => {
       subjectRepository.findOne.mockResolvedValue(ownedSubject);
-      const eval1 = { id: 1, name: 'Corte 1', weight: 60, score: 3.5, subject: ownedSubject } as Evaluation;
-      const eval2 = { id: 2, name: 'Corte 2', weight: 50, score: 4.0, subject: ownedSubject } as Evaluation;
+      const eval1 = {
+        id: 1,
+        name: 'Corte 1',
+        weight: 60,
+        score: 3.5,
+        subject: ownedSubject,
+      } as Evaluation;
+      const eval2 = {
+        id: 2,
+        name: 'Corte 2',
+        weight: 50,
+        score: 4.0,
+        subject: ownedSubject,
+      } as Evaluation;
       evaluationRepository.find.mockResolvedValue([eval1, eval2]);
 
       // Al tener remainingWeight = -10 (no > 0), simulate entra en la rama summary.remainingWeight <= 0
       // sin bloquear la operación ni alertar sobre la inconsistencia del porcentaje total
-      const simResult = await service.simulate(studentId, subjectId, { targetGrade: 3.0 });
+      const simResult = await service.simulate(studentId, subjectId, {
+        targetGrade: 3.0,
+      });
 
       // Verificación de defecto QA DEF-QA-F25-02:
       // Se documenta que el endpoint retorna 200 OK con requiredForTarget = null

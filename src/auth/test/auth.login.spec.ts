@@ -5,8 +5,6 @@ import { JwtService } from '@nestjs/jwt';
 import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
-
-
 jest.mock('bcrypt');
 
 const mockUser = {
@@ -56,7 +54,9 @@ describe('AuthService · login', () => {
     mockUsersService.findOneByEmail.mockResolvedValue(mockUser);
     (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
-    await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
+    await expect(service.login(loginDto)).rejects.toThrow(
+      UnauthorizedException,
+    );
   });
 
   it('P3 (1-2-3(Sí)-5-6(Sí)-8-9): should return a token and user data on successful login', async () => {

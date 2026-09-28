@@ -48,7 +48,9 @@ describe('SubjectsController', () => {
       const expected = {
         status: 200,
         message: 'Subjects retrieved successfully',
-        data: [{ id: 1, name: 'Math', professor: 'John Doe', color: '#007bff' }],
+        data: [
+          { id: 1, name: 'Math', professor: 'John Doe', color: '#007bff' },
+        ],
       };
       service.getSubjects.mockResolvedValue(expected);
       const req = { user: { sub: 1 } };

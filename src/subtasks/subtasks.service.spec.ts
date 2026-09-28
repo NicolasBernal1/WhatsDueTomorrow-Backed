@@ -51,8 +51,14 @@ describe('SubtasksService (F22 — Desglosar tareas en subtareas con avance porc
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         SubtasksService,
-        { provide: getRepositoryToken(Subtask), useValue: mockSubtaskRepository },
-        { provide: getRepositoryToken(Assignment), useValue: mockAssignmentRepository },
+        {
+          provide: getRepositoryToken(Subtask),
+          useValue: mockSubtaskRepository,
+        },
+        {
+          provide: getRepositoryToken(Assignment),
+          useValue: mockAssignmentRepository,
+        },
       ],
     }).compile();
 
@@ -70,9 +76,9 @@ describe('SubtasksService (F22 — Desglosar tareas en subtareas con avance porc
   it('Camino P1 (1-2-3-21): debe rechazar peticiones no autenticadas cuando falta la identidad del usuario', async () => {
     // Si userId es indefinido o nulo, la validación de propiedad debe fallar
     mockAssignmentRepository.findOne.mockResolvedValue(mockAssignment);
-    await Should(async () => service.getByAssignment(undefined as any, 10)).ThrowAsync(
-      ForbiddenException,
-    );
+    await Should(async () =>
+      service.getByAssignment(undefined as any, 10),
+    ).ThrowAsync(ForbiddenException);
   });
 
   // Camino P2: 1-2-4-5-6-21 (assignmentId no existe en PostgreSQL)
@@ -81,7 +87,9 @@ describe('SubtasksService (F22 — Desglosar tareas en subtareas con avance porc
     mockAssignmentRepository.findOne.mockResolvedValue(null);
 
     // Act & Assert (Fluent Assertions)
-    await Should(async () => service.getByAssignment(1, 999)).ThrowAsync('The assignment does not exist');
+    await Should(async () => service.getByAssignment(1, 999)).ThrowAsync(
+      'The assignment does not exist',
+    );
   });
 
   // Camino P3: 1-2-4-5-7-8-21 (La tarea existe pero pertenece a otro usuario - Anti-IDOR)
@@ -90,7 +98,9 @@ describe('SubtasksService (F22 — Desglosar tareas en subtareas con avance porc
     mockAssignmentRepository.findOne.mockResolvedValue(mockOtherUserAssignment);
 
     // Act & Assert (Fluent Assertions)
-    await Should(async () => service.getByAssignment(1, 10)).ThrowAsync('You cannot access this assignment');
+    await Should(async () => service.getByAssignment(1, 10)).ThrowAsync(
+      'You cannot access this assignment',
+    );
     Should(mockSubtaskRepository.find).NotHaveBeenCalled();
   });
 
@@ -119,7 +129,9 @@ describe('SubtasksService (F22 — Desglosar tareas en subtareas con avance porc
     mockAssignmentRepository.findOne.mockResolvedValue(mockAssignment);
 
     // Act & Assert (Fluent Assertions)
-    await Should(async () => service.create(1, 10, { title: '   ' })).ThrowAsync('The subtask title cannot be empty');
+    await Should(async () =>
+      service.create(1, 10, { title: '   ' }),
+    ).ThrowAsync('The subtask title cannot be empty');
     Should(mockSubtaskRepository.save).NotHaveBeenCalled();
   });
 
@@ -137,7 +149,11 @@ describe('SubtasksService (F22 — Desglosar tareas en subtareas con avance porc
     mockSubtaskRepository.create.mockReturnValue(newCreatedSubtask);
     mockSubtaskRepository.save.mockResolvedValue(newCreatedSubtask);
     // getByAssignment posterior retorna las 3 subtareas
-    mockSubtaskRepository.find.mockResolvedValue([mockSubtask1, mockSubtask2, { ...newCreatedSubtask, completed: false }]);
+    mockSubtaskRepository.find.mockResolvedValue([
+      mockSubtask1,
+      mockSubtask2,
+      { ...newCreatedSubtask, completed: false },
+    ]);
 
     // Act
     const result = await service.create(1, 10, { title: 'Pruebas Unitarias' });
@@ -161,7 +177,9 @@ describe('SubtasksService (F22 — Desglosar tareas en subtareas con avance porc
     mockSubtaskRepository.findOne.mockResolvedValue(null);
 
     // Act & Assert (Fluent Assertions)
-    await Should(async () => service.update(1, 10, 999, { completed: true })).ThrowAsync('The subtask does not exist');
+    await Should(async () =>
+      service.update(1, 10, 999, { completed: true }),
+    ).ThrowAsync('The subtask does not exist');
   });
 
   // Camino P8: 1-2-4-5-7-9-13-15-12-21 (PATCH :subtaskId con título vacío)
@@ -171,7 +189,9 @@ describe('SubtasksService (F22 — Desglosar tareas en subtareas con avance porc
     mockSubtaskRepository.findOne.mockResolvedValue({ ...mockSubtask1 });
 
     // Act & Assert (Fluent Assertions)
-    await Should(async () => service.update(1, 10, 101, { title: '   ' })).ThrowAsync('The subtask title cannot be empty');
+    await Should(async () =>
+      service.update(1, 10, 101, { title: '   ' }),
+    ).ThrowAsync('The subtask title cannot be empty');
     Should(mockSubtaskRepository.save).NotHaveBeenCalled();
   });
 
@@ -181,19 +201,32 @@ describe('SubtasksService (F22 — Desglosar tareas en subtareas con avance porc
     const subtaskToUpdate = { ...mockSubtask2 };
     mockAssignmentRepository.findOne.mockResolvedValue(mockAssignment);
     mockSubtaskRepository.findOne.mockResolvedValue(subtaskToUpdate);
-    mockSubtaskRepository.save.mockResolvedValue({ ...subtaskToUpdate, completed: true });
-    mockSubtaskRepository.find.mockResolvedValue([mockSubtask1, { ...subtaskToUpdate, completed: true }]);
+    mockSubtaskRepository.save.mockResolvedValue({
+      ...subtaskToUpdate,
+      completed: true,
+    });
+    mockSubtaskRepository.find.mockResolvedValue([
+      mockSubtask1,
+      { ...subtaskToUpdate, completed: true },
+    ]);
 
     // Act
-    const resultCompleted = await service.update(1, 10, 102, { completed: true });
+    const resultCompleted = await service.update(1, 10, 102, {
+      completed: true,
+    });
 
     // Assert (Fluent Assertions)
     Should(mockSubtaskRepository.save).HaveBeenCalled();
     resultCompleted.data?.progress.Should().Be(100);
 
     // Arrange: actualizar solo título
-    mockSubtaskRepository.save.mockResolvedValue({ ...subtaskToUpdate, title: 'Título Actualizado' });
-    const resultTitle = await service.update(1, 10, 102, { title: 'Título Actualizado' });
+    mockSubtaskRepository.save.mockResolvedValue({
+      ...subtaskToUpdate,
+      title: 'Título Actualizado',
+    });
+    const resultTitle = await service.update(1, 10, 102, {
+      title: 'Título Actualizado',
+    });
     subtaskToUpdate.title.Should().Be('Título Actualizado');
     resultTitle.status.Should().Be(200);
   });
@@ -205,7 +238,9 @@ describe('SubtasksService (F22 — Desglosar tareas en subtareas con avance porc
     mockSubtaskRepository.findOne.mockResolvedValue(null);
 
     // Act & Assert (Fluent Assertions)
-    await Should(async () => service.remove(1, 10, 999)).ThrowAsync('The subtask does not exist');
+    await Should(async () => service.remove(1, 10, 999)).ThrowAsync(
+      'The subtask does not exist',
+    );
   });
 
   // Camino P11: 1-2-4-5-7-9-16-17-20-21 (DELETE :subtaskId con reindexación posicional 0..N-1)
@@ -225,7 +260,9 @@ describe('SubtasksService (F22 — Desglosar tareas en subtareas con avance porc
 
     // Assert (Fluent Assertions)
     Should(mockSubtaskRepository.remove).HaveBeenCalledWith(mockSubtask1);
-    Should(mockSubtaskRepository.update).HaveBeenCalledWith(mockSubtask2.id, { position: 0 });
+    Should(mockSubtaskRepository.update).HaveBeenCalledWith(mockSubtask2.id, {
+      position: 0,
+    });
     result.status.Should().Be(200);
   });
 
@@ -236,9 +273,9 @@ describe('SubtasksService (F22 — Desglosar tareas en subtareas con avance porc
     mockSubtaskRepository.find.mockResolvedValue([mockSubtask1, mockSubtask2]);
 
     // Act & Assert (Fluent Assertions)
-    await Should(async () => service.reorder(1, 10, { orderedIds: [101, 999] })).ThrowAsync(
-      'The subtask order must belong to this assignment',
-    );
+    await Should(async () =>
+      service.reorder(1, 10, { orderedIds: [101, 999] }),
+    ).ThrowAsync('The subtask order must belong to this assignment');
     Should(mockSubtaskRepository.update).NotHaveBeenCalled();
   });
 
@@ -246,7 +283,10 @@ describe('SubtasksService (F22 — Desglosar tareas en subtareas con avance porc
   it('Camino P13 (1-2-4-5-7-9-18-20-21): debe actualizar posiciones según orderedIds con Promise.all y retornar orden persistido', async () => {
     // Arrange: invertir orden [102, 101]
     mockAssignmentRepository.findOne.mockResolvedValue(mockAssignment);
-    mockSubtaskRepository.find.mockResolvedValueOnce([mockSubtask1, mockSubtask2]);
+    mockSubtaskRepository.find.mockResolvedValueOnce([
+      mockSubtask1,
+      mockSubtask2,
+    ]);
     mockSubtaskRepository.update.mockResolvedValue({ affected: 1 });
     // getByAssignment posterior
     mockSubtaskRepository.find.mockResolvedValueOnce([
@@ -258,8 +298,12 @@ describe('SubtasksService (F22 — Desglosar tareas en subtareas con avance porc
     const result = await service.reorder(1, 10, { orderedIds: [102, 101] });
 
     // Assert (Fluent Assertions)
-    Should(mockSubtaskRepository.update).HaveBeenCalledWith(102, { position: 0 });
-    Should(mockSubtaskRepository.update).HaveBeenCalledWith(101, { position: 1 });
+    Should(mockSubtaskRepository.update).HaveBeenCalledWith(102, {
+      position: 0,
+    });
+    Should(mockSubtaskRepository.update).HaveBeenCalledWith(101, {
+      position: 1,
+    });
     result.status.Should().Be(200);
     result.data?.subtasks[0].id.Should().Be(102);
   });

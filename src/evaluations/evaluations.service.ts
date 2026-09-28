@@ -215,8 +215,8 @@ export class EvaluationsService {
     const currentAverage =
       totalWeight > 0 ? round2((currentContribution * 100) / totalWeight) : 0;
 
-    let requiredGrade: number | null = null;
-    let isAttainable = true;
+    let requiredGrade: number | null;
+    let isAttainable: boolean;
 
     if (evaluations.length === 0) {
       requiredGrade = PASSING_GRADE;

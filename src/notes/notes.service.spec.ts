@@ -65,9 +65,11 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
     it('debe lanzar NotFoundException("The subject does not exist") al intentar consultar notas', async () => {
       subjectRepository.findOne.mockResolvedValue(null);
 
-      (await Should(() => service.getBySubject(studentId, 404)).ThrowAsync(
-        NotFoundException,
-      )).WithMessage('The subject does not exist');
+      (
+        await Should(() => service.getBySubject(studentId, 404)).ThrowAsync(
+          NotFoundException,
+        )
+      ).WithMessage('The subject does not exist');
       Should(noteRepository.find).NotHaveBeenCalled();
     });
   });
@@ -77,9 +79,11 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
     it('debe lanzar ForbiddenException("You cannot access this subject") si la asignatura no pertenece al usuario autenticado', async () => {
       subjectRepository.findOne.mockResolvedValue(foreignSubject);
 
-      (await Should(() => service.getBySubject(studentId, subjectId)).ThrowAsync(
-        ForbiddenException,
-      )).WithMessage('You cannot access this subject');
+      (
+        await Should(() =>
+          service.getBySubject(studentId, subjectId),
+        ).ThrowAsync(ForbiddenException)
+      ).WithMessage('You cannot access this subject');
       Should(noteRepository.find).NotHaveBeenCalled();
     });
   });
@@ -143,9 +147,11 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
       subjectRepository.findOne.mockResolvedValue(ownedSubject);
       noteRepository.findOne.mockResolvedValue(null);
 
-      (await Should(() => service.getById(studentId, subjectId, 999)).ThrowAsync(
-        NotFoundException,
-      )).WithMessage('The note does not exist');
+      (
+        await Should(() =>
+          service.getById(studentId, subjectId, 999),
+        ).ThrowAsync(NotFoundException)
+      ).WithMessage('The note does not exist');
     });
   });
 
@@ -179,9 +185,11 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
       subjectRepository.findOne.mockResolvedValue(ownedSubject);
       const dto = { title: '   ', content: 'Contenido válido' };
 
-      (await Should(() => service.create(studentId, subjectId, dto)).ThrowAsync(
-        BadRequestException,
-      )).WithMessage('The note title cannot be empty');
+      (
+        await Should(() =>
+          service.create(studentId, subjectId, dto),
+        ).ThrowAsync(BadRequestException)
+      ).WithMessage('The note title cannot be empty');
       Should(noteRepository.save).NotHaveBeenCalled();
     });
 
@@ -189,9 +197,11 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
       subjectRepository.findOne.mockResolvedValue(ownedSubject);
       const dto = { title: 'Título válido', content: '   ' };
 
-      (await Should(() => service.create(studentId, subjectId, dto)).ThrowAsync(
-        BadRequestException,
-      )).WithMessage('The note content cannot be empty');
+      (
+        await Should(() =>
+          service.create(studentId, subjectId, dto),
+        ).ThrowAsync(BadRequestException)
+      ).WithMessage('The note content cannot be empty');
       Should(noteRepository.save).NotHaveBeenCalled();
     });
   });
@@ -206,9 +216,11 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
         linkUrl: 'javascript:alert(1)',
       };
 
-      (await Should(() => service.create(studentId, subjectId, dto)).ThrowAsync(
-        BadRequestException,
-      )).WithMessage('The link URL must use http or https protocol');
+      (
+        await Should(() =>
+          service.create(studentId, subjectId, dto),
+        ).ThrowAsync(BadRequestException)
+      ).WithMessage('The link URL must use http or https protocol');
       Should(noteRepository.save).NotHaveBeenCalled();
     });
 
@@ -220,9 +232,11 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
         linkUrl: 'esto-no-es-una-url',
       };
 
-      (await Should(() => service.create(studentId, subjectId, dto)).ThrowAsync(
-        BadRequestException,
-      )).WithMessage('The link URL format is invalid');
+      (
+        await Should(() =>
+          service.create(studentId, subjectId, dto),
+        ).ThrowAsync(BadRequestException)
+      ).WithMessage('The link URL format is invalid');
       Should(noteRepository.save).NotHaveBeenCalled();
     });
   });
@@ -293,9 +307,9 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
       subjectRepository.findOne.mockResolvedValue(ownedSubject);
       noteRepository.findOne.mockResolvedValue(null);
 
-      (await Should(() =>
+      await Should(() =>
         service.update(studentId, subjectId, 999, { title: 'Nuevo' }),
-      ).ThrowAsync(NotFoundException));
+      ).ThrowAsync(NotFoundException);
     });
   });
 
@@ -314,12 +328,12 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
       };
       noteRepository.findOne.mockResolvedValue(existingNote);
 
-      (await Should(() =>
+      await Should(() =>
         service.update(studentId, subjectId, 7, { title: '   ' }),
-      ).ThrowAsync(BadRequestException));
-      (await Should(() =>
+      ).ThrowAsync(BadRequestException);
+      await Should(() =>
         service.update(studentId, subjectId, 7, { content: '   ' }),
-      ).ThrowAsync(BadRequestException));
+      ).ThrowAsync(BadRequestException);
     });
   });
 
@@ -360,9 +374,9 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
       subjectRepository.findOne.mockResolvedValue(ownedSubject);
       noteRepository.findOne.mockResolvedValue(null);
 
-      (await Should(() => service.remove(studentId, subjectId, 999)).ThrowAsync(
+      await Should(() => service.remove(studentId, subjectId, 999)).ThrowAsync(
         NotFoundException,
-      ));
+      );
       Should(noteRepository.remove).NotHaveBeenCalled();
     });
   });
@@ -430,9 +444,9 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
       subjectRepository.findOne.mockResolvedValue(ownedSubject);
       const dto = { content: 'Algún contenido' } as CreateNoteDto;
 
-      (await Should(() => service.create(studentId, subjectId, dto)).ThrowAsync(
+      await Should(() => service.create(studentId, subjectId, dto)).ThrowAsync(
         BadRequestException,
-      ));
+      );
       Should(noteRepository.save).NotHaveBeenCalled();
     });
 
@@ -440,9 +454,9 @@ describe('NotesService (F24 — Caminos Básicos Backend Tabla 26)', () => {
       subjectRepository.findOne.mockResolvedValue(ownedSubject);
       const dto = { title: 'Título válido' } as CreateNoteDto;
 
-      (await Should(() => service.create(studentId, subjectId, dto)).ThrowAsync(
+      await Should(() => service.create(studentId, subjectId, dto)).ThrowAsync(
         BadRequestException,
-      ));
+      );
       Should(noteRepository.save).NotHaveBeenCalled();
     });
 

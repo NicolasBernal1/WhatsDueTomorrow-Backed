@@ -16,7 +16,7 @@ export class ExceptionAssertion {
 }
 
 export class FluentAssertion<T> {
-  constructor(private actual: T) {}
+  constructor(private readonly actual: T) {}
 
   public get And(): this {
     return this;
@@ -38,42 +38,42 @@ export class FluentAssertion<T> {
   }
 
   public BeNull(): this {
-    chai.expect(this.actual).to.be.null;
+    chai.assert.isNull(this.actual);
     return this;
   }
 
   public NotBeNull(): this {
-    chai.expect(this.actual).to.not.be.null;
+    chai.assert.isNotNull(this.actual);
     return this;
   }
 
   public BeDefined(): this {
-    chai.expect(this.actual).to.not.be.undefined;
+    chai.assert.isDefined(this.actual);
     return this;
   }
 
   public BeUndefined(): this {
-    chai.expect(this.actual).to.be.undefined;
+    chai.assert.isUndefined(this.actual);
     return this;
   }
 
   public BeTrue(): this {
-    chai.expect(this.actual).to.be.true;
+    chai.assert.isTrue(this.actual as unknown as boolean);
     return this;
   }
 
   public BeFalse(): this {
-    chai.expect(this.actual).to.be.false;
+    chai.assert.isFalse(this.actual as unknown as boolean);
     return this;
   }
 
   public BeEmpty(): this {
-    chai.expect(this.actual).to.be.empty;
+    chai.assert.isEmpty(this.actual as any);
     return this;
   }
 
   public NotBeEmpty(): this {
-    chai.expect(this.actual).to.not.be.empty;
+    chai.assert.isNotEmpty(this.actual as any);
     return this;
   }
 
@@ -94,13 +94,13 @@ export class FluentAssertion<T> {
 
   public StartWith(prefix: string): this {
     chai.expect(this.actual).to.be.a('string');
-    chai.expect((this.actual as unknown as string).startsWith(prefix)).to.be.true;
+    chai.assert.isTrue((this.actual as unknown as string).startsWith(prefix));
     return this;
   }
 
   public EndWith(suffix: string): this {
     chai.expect(this.actual).to.be.a('string');
-    chai.expect((this.actual as unknown as string).endsWith(suffix)).to.be.true;
+    chai.assert.isTrue((this.actual as unknown as string).endsWith(suffix));
     return this;
   }
 
@@ -140,28 +140,40 @@ export class FluentAssertion<T> {
   }
 
   public HaveBeenCalled(): this {
-    if ((this.actual as any)?._isMockFunction || typeof (this.actual as any)?.mock === 'object') {
+    if (
+      (this.actual as any)?._isMockFunction ||
+      typeof (this.actual as any)?.mock === 'object'
+    ) {
       chai.expect((this.actual as any).mock.calls.length).to.be.above(0);
     }
     return this;
   }
 
   public HaveBeenCalledWith(...args: any[]): this {
-    if ((this.actual as any)?._isMockFunction || typeof (this.actual as any)?.mock === 'object') {
+    if (
+      (this.actual as any)?._isMockFunction ||
+      typeof (this.actual as any)?.mock === 'object'
+    ) {
       expect(this.actual).toHaveBeenCalledWith(...args);
     }
     return this;
   }
 
   public HaveBeenCalledTimes(times: number): this {
-    if ((this.actual as any)?._isMockFunction || typeof (this.actual as any)?.mock === 'object') {
+    if (
+      (this.actual as any)?._isMockFunction ||
+      typeof (this.actual as any)?.mock === 'object'
+    ) {
       chai.expect((this.actual as any).mock.calls.length).to.equal(times);
     }
     return this;
   }
 
   public NotHaveBeenCalled(): this {
-    if ((this.actual as any)?._isMockFunction || typeof (this.actual as any)?.mock === 'object') {
+    if (
+      (this.actual as any)?._isMockFunction ||
+      typeof (this.actual as any)?.mock === 'object'
+    ) {
       chai.expect((this.actual as any).mock.calls.length).to.equal(0);
     }
     return this;
@@ -174,7 +186,10 @@ export class FluentAssertion<T> {
     } catch (err) {
       thrownError = err;
     }
-    chai.expect(thrownError, 'Expected function to throw an exception').to.not.be.null;
+    chai.assert.isNotNull(
+      thrownError,
+      'Expected function to throw an exception',
+    );
     if (expectedErrorOrMessage) {
       if (typeof expectedErrorOrMessage === 'string') {
         chai.expect(thrownError.message).to.include(expectedErrorOrMessage);
@@ -185,14 +200,19 @@ export class FluentAssertion<T> {
     return new ExceptionAssertion(thrownError);
   }
 
-  public async ThrowAsync(expectedErrorOrMessage?: any): Promise<ExceptionAssertion> {
+  public async ThrowAsync(
+    expectedErrorOrMessage?: any,
+  ): Promise<ExceptionAssertion> {
     let thrownError: any = null;
     try {
       await (this.actual as unknown as Function)();
     } catch (err) {
       thrownError = err;
     }
-    chai.expect(thrownError, 'Expected async function to reject/throw an exception').to.not.be.null;
+    chai.assert.isNotNull(
+      thrownError,
+      'Expected async function to reject/throw an exception',
+    );
     if (expectedErrorOrMessage) {
       if (typeof expectedErrorOrMessage === 'string') {
         chai.expect(thrownError.message).to.include(expectedErrorOrMessage);

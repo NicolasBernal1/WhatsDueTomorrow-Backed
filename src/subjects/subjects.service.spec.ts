@@ -188,9 +188,7 @@ describe('SubjectsService - Módulo de clases', () => {
     it('debe lanzar error "Subject not found" si getSubjectById resuelve un valor falso', async () => {
       userService.findOneById.mockResolvedValue(userMock);
 
-      jest
-        .spyOn(service, 'getSubjectById')
-        .mockResolvedValue(undefined as any);
+      jest.spyOn(service, 'getSubjectById').mockResolvedValue(undefined as any);
 
       await expect(service.addClass(1, addClassDto)).rejects.toThrow(
         new NotFoundException('Subject not found'),
@@ -211,9 +209,9 @@ describe('SubjectsService - Módulo de clases', () => {
         endTime: '08:00',
       };
 
-      await expect(
-        service.addClass(1, dtoConHorarioInvalido),
-      ).rejects.toThrow(new ContradictoryTimeException());
+      await expect(service.addClass(1, dtoConHorarioInvalido)).rejects.toThrow(
+        new ContradictoryTimeException(),
+      );
 
       expect(subjectClassRepository.create).not.toHaveBeenCalled();
       expect(subjectClassRepository.save).not.toHaveBeenCalled();

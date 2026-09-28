@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { randomBytes } from 'crypto';
+import { randomBytes } from 'node:crypto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Assignment } from 'src/assignments/entities/assignment.entity';
 import { SubjectClass } from 'src/subjects/entities/subject-class.entity';
@@ -76,6 +76,10 @@ export class CalendarService {
 
   private classEvent(userId: number, subjectClass: SubjectClass): string[] {
     const startDate = this.nextWeekdayDate(subjectClass.dayOfWeek);
+    const summary = this.escape(`Class: ${subjectClass.subject.name}`);
+    const description = this.escape(
+      `Professor: ${subjectClass.subject.professor}`,
+    );
     return [
       'BEGIN:VEVENT',
       `UID:class-${subjectClass.id}-user-${userId}@whats-due-tomorrow`,
@@ -83,27 +87,28 @@ export class CalendarService {
       `DTSTART:${this.toFloatingIcs(startDate, subjectClass.startTime)}`,
       `DTEND:${this.toFloatingIcs(startDate, subjectClass.endTime)}`,
       'RRULE:FREQ=WEEKLY',
-      this.fold(
-        `SUMMARY:${this.escape(`Class: ${subjectClass.subject.name}`)}`,
-      ),
-      this.fold(
-        `DESCRIPTION:${this.escape(`Professor: ${subjectClass.subject.professor}`)}`,
-      ),
+      this.fold(`SUMMARY:${summary}`),
+      this.fold(`DESCRIPTION:${description}`),
       'END:VEVENT',
     ];
   }
 
   private assignmentEvent(userId: number, assignment: Assignment): string[] {
     const dueDate = new Date(assignment.dueDate);
+    const summary = this.escape(`Due: ${assignment.title}`);
+    const descDetail = assignment.description
+      ? String.raw`\n` + assignment.description
+      : '';
+    const description = this.escape(
+      `Subject: ${assignment.subject.name}${descDetail}`,
+    );
     return [
       'BEGIN:VEVENT',
       `UID:assignment-${assignment.id}-user-${userId}@whats-due-tomorrow`,
       `DTSTAMP:${this.toUtcIcs(new Date())}`,
       `DTSTART:${this.toUtcIcs(dueDate)}`,
-      this.fold(`SUMMARY:${this.escape(`Due: ${assignment.title}`)}`),
-      this.fold(
-        `DESCRIPTION:${this.escape(`Subject: ${assignment.subject.name}${assignment.description ? `\\n${assignment.description}` : ''}`)}`,
-      ),
+      this.fold(`SUMMARY:${summary}`),
+      this.fold(`DESCRIPTION:${description}`),
       'END:VEVENT',
     ];
   }
@@ -148,10 +153,10 @@ export class CalendarService {
   }
   private escape(value: string): string {
     return value
-      .replaceAll(/\\/g, '\\\\')
-      .replaceAll(/;/g, '\\;')
-      .replaceAll(/,/g, '\\,')
-      .replaceAll(/\r?\n/g, '\\n');
+      .replaceAll('\\', '\\\\')
+      .replaceAll(';', String.raw`\;`)
+      .replaceAll(',', String.raw`\,`)
+      .replaceAll(/\r?\n/g, String.raw`\n`);
   }
   /** RFC 5545 content lines must be folded at 75 octets or fewer. */
   private fold(line: string): string {

@@ -5,8 +5,6 @@ import { JwtService } from '@nestjs/jwt';
 import { ExistingUserException } from '../exceptions/existing-user.exception';
 import * as bcrypt from 'bcrypt';
 
-
-
 jest.mock('bcrypt');
 
 const mockUser = {
@@ -58,7 +56,9 @@ describe('AuthService · register', () => {
 
     const result = await service.register(registerDto);
 
-    expect(mockUsersService.findOneByEmail).toHaveBeenCalledWith(registerDto.email);
+    expect(mockUsersService.findOneByEmail).toHaveBeenCalledWith(
+      registerDto.email,
+    );
     expect(bcrypt.hash).toHaveBeenCalledWith(registerDto.password, 10);
     expect(mockUsersService.create).toHaveBeenCalledWith({
       email: registerDto.email,
@@ -76,7 +76,9 @@ describe('AuthService · register', () => {
   it('P1 (1-2-3(Sí)-4): should throw ExistingUserException if the email is already in use', async () => {
     mockUsersService.findOneByEmail.mockResolvedValue(mockUser);
 
-    await expect(service.register(registerDto)).rejects.toThrow(ExistingUserException);
+    await expect(service.register(registerDto)).rejects.toThrow(
+      ExistingUserException,
+    );
     expect(mockUsersService.create).not.toHaveBeenCalled();
   });
 });

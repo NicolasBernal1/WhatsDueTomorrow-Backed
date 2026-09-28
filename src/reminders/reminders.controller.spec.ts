@@ -13,7 +13,9 @@ describe('RemindersController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [RemindersController],
-      providers: [{ provide: RemindersService, useValue: mockRemindersService }],
+      providers: [
+        { provide: RemindersService, useValue: mockRemindersService },
+      ],
     }).compile();
 
     controller = module.get<RemindersController>(RemindersController);
@@ -33,6 +35,9 @@ describe('RemindersController', () => {
     const result = await controller.trigger();
 
     Should(mockRemindersService.sendDueTomorrowReminders).HaveBeenCalled();
-    result.Should().BeEquivalentTo({ status: 200, message: 'Due-tomorrow reminders processed' });
+    result.Should().BeEquivalentTo({
+      status: 200,
+      message: 'Due-tomorrow reminders processed',
+    });
   });
 });

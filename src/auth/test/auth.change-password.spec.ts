@@ -5,7 +5,6 @@ import { JwtService } from '@nestjs/jwt';
 import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
-
 jest.mock('bcrypt');
 
 const mockUser = {
@@ -45,12 +44,17 @@ describe('AuthService · changePassword', () => {
   });
 
   const userId = 1;
-  const changePasswordDto = { currentPassword: 'correcta123', newPassword: 'Nueva123' };
+  const changePasswordDto = {
+    currentPassword: 'correcta123',
+    newPassword: 'Nueva123',
+  };
 
   it('P2 (1-2-3(Sí)-5-6(No)-7): should throw NotFoundException if the user does not exist', async () => {
     mockUsersService.findOneById.mockResolvedValue(null);
 
-    await expect(service.changePassword(userId, changePasswordDto)).rejects.toThrow(NotFoundException);
+    await expect(
+      service.changePassword(userId, changePasswordDto),
+    ).rejects.toThrow(NotFoundException);
     expect(mockUsersService.save).not.toHaveBeenCalled();
   });
 
@@ -58,7 +62,9 @@ describe('AuthService · changePassword', () => {
     mockUsersService.findOneById.mockResolvedValue(mockUser);
     (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
-    await expect(service.changePassword(userId, changePasswordDto)).rejects.toThrow(UnauthorizedException);
+    await expect(
+      service.changePassword(userId, changePasswordDto),
+    ).rejects.toThrow(UnauthorizedException);
     expect(mockUsersService.save).not.toHaveBeenCalled();
   });
 
@@ -70,10 +76,13 @@ describe('AuthService · changePassword', () => {
 
     const result = await service.changePassword(userId, changePasswordDto);
 
-    expect(bcrypt.compare).toHaveBeenCalledWith(changePasswordDto.currentPassword, mockUser.password);
+    expect(bcrypt.compare).toHaveBeenCalledWith(
+      changePasswordDto.currentPassword,
+      mockUser.password,
+    );
     expect(bcrypt.hash).toHaveBeenCalledWith(changePasswordDto.newPassword, 10);
     expect(mockUsersService.save).toHaveBeenCalledWith(
-      expect.objectContaining({ password: 'new_hashed_password' })
+      expect.objectContaining({ password: 'new_hashed_password' }),
     );
     expect(result.status).toBe(200);
     expect(result.message).toBe('Password updated successfully');

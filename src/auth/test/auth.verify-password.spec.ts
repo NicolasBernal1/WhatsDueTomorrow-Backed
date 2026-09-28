@@ -5,7 +5,6 @@ import { JwtService } from '@nestjs/jwt';
 import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
-
 jest.mock('bcrypt');
 
 const mockUser = {
@@ -49,7 +48,9 @@ describe('AuthService · verifyPassword', () => {
   it('P2 (1-2-3(Sí)-5-6(No)-7): should throw NotFoundException if the user does not exist', async () => {
     mockUsersService.findOneById.mockResolvedValue(null);
 
-    await expect(service.verifyPassword(userId, password)).rejects.toThrow(NotFoundException);
+    await expect(service.verifyPassword(userId, password)).rejects.toThrow(
+      NotFoundException,
+    );
     expect(mockUsersService.findOneById).toHaveBeenCalledWith(userId);
   });
 
@@ -57,7 +58,9 @@ describe('AuthService · verifyPassword', () => {
     mockUsersService.findOneById.mockResolvedValue(mockUser);
     (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
-    await expect(service.verifyPassword(userId, password)).rejects.toThrow(UnauthorizedException);
+    await expect(service.verifyPassword(userId, password)).rejects.toThrow(
+      UnauthorizedException,
+    );
     expect(bcrypt.compare).toHaveBeenCalledWith(password, mockUser.password);
   });
 

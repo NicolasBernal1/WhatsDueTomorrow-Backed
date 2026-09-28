@@ -2,7 +2,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { SubjectsService, MIN_BALANCED_CREDITS, MAX_BALANCED_CREDITS, AUTONOMOUS_HOURS_MULTIPLIER } from './subjects.service';
+import {
+  SubjectsService,
+  MIN_BALANCED_CREDITS,
+  MAX_BALANCED_CREDITS,
+  AUTONOMOUS_HOURS_MULTIPLIER,
+} from './subjects.service';
 import { SubjectsController } from './subjects.controller';
 import { Subject } from './entities/subject.entity';
 import { SubjectClass } from './entities/subject-class.entity';
@@ -15,7 +20,11 @@ describe('SubjectsService - F26 Gestión de créditos y semáforo de carga seman
   let subjectClassRepository: any;
   let userService: any;
 
-  const userMock = { id: 1, name: 'Estudiante Test', email: 'test@student.edu' } as any;
+  const userMock = {
+    id: 1,
+    name: 'Estudiante Test',
+    email: 'test@student.edu',
+  } as any;
 
   beforeEach(async () => {
     subjectRepository = {
@@ -203,18 +212,30 @@ describe('SubjectsService - F26 Gestión de créditos y semáforo de carga seman
 
       await (
         await Should(() =>
-          service.addSubject(1, { name: 'Materia', professor: 'Prof', credits: 0 }),
+          service.addSubject(1, {
+            name: 'Materia',
+            professor: 'Prof',
+            credits: 0,
+          }),
         )
       ).ThrowAsync(
-        new BadRequestException('The credits must be an integer between 1 and 12'),
+        new BadRequestException(
+          'The credits must be an integer between 1 and 12',
+        ),
       );
 
       await (
         await Should(() =>
-          service.addSubject(1, { name: 'Materia', professor: 'Prof', credits: 13 }),
+          service.addSubject(1, {
+            name: 'Materia',
+            professor: 'Prof',
+            credits: 13,
+          }),
         )
       ).ThrowAsync(
-        new BadRequestException('The credits must be an integer between 1 and 12'),
+        new BadRequestException(
+          'The credits must be an integer between 1 and 12',
+        ),
       );
 
       await (
@@ -226,7 +247,9 @@ describe('SubjectsService - F26 Gestión de créditos y semáforo de carga seman
           }),
         )
       ).ThrowAsync(
-        new BadRequestException('The credits must be an integer between 1 and 12'),
+        new BadRequestException(
+          'The credits must be an integer between 1 and 12',
+        ),
       );
 
       await (
@@ -238,13 +261,22 @@ describe('SubjectsService - F26 Gestión de créditos y semáforo de carga seman
           }),
         )
       ).ThrowAsync(
-        new BadRequestException('The credits must be an integer between 1 and 12'),
+        new BadRequestException(
+          'The credits must be an integer between 1 and 12',
+        ),
       );
     });
 
     it('[P7: 17 → 19 → 20 → 26] debe crear la asignatura exitosamente con créditos válidos (1 a 12 enteros)', async () => {
       userService.findOneById.mockResolvedValue(userMock);
-      const created = { id: 1, name: 'Cálculo', professor: 'Prof A', color: '#007bff', credits: 4, user: userMock };
+      const created = {
+        id: 1,
+        name: 'Cálculo',
+        professor: 'Prof A',
+        color: '#007bff',
+        credits: 4,
+        user: userMock,
+      };
       subjectRepository.create.mockReturnValue(created);
       subjectRepository.save.mockResolvedValue(created);
 
@@ -268,12 +300,20 @@ describe('SubjectsService - F26 Gestión de créditos y semáforo de carga seman
 
       subjectRepository.create.mockReturnValue({ id: 1, credits: 1 });
       subjectRepository.save.mockResolvedValue({ id: 1, credits: 1 });
-      const resMin = await service.addSubject(1, { name: 'M1', professor: 'P', credits: 1 });
+      const resMin = await service.addSubject(1, {
+        name: 'M1',
+        professor: 'P',
+        credits: 1,
+      });
       resMin.status.Should().Be(201);
 
       subjectRepository.create.mockReturnValue({ id: 2, credits: 12 });
       subjectRepository.save.mockResolvedValue({ id: 2, credits: 12 });
-      const resMax = await service.addSubject(1, { name: 'M2', professor: 'P', credits: 12 });
+      const resMax = await service.addSubject(1, {
+        name: 'M2',
+        professor: 'P',
+        credits: 12,
+      });
       resMax.status.Should().Be(201);
     });
   });
@@ -283,13 +323,17 @@ describe('SubjectsService - F26 Gestión de créditos y semáforo de carga seman
       await (
         await Should(() => service.editSubject(10, { credits: 0 }))
       ).ThrowAsync(
-        new BadRequestException('The credits must be an integer between 1 and 12'),
+        new BadRequestException(
+          'The credits must be an integer between 1 and 12',
+        ),
       );
 
       await (
         await Should(() => service.editSubject(10, { credits: 15 }))
       ).ThrowAsync(
-        new BadRequestException('The credits must be an integer between 1 and 12'),
+        new BadRequestException(
+          'The credits must be an integer between 1 and 12',
+        ),
       );
     });
 

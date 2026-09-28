@@ -5,9 +5,24 @@ import { Assignment } from 'src/assignments/entities/assignment.entity';
 import { EmailService } from 'src/email/email.service';
 import { Should } from '../common/fluent-assertions';
 
-const mockUserA = { id: 1, name: 'Ana', email: 'ana@example.com', password: 'x' };
-const mockUserB = { id: 2, name: 'Beto', email: 'beto@example.com', password: 'x' };
-const mockSubject = { id: 10, name: 'Math', professor: 'Dr. Smith', color: '#ff0000' };
+const mockUserA = {
+  id: 1,
+  name: 'Ana',
+  email: 'ana@example.com',
+  password: 'x',
+};
+const mockUserB = {
+  id: 2,
+  name: 'Beto',
+  email: 'beto@example.com',
+  password: 'x',
+};
+const mockSubject = {
+  id: 10,
+  name: 'Math',
+  professor: 'Dr. Smith',
+  color: '#ff0000',
+};
 
 function makeAssignment(overrides: Partial<Assignment> = {}): Assignment {
   return {
@@ -40,7 +55,10 @@ describe('RemindersService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RemindersService,
-        { provide: getRepositoryToken(Assignment), useValue: mockAssignmentRepository },
+        {
+          provide: getRepositoryToken(Assignment),
+          useValue: mockAssignmentRepository,
+        },
         { provide: EmailService, useValue: mockEmailService },
       ],
     }).compile();
@@ -101,9 +119,17 @@ describe('RemindersService', () => {
 
     it('should group assignments by user and send one email per user', async () => {
       const assignmentA1 = makeAssignment({ id: 1, user: mockUserA as any });
-      const assignmentA2 = makeAssignment({ id: 2, user: mockUserA as any, title: 'Tarea 2' });
+      const assignmentA2 = makeAssignment({
+        id: 2,
+        user: mockUserA as any,
+        title: 'Tarea 2',
+      });
       const assignmentB1 = makeAssignment({ id: 3, user: mockUserB as any });
-      mockAssignmentRepository.find.mockResolvedValue([assignmentA1, assignmentA2, assignmentB1]);
+      mockAssignmentRepository.find.mockResolvedValue([
+        assignmentA1,
+        assignmentA2,
+        assignmentB1,
+      ]);
       mockEmailService.send.mockResolvedValue(undefined);
       mockAssignmentRepository.save.mockResolvedValue([]);
 
@@ -119,9 +145,20 @@ describe('RemindersService', () => {
     });
 
     it('should include every assignment title in the email body for a user with multiple assignments', async () => {
-      const assignmentA1 = makeAssignment({ id: 1, user: mockUserA as any, title: 'Tarea Uno' });
-      const assignmentA2 = makeAssignment({ id: 2, user: mockUserA as any, title: 'Tarea Dos' });
-      mockAssignmentRepository.find.mockResolvedValue([assignmentA1, assignmentA2]);
+      const assignmentA1 = makeAssignment({
+        id: 1,
+        user: mockUserA as any,
+        title: 'Tarea Uno',
+      });
+      const assignmentA2 = makeAssignment({
+        id: 2,
+        user: mockUserA as any,
+        title: 'Tarea Dos',
+      });
+      mockAssignmentRepository.find.mockResolvedValue([
+        assignmentA1,
+        assignmentA2,
+      ]);
       mockEmailService.send.mockResolvedValue(undefined);
       mockAssignmentRepository.save.mockResolvedValue([]);
 
@@ -134,7 +171,9 @@ describe('RemindersService', () => {
 
     it('should format the due date naturally in Spanish, not as a raw JS Date string', async () => {
       // 2026-09-16T04:59:00.000Z = 2026-09-15 23:59 in America/Bogota
-      const assignment = makeAssignment({ dueDate: '2026-09-16T04:59:00.000Z' });
+      const assignment = makeAssignment({
+        dueDate: '2026-09-16T04:59:00.000Z',
+      });
       mockAssignmentRepository.find.mockResolvedValue([assignment]);
       mockEmailService.send.mockResolvedValue(undefined);
       mockAssignmentRepository.save.mockResolvedValue([]);
@@ -157,14 +196,20 @@ describe('RemindersService', () => {
       await service.sendDueTomorrowReminders();
 
       Should(mockAssignmentRepository.save).HaveBeenCalledWith([
-        expect.objectContaining({ id: 1, emailReminderSentAt: expect.any(Date) }),
+        expect.objectContaining({
+          id: 1,
+          emailReminderSentAt: expect.any(Date),
+        }),
       ]);
     });
 
     it('should NOT mark emailReminderSentAt for a user whose send failed, and should still process other users', async () => {
       const assignmentA = makeAssignment({ id: 1, user: mockUserA as any });
       const assignmentB = makeAssignment({ id: 2, user: mockUserB as any });
-      mockAssignmentRepository.find.mockResolvedValue([assignmentA, assignmentB]);
+      mockAssignmentRepository.find.mockResolvedValue([
+        assignmentA,
+        assignmentB,
+      ]);
       mockEmailService.send
         .mockRejectedValueOnce(new Error('Resend API error (500): boom'))
         .mockResolvedValueOnce(undefined);
@@ -175,7 +220,10 @@ describe('RemindersService', () => {
       Should(mockEmailService.send).HaveBeenCalledTimes(2);
       Should(mockAssignmentRepository.save).HaveBeenCalledTimes(1);
       Should(mockAssignmentRepository.save).HaveBeenCalledWith([
-        expect.objectContaining({ id: 2, emailReminderSentAt: expect.any(Date) }),
+        expect.objectContaining({
+          id: 2,
+          emailReminderSentAt: expect.any(Date),
+        }),
       ]);
     });
   });

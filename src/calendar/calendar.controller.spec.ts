@@ -34,9 +34,18 @@ describe('CalendarController (F23 — Caminos Básicos Backend Tabla 18)', () =>
   // Camino P1: 1-2-3-4-20
   describe('Camino P1 (1-2-3-4-20): Verificación de guardias de seguridad JWT', () => {
     it('debe exigir guardia JwtAuthGuard (@UseGuards(AuthGuard("jwt"))) en /subscription y /download, y permitir acceso público en feed', () => {
-      const guardsSub = Reflect.getMetadata('__guards__', CalendarController.prototype.createSubscription);
-      const guardsDl = Reflect.getMetadata('__guards__', CalendarController.prototype.download);
-      const guardsFeed = Reflect.getMetadata('__guards__', CalendarController.prototype.feed);
+      const guardsSub = Reflect.getMetadata(
+        '__guards__',
+        CalendarController.prototype.createSubscription,
+      );
+      const guardsDl = Reflect.getMetadata(
+        '__guards__',
+        CalendarController.prototype.download,
+      );
+      const guardsFeed = Reflect.getMetadata(
+        '__guards__',
+        CalendarController.prototype.feed,
+      );
 
       guardsSub.Should().BeDefined();
       guardsSub.length.Should().BeGreaterThan(0);
@@ -53,7 +62,9 @@ describe('CalendarController (F23 — Caminos Básicos Backend Tabla 18)', () =>
         user: { sub: 1 },
         get: jest.fn().mockReturnValue('localhost:3000'),
       };
-      calendarService.getOrCreateToken.mockResolvedValue('existing-feed-token-123');
+      calendarService.getOrCreateToken.mockResolvedValue(
+        'existing-feed-token-123',
+      );
 
       const result = await controller.createSubscription(mockReq);
 
@@ -63,7 +74,8 @@ describe('CalendarController (F23 — Caminos Básicos Backend Tabla 18)', () =>
         status: 200,
         message: 'Calendar subscription created successfully',
         data: {
-          webcalUrl: 'webcal://localhost:3000/calendar/feed/existing-feed-token-123.ics',
+          webcalUrl:
+            'webcal://localhost:3000/calendar/feed/existing-feed-token-123.ics',
         },
       });
     });
@@ -76,14 +88,20 @@ describe('CalendarController (F23 — Caminos Básicos Backend Tabla 18)', () =>
         user: { sub: 2 },
         get: jest.fn().mockReturnValue('api.whatsdue.app'),
       };
-      calendarService.getOrCreateToken.mockResolvedValue('newly-generated-hex-token-456');
+      calendarService.getOrCreateToken.mockResolvedValue(
+        'newly-generated-hex-token-456',
+      );
 
       const result = await controller.createSubscription(mockReq);
 
       Should(calendarService.getOrCreateToken).HaveBeenCalledWith(2);
       Should(mockReq.get).HaveBeenCalledWith('host');
       result.status.Should().Be(200);
-      result.data.webcalUrl.Should().Be('webcal://api.whatsdue.app/calendar/feed/newly-generated-hex-token-456.ics');
+      result.data.webcalUrl
+        .Should()
+        .Be(
+          'webcal://api.whatsdue.app/calendar/feed/newly-generated-hex-token-456.ics',
+        );
     });
   });
 
@@ -95,13 +113,17 @@ describe('CalendarController (F23 — Caminos Básicos Backend Tabla 18)', () =>
         setHeader: jest.fn(),
         send: jest.fn(),
       };
-      const mockCalendarContent = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nEND:VCALENDAR\r\n';
+      const mockCalendarContent =
+        'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nEND:VCALENDAR\r\n';
       calendarService.generateForUser.mockResolvedValue(mockCalendarContent);
 
       await controller.download(mockReq, mockRes);
 
       Should(calendarService.generateForUser).HaveBeenCalledWith(1);
-      Should(mockRes.setHeader).HaveBeenCalledWith('Content-Type', 'text/calendar; charset=utf-8');
+      Should(mockRes.setHeader).HaveBeenCalledWith(
+        'Content-Type',
+        'text/calendar; charset=utf-8',
+      );
       Should(mockRes.setHeader).HaveBeenCalledWith(
         'Content-Disposition',
         'attachment; filename="whats-due-tomorrow.ics"',
@@ -114,7 +136,8 @@ describe('CalendarController (F23 — Caminos Básicos Backend Tabla 18)', () =>
   describe('Camino P8 (1-2-14-15-17-18-19-20): GET /feed/:token.ics sincronización pública webcal', () => {
     it('debe retornar el texto plano iCalendar asociado al token público proporcionado', async () => {
       const token = 'public-feed-token-789';
-      const mockIcs = 'BEGIN:VCALENDAR\r\nPRODID:-//Whats Due Tomorrow//Academic Calendar//EN\r\nEND:VCALENDAR\r\n';
+      const mockIcs =
+        'BEGIN:VCALENDAR\r\nPRODID:-//Whats Due Tomorrow//Academic Calendar//EN\r\nEND:VCALENDAR\r\n';
       calendarService.generateForToken.mockResolvedValue(mockIcs);
 
       const result = await controller.feed(token);

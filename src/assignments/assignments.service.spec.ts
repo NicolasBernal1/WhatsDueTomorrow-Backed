@@ -60,7 +60,10 @@ describe('AssignmentsService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AssignmentsService,
-        { provide: getRepositoryToken(Assignment), useValue: mockAssignmentRepository },
+        {
+          provide: getRepositoryToken(Assignment),
+          useValue: mockAssignmentRepository,
+        },
         { provide: UsersService, useValue: mockUsersService },
         { provide: SubjectsService, useValue: mockSubjectsService },
       ],
@@ -143,8 +146,9 @@ describe('AssignmentsService', () => {
       mockAssignmentRepository.find.mockRejectedValue(dbError);
 
       // Act & Assert (Fluent Exception Assertion)
-      await Should(async () => service.getUpcomingAssignments(1))
-        .ThrowAsync('PostgreSQL connection timeout');
+      await Should(async () => service.getUpcomingAssignments(1)).ThrowAsync(
+        'PostgreSQL connection timeout',
+      );
     });
 
     // Camino P3: 1-2-4-5-6-7-10-11-13-14 (Flujo nominal principal con entregas próximas encontradas)
@@ -265,14 +269,18 @@ describe('AssignmentsService', () => {
         user: mockUser,
         subject: mockSubject,
       });
-      expect(mockAssignmentRepository.save).toHaveBeenCalledWith(mockAssignment);
+      expect(mockAssignmentRepository.save).toHaveBeenCalledWith(
+        mockAssignment,
+      );
     });
 
     it('should throw NotFoundException when the user does not exist', async () => {
       mockUsersService.findOneById.mockResolvedValue(null);
       mockSubjectsService.getSubjectById.mockResolvedValue(mockSubject);
 
-      await expect(service.addAssignment(999, 10, addDto)).rejects.toThrow(NotFoundException);
+      await expect(service.addAssignment(999, 10, addDto)).rejects.toThrow(
+        NotFoundException,
+      );
       expect(mockAssignmentRepository.create).not.toHaveBeenCalled();
     });
 
@@ -280,7 +288,9 @@ describe('AssignmentsService', () => {
       mockUsersService.findOneById.mockResolvedValue(mockUser);
       mockSubjectsService.getSubjectById.mockResolvedValue(null);
 
-      await expect(service.addAssignment(1, 999, addDto)).rejects.toThrow(NotFoundException);
+      await expect(service.addAssignment(1, 999, addDto)).rejects.toThrow(
+        NotFoundException,
+      );
       expect(mockAssignmentRepository.create).not.toHaveBeenCalled();
     });
   });
@@ -301,7 +311,9 @@ describe('AssignmentsService', () => {
     it('should throw NotFoundException when the assignment does not exist', async () => {
       mockAssignmentRepository.findOneBy.mockResolvedValue(null);
 
-      await expect(service.deleteAssignment(999)).rejects.toThrow(NotFoundException);
+      await expect(service.deleteAssignment(999)).rejects.toThrow(
+        NotFoundException,
+      );
       expect(mockAssignmentRepository.delete).not.toHaveBeenCalled();
     });
   });
@@ -313,7 +325,9 @@ describe('AssignmentsService', () => {
 
     it('should update an assignment and return status 200', async () => {
       const preloaded = { ...mockAssignment, ...updateDto };
-      (mockAssignmentRepository as any).preload = jest.fn().mockResolvedValue(preloaded);
+      (mockAssignmentRepository as any).preload = jest
+        .fn()
+        .mockResolvedValue(preloaded);
       mockAssignmentRepository.save.mockResolvedValue(preloaded);
 
       const result = await service.editAssignment(100, updateDto as any);
@@ -328,11 +342,13 @@ describe('AssignmentsService', () => {
     });
 
     it('should throw NotFoundException when the assignment does not exist', async () => {
-      (mockAssignmentRepository as any).preload = jest.fn().mockResolvedValue(null);
+      (mockAssignmentRepository as any).preload = jest
+        .fn()
+        .mockResolvedValue(null);
 
-      await expect(service.editAssignment(999, updateDto as any)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.editAssignment(999, updateDto as any),
+      ).rejects.toThrow(NotFoundException);
       expect(mockAssignmentRepository.save).not.toHaveBeenCalled();
     });
   });

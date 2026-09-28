@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { BaseResponseDto } from 'src/common/dtos/base-response.dto';
@@ -20,7 +24,10 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  private async getAuthenticatedUser(userId: number, plainTextPassword: string) {
+  private async getAuthenticatedUser(
+    userId: number,
+    plainTextPassword: string,
+  ) {
     const user = await this.userService.findOneById(userId);
     if (!user) {
       throw new NotFoundException('The user does not exist');
@@ -90,7 +97,10 @@ export class AuthService {
     };
   }
 
-  async changePassword(userId: number, data: ChangePasswordDto): Promise<BaseResponseDto<null>> {
+  async changePassword(
+    userId: number,
+    data: ChangePasswordDto,
+  ): Promise<BaseResponseDto<null>> {
     const user = await this.getAuthenticatedUser(userId, data.currentPassword);
 
     const newHash = await bcrypt.hash(data.newPassword, SALT_ROUNDS);
@@ -102,7 +112,10 @@ export class AuthService {
     };
   }
 
-  async verifyPassword(userId: number, password: string): Promise<BaseResponseDto<null>> {
+  async verifyPassword(
+    userId: number,
+    password: string,
+  ): Promise<BaseResponseDto<null>> {
     await this.getAuthenticatedUser(userId, password);
 
     return {

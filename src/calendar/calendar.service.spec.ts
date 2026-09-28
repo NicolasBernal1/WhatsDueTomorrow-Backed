@@ -36,8 +36,14 @@ describe('CalendarService (F23 — Caminos Básicos Backend Tabla 18)', () => {
         CalendarService,
         { provide: getRepositoryToken(CalendarFeed), useValue: feedRepository },
         { provide: getRepositoryToken(User), useValue: userRepository },
-        { provide: getRepositoryToken(SubjectClass), useValue: classRepository },
-        { provide: getRepositoryToken(Assignment), useValue: assignmentRepository },
+        {
+          provide: getRepositoryToken(SubjectClass),
+          useValue: classRepository,
+        },
+        {
+          provide: getRepositoryToken(Assignment),
+          useValue: assignmentRepository,
+        },
       ],
     }).compile();
 
@@ -56,7 +62,9 @@ describe('CalendarService (F23 — Caminos Básicos Backend Tabla 18)', () => {
       const token = await service.getOrCreateToken(1);
 
       token.Should().Be('existing-token-abc');
-      Should(feedRepository.findOne).HaveBeenCalledWith({ where: { user: { id: 1 } } });
+      Should(feedRepository.findOne).HaveBeenCalledWith({
+        where: { user: { id: 1 } },
+      });
       Should(userRepository.findOneBy).NotHaveBeenCalled();
       Should(feedRepository.save).NotHaveBeenCalled();
     });
@@ -68,7 +76,11 @@ describe('CalendarService (F23 — Caminos Básicos Backend Tabla 18)', () => {
       feedRepository.findOne.mockResolvedValue(null);
       userRepository.findOneBy.mockResolvedValue(null);
 
-      (await Should(() => service.getOrCreateToken(999)).ThrowAsync(NotFoundException)).WithMessage('User not found');
+      (
+        await Should(() => service.getOrCreateToken(999)).ThrowAsync(
+          NotFoundException,
+        )
+      ).WithMessage('User not found');
       Should(feedRepository.create).NotHaveBeenCalled();
       Should(feedRepository.save).NotHaveBeenCalled();
     });
@@ -81,7 +93,10 @@ describe('CalendarService (F23 — Caminos Básicos Backend Tabla 18)', () => {
       feedRepository.findOne.mockResolvedValue(null);
       userRepository.findOneBy.mockResolvedValue(mockUser);
       feedRepository.create.mockImplementation((dto) => dto);
-      feedRepository.save.mockImplementation(async (feed) => ({ ...feed, id: 10 }));
+      feedRepository.save.mockImplementation(async (feed) => ({
+        ...feed,
+        id: 10,
+      }));
 
       const token = await service.getOrCreateToken(1);
 
@@ -101,7 +116,11 @@ describe('CalendarService (F23 — Caminos Básicos Backend Tabla 18)', () => {
     it('debe lanzar NotFoundException("User not found") antes de consultar clases o entregas', async () => {
       userRepository.findOneBy.mockResolvedValue(null);
 
-      (await Should(() => service.generateForUser(999)).ThrowAsync(NotFoundException)).WithMessage('User not found');
+      (
+        await Should(() => service.generateForUser(999)).ThrowAsync(
+          NotFoundException,
+        )
+      ).WithMessage('User not found');
       Should(classRepository.find).NotHaveBeenCalled();
       Should(assignmentRepository.find).NotHaveBeenCalled();
     });
@@ -118,14 +137,19 @@ describe('CalendarService (F23 — Caminos Básicos Backend Tabla 18)', () => {
           startTime: '08:00',
           endTime: '10:00',
           classroom: 'Aula 301',
-          subject: { name: 'Matemáticas Especiales; Grupo 1, Sección A', professor: 'Dr. Euler & Gauss' },
+          subject: {
+            name: 'Matemáticas Especiales; Grupo 1, Sección A',
+            professor: 'Dr. Euler & Gauss',
+          },
         },
       ];
       const mockAssignments = [
         {
           id: 20,
-          title: 'Taller de Cálculo Multivariable con descripción sumamente extensa para verificar el algoritmo de plegado a setenta y cinco octetos según estándar RFC',
-          description: 'Línea 1\nLínea 2 con caracteres especiales: coma, punto y coma; y barra invertida \\',
+          title:
+            'Taller de Cálculo Multivariable con descripción sumamente extensa para verificar el algoritmo de plegado a setenta y cinco octetos según estándar RFC',
+          description:
+            'Línea 1\nLínea 2 con caracteres especiales: coma, punto y coma; y barra invertida \\',
           dueDate: '2026-09-15T14:00:00.000Z',
           subject: { name: 'Matemáticas Especiales' },
         },
@@ -140,7 +164,9 @@ describe('CalendarService (F23 — Caminos Básicos Backend Tabla 18)', () => {
       // Verificación cabecera y cierre RFC 5545
       calendar.Should().Contain('BEGIN:VCALENDAR');
       calendar.Should().Contain('VERSION:2.0');
-      calendar.Should().Contain('PRODID:-//Whats Due Tomorrow//Academic Calendar//EN');
+      calendar
+        .Should()
+        .Contain('PRODID:-//Whats Due Tomorrow//Academic Calendar//EN');
       calendar.Should().Contain('CALSCALE:GREGORIAN');
       calendar.Should().Contain('METHOD:PUBLISH');
       calendar.Should().Contain('END:VCALENDAR');
@@ -148,7 +174,11 @@ describe('CalendarService (F23 — Caminos Básicos Backend Tabla 18)', () => {
       // Verificación evento de clase
       calendar.Should().Contain('UID:class-10-user-1@whats-due-tomorrow');
       calendar.Should().Contain('RRULE:FREQ=WEEKLY');
-      calendar.Should().Contain('SUMMARY:Class: Matemáticas Especiales\\; Grupo 1\\, Sección A');
+      calendar
+        .Should()
+        .Contain(
+          'SUMMARY:Class: Matemáticas Especiales\\; Grupo 1\\, Sección A',
+        );
       calendar.Should().Contain('DESCRIPTION:Professor: Dr. Euler & Gauss');
 
       // Verificación evento de entrega
@@ -194,9 +224,11 @@ describe('CalendarService (F23 — Caminos Básicos Backend Tabla 18)', () => {
     it('debe lanzar NotFoundException("Calendar feed not found") cuando el token no coincide en BD', async () => {
       feedRepository.findOne.mockResolvedValue(null);
 
-      (await Should(() => service.generateForToken('invalid-non-existent-token')).ThrowAsync(NotFoundException)).WithMessage(
-        'Calendar feed not found',
-      );
+      (
+        await Should(() =>
+          service.generateForToken('invalid-non-existent-token'),
+        ).ThrowAsync(NotFoundException)
+      ).WithMessage('Calendar feed not found');
       Should(userRepository.findOneBy).NotHaveBeenCalled();
     });
   });
@@ -206,13 +238,18 @@ describe('CalendarService (F23 — Caminos Básicos Backend Tabla 18)', () => {
     it('debe resolver el feed existente y generar el archivo iCalendar para el usuario correspondiente', async () => {
       const mockFeed = { token: 'valid-token-xyz', user: { id: 5 } };
       feedRepository.findOne.mockResolvedValue(mockFeed);
-      userRepository.findOneBy.mockResolvedValue({ id: 5, email: 'user5@example.com' });
+      userRepository.findOneBy.mockResolvedValue({
+        id: 5,
+        email: 'user5@example.com',
+      });
       classRepository.find.mockResolvedValue([]);
       assignmentRepository.find.mockResolvedValue([]);
 
       const calendar = await service.generateForToken('valid-token-xyz');
 
-      Should(feedRepository.findOne).HaveBeenCalledWith({ where: { token: 'valid-token-xyz' } });
+      Should(feedRepository.findOne).HaveBeenCalledWith({
+        where: { token: 'valid-token-xyz' },
+      });
       Should(userRepository.findOneBy).HaveBeenCalledWith({ id: 5 });
       calendar.Should().Contain('BEGIN:VCALENDAR');
       calendar.Should().Contain('END:VCALENDAR');

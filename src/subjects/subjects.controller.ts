@@ -8,7 +8,19 @@ import { ClassResponseDto } from './dtos/class-response.dto';
 import { EditSubjectDto } from './dtos/edit-subject.dto';
 import { EditClassDto } from './dtos/edit-class.dto';
 import { AcademicLoadSummaryDto } from './dtos/academic-load-summary.dto';
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query, Request, UseGuards, Patch } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Query,
+  Request,
+  UseGuards,
+  Patch,
+} from '@nestjs/common';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('subjects')
@@ -32,7 +44,6 @@ export class SubjectsController {
   //Agrego nueva funcionalidad de buscar/filtrar asignaturas
   @Get('/search')
   async searchSubjects(
-
     @Request() req,
     @Query('q') query: string,
   ): Promise<BaseResponseDto<SubjectResponseDto[]>> {

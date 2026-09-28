@@ -170,7 +170,7 @@ export class NotesService {
   }
 
   private validateAndSanitizeUrl(url?: string | null): string | null {
-    if (!url || !url.trim()) {
+    if (!url?.trim()) {
       return null;
     }
     const trimmed = url.trim();
