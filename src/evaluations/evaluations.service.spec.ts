@@ -13,6 +13,7 @@ import { UpdateEvaluationDto } from './dtos/update-evaluation.dto';
 import { SimulateGradeDto } from './dtos/simulate-grade.dto';
 import { Evaluation } from './entities/evaluation.entity';
 import { EvaluationsService } from './evaluations.service';
+import { Should } from '../common/fluent-assertions';
 
 const studentId = 1;
 const otherStudentId = 999;
@@ -65,19 +66,19 @@ describe('EvaluationsService (F25 — Caminos Básicos Backend Tabla 38)', () =>
     it('[P2: 1 → 2 → 3 → 5 → 6 → 7 → 26] debe lanzar NotFoundException si la asignatura no existe en BD', async () => {
       subjectRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.getBySubject(studentId, 404)).rejects.toThrow(
-        new NotFoundException('The subject does not exist'),
-      );
-      expect(evaluationRepository.find).not.toHaveBeenCalled();
+      (await Should(() => service.getBySubject(studentId, 404)).ThrowAsync(
+        NotFoundException,
+      )).WithMessage('The subject does not exist');
+      Should(evaluationRepository.find).NotHaveBeenCalled();
     });
 
     it('[P3: 1 → 2 → 3 → 5 → 6 → 8 → 9 → 26] debe lanzar ForbiddenException si la asignatura pertenece a otro estudiante', async () => {
       subjectRepository.findOne.mockResolvedValue(foreignSubject);
 
-      await expect(service.getBySubject(studentId, subjectId)).rejects.toThrow(
-        new ForbiddenException('You cannot access this subject'),
-      );
-      expect(evaluationRepository.find).not.toHaveBeenCalled();
+      (await Should(() => service.getBySubject(studentId, subjectId)).ThrowAsync(
+        ForbiddenException,
+      )).WithMessage('You cannot access this subject');
+      Should(evaluationRepository.find).NotHaveBeenCalled();
     });
   });
 
@@ -108,14 +109,14 @@ describe('EvaluationsService (F25 — Caminos Básicos Backend Tabla 38)', () =>
 
       const res = await service.getBySubject(studentId, subjectId);
 
-      expect(res.status).toBe(200);
-      expect(res.message).toBe('Evaluations retrieved successfully');
-      expect(res.data.evaluations).toHaveLength(2);
-      expect(res.data.summary.totalWeight).toBe(50);
-      expect(res.data.summary.remainingWeight).toBe(50);
+      res.status.Should().Be(200);
+      res.message.Should().Be('Evaluations retrieved successfully');
+      res.data.evaluations.Should().HaveCount(2);
+      res.data.summary.totalWeight.Should().Be(50);
+      res.data.summary.remainingWeight.Should().Be(50);
       // 4.0*0.3 + 3.5*0.2 = 1.2 + 0.7 = 1.9
-      expect(res.data.summary.currentContribution).toBe(1.9);
-      expect(res.data.summary.status).toBe('Aprobando');
+      res.data.summary.currentContribution.Should().Be(1.9);
+      res.data.summary.status.Should().Be('Aprobando');
     });
   });
 
@@ -125,65 +126,57 @@ describe('EvaluationsService (F25 — Caminos Básicos Backend Tabla 38)', () =>
     });
 
     it('[P5] debe rechazar creación cuando el nombre está vacío o sólo contiene espacios', async () => {
-      await expect(
+      (await Should(() =>
         service.create(studentId, subjectId, {
           name: '   ',
           weight: 20,
           score: 4.0,
         }),
-      ).rejects.toThrow(new BadRequestException('The evaluation name cannot be empty'));
+      ).ThrowAsync(BadRequestException)).WithMessage('The evaluation name cannot be empty');
 
-      await expect(
+      (await Should(() =>
         service.create(studentId, subjectId, {
           name: '',
           weight: 20,
           score: 4.0,
         }),
-      ).rejects.toThrow(new BadRequestException('The evaluation name cannot be empty'));
+      ).ThrowAsync(BadRequestException)).WithMessage('The evaluation name cannot be empty');
     });
 
     it('[P5] debe rechazar creación con peso fuera de rango (< 1 o > 100)', async () => {
-      await expect(
+      (await Should(() =>
         service.create(studentId, subjectId, {
           name: 'Quiz 1',
           weight: 0,
           score: 4.0,
         }),
-      ).rejects.toThrow(
-        new BadRequestException('The weight percentage must be between 1 and 100'),
-      );
+      ).ThrowAsync(BadRequestException)).WithMessage('The weight percentage must be between 1 and 100');
 
-      await expect(
+      (await Should(() =>
         service.create(studentId, subjectId, {
           name: 'Quiz 1',
           weight: 101,
           score: 4.0,
         }),
-      ).rejects.toThrow(
-        new BadRequestException('The weight percentage must be between 1 and 100'),
-      );
+      ).ThrowAsync(BadRequestException)).WithMessage('The weight percentage must be between 1 and 100');
     });
 
     it('[P5] debe rechazar creación con calificación fuera de rango (< 0.0 o > 5.0)', async () => {
-      await expect(
+      (await Should(() =>
         service.create(studentId, subjectId, {
           name: 'Quiz 1',
           weight: 20,
           score: -0.1,
         }),
-      ).rejects.toThrow(
-        new BadRequestException('The score must be between 0.0 and 5.0'),
-      );
+      ).ThrowAsync(BadRequestException)).WithMessage('The score must be between 0.0 and 5.0');
 
-      await expect(
+      (await Should(() =>
         service.create(studentId, subjectId, {
           name: 'Quiz 1',
           weight: 20,
           score: 5.1,
         }),
-      ).rejects.toThrow(
-        new BadRequestException('The score must be between 0.0 and 5.0'),
-      );
+      ).ThrowAsync(BadRequestException)).WithMessage('The score must be between 0.0 and 5.0');
     });
   });
 
@@ -209,15 +202,15 @@ describe('EvaluationsService (F25 — Caminos Básicos Backend Tabla 38)', () =>
 
       const res = await service.create(studentId, subjectId, dto);
 
-      expect(evaluationRepository.create).toHaveBeenCalledWith({
+      Should(evaluationRepository.create).HaveBeenCalledWith({
         name: 'Examen Parcial 1',
         weight: 35,
         score: 4.25,
         subject: ownedSubject,
       });
-      expect(evaluationRepository.save).toHaveBeenCalledWith(createdEval);
-      expect(res.status).toBe(200);
-      expect(res.data.evaluations).toHaveLength(1);
+      Should(evaluationRepository.save).HaveBeenCalledWith(createdEval);
+      res.status.Should().Be(200);
+      res.data.evaluations.Should().HaveCount(1);
     });
   });
 
@@ -226,13 +219,15 @@ describe('EvaluationsService (F25 — Caminos Básicos Backend Tabla 38)', () =>
       subjectRepository.findOne.mockResolvedValue(ownedSubject);
       evaluationRepository.findOne.mockResolvedValue(null);
 
-      await expect(
-        service.update(studentId, subjectId, 999, { name: 'Cambio' }),
-      ).rejects.toThrow(new NotFoundException('The evaluation does not exist'));
+      await (
+        await Should(() =>
+          service.update(studentId, subjectId, 999, { name: 'Cambio' }),
+        )
+      ).ThrowAsync(new NotFoundException('The evaluation does not exist'));
 
-      await expect(
-        service.remove(studentId, subjectId, 999),
-      ).rejects.toThrow(new NotFoundException('The evaluation does not exist'));
+      await (
+        await Should(() => service.remove(studentId, subjectId, 999))
+      ).ThrowAsync(new NotFoundException('The evaluation does not exist'));
     });
   });
 
@@ -252,35 +247,51 @@ describe('EvaluationsService (F25 — Caminos Básicos Backend Tabla 38)', () =>
     });
 
     it('[P8] debe rechazar actualización si el nombre proporcionado está vacío', async () => {
-      await expect(
-        service.update(studentId, subjectId, 5, { name: '   ' }),
-      ).rejects.toThrow(new BadRequestException('The evaluation name cannot be empty'));
+      await (
+        await Should(() =>
+          service.update(studentId, subjectId, 5, { name: '   ' }),
+        )
+      ).ThrowAsync(
+        new BadRequestException('The evaluation name cannot be empty'),
+      );
     });
 
     it('[P8] debe rechazar actualización si el peso está fuera de rango (< 1 o > 100)', async () => {
-      await expect(
-        service.update(studentId, subjectId, 5, { weight: 0 }),
-      ).rejects.toThrow(
-        new BadRequestException('The weight percentage must be between 1 and 100'),
+      await (
+        await Should(() =>
+          service.update(studentId, subjectId, 5, { weight: 0 }),
+        )
+      ).ThrowAsync(
+        new BadRequestException(
+          'The weight percentage must be between 1 and 100',
+        ),
       );
 
-      await expect(
-        service.update(studentId, subjectId, 5, { weight: 101 }),
-      ).rejects.toThrow(
-        new BadRequestException('The weight percentage must be between 1 and 100'),
+      await (
+        await Should(() =>
+          service.update(studentId, subjectId, 5, { weight: 101 }),
+        )
+      ).ThrowAsync(
+        new BadRequestException(
+          'The weight percentage must be between 1 and 100',
+        ),
       );
     });
 
     it('[P8] debe rechazar actualización si la calificación está fuera de rango (< 0.0 o > 5.0)', async () => {
-      await expect(
-        service.update(studentId, subjectId, 5, { score: -0.5 }),
-      ).rejects.toThrow(
+      await (
+        await Should(() =>
+          service.update(studentId, subjectId, 5, { score: -0.5 }),
+        )
+      ).ThrowAsync(
         new BadRequestException('The score must be between 0.0 and 5.0'),
       );
 
-      await expect(
-        service.update(studentId, subjectId, 5, { score: 5.5 }),
-      ).rejects.toThrow(
+      await (
+        await Should(() =>
+          service.update(studentId, subjectId, 5, { score: 5.5 }),
+        )
+      ).ThrowAsync(
         new BadRequestException('The score must be between 0.0 and 5.0'),
       );
     });
@@ -308,11 +319,11 @@ describe('EvaluationsService (F25 — Caminos Básicos Backend Tabla 38)', () =>
 
       const res = await service.update(studentId, subjectId, 5, updateDto);
 
-      expect(existing.name).toBe('Taller 1 Corregido');
-      expect(existing.weight).toBe(25);
-      expect(existing.score).toBe(4.8);
-      expect(evaluationRepository.save).toHaveBeenCalledWith(existing);
-      expect(res.status).toBe(200);
+      existing.name.Should().Be('Taller 1 Corregido');
+      existing.weight.Should().Be(25);
+      existing.score.Should().Be(4.8);
+      Should(evaluationRepository.save).HaveBeenCalledWith(existing);
+      res.status.Should().Be(200);
     });
   });
 
@@ -332,10 +343,10 @@ describe('EvaluationsService (F25 — Caminos Básicos Backend Tabla 38)', () =>
 
       const res = await service.remove(studentId, subjectId, 5);
 
-      expect(evaluationRepository.remove).toHaveBeenCalledWith(existing);
-      expect(res.status).toBe(200);
-      expect(res.data.evaluations).toHaveLength(0);
-      expect(res.data.summary.status).toBe('Sin calificaciones');
+      Should(evaluationRepository.remove).HaveBeenCalledWith(existing);
+      res.status.Should().Be(200);
+      res.data.evaluations.Should().HaveCount(0);
+      res.data.summary.status.Should().Be('Sin calificaciones');
     });
   });
 
@@ -357,12 +368,12 @@ describe('EvaluationsService (F25 — Caminos Básicos Backend Tabla 38)', () =>
         targetGrade: 3.0,
       });
 
-      expect(simResult.status).toBe(200);
-      expect(simResult.data.summary.remainingWeight).toBe(0);
-      expect(simResult.data.requiredForTarget).toBeNull();
-      expect(simResult.data.isTargetAttainable).toBe(false);
-      expect(simResult.data.hypotheticalFinalGrade).toBeNull();
-      expect(simResult.data.hypotheticalStatus).toBeNull();
+      simResult.status.Should().Be(200);
+      simResult.data.summary.remainingWeight.Should().Be(0);
+      Should(simResult.data.requiredForTarget).BeNull();
+      simResult.data.isTargetAttainable.Should().BeFalse();
+      Should(simResult.data.hypotheticalFinalGrade).BeNull();
+      Should(simResult.data.hypotheticalStatus).BeNull();
     });
 
     it('[P12: 10 → 24 → 28 → 27 → 26] simulación con margen disponible y meta ya alcanzada por la contribución acumulada', async () => {
@@ -383,12 +394,12 @@ describe('EvaluationsService (F25 — Caminos Básicos Backend Tabla 38)', () =>
         hypotheticalScore: 4.0,
       });
 
-      expect(simResult.status).toBe(200);
-      expect(simResult.data.requiredForTarget).toBe(0.0);
-      expect(simResult.data.isTargetAttainable).toBe(true);
+      simResult.status.Should().Be(200);
+      simResult.data.requiredForTarget.Should().Be(0.0);
+      simResult.data.isTargetAttainable.Should().BeTrue();
       // hypothetical: 3.5 + (4.0 * 30 / 100) = 3.5 + 1.2 = 4.7
-      expect(simResult.data.hypotheticalFinalGrade).toBe(4.7);
-      expect(simResult.data.hypotheticalStatus).toBe('Aprobando');
+      simResult.data.hypotheticalFinalGrade.Should().Be(4.7);
+      simResult.data.hypotheticalStatus.Should().Be('Aprobando');
     });
 
     it('[P12] simulación con margen disponible, meta alcanzable y nota hipotética deficiente ("En riesgo")', async () => {
@@ -410,11 +421,11 @@ describe('EvaluationsService (F25 — Caminos Básicos Backend Tabla 38)', () =>
         hypotheticalScore: 2.0,
       });
 
-      expect(simResult.status).toBe(200);
-      expect(simResult.data.requiredForTarget).toBe(3.0);
-      expect(simResult.data.isTargetAttainable).toBe(true);
-      expect(simResult.data.hypotheticalFinalGrade).toBe(2.4);
-      expect(simResult.data.hypotheticalStatus).toBe('En riesgo');
+      simResult.status.Should().Be(200);
+      simResult.data.requiredForTarget.Should().Be(3.0);
+      simResult.data.isTargetAttainable.Should().BeTrue();
+      simResult.data.hypotheticalFinalGrade.Should().Be(2.4);
+      simResult.data.hypotheticalStatus.Should().Be('En riesgo');
     });
 
     it('[P12] simulación cuando la nota requerida supera el máximo 5.0 (inconseguible)', async () => {
@@ -432,11 +443,11 @@ describe('EvaluationsService (F25 — Caminos Básicos Backend Tabla 38)', () =>
       // Para meta 3.0: (3.0 - 0.35) * 100 / 30 = 2.65 / 0.3 = 8.83 > 5.0!
       const simResult = await service.simulate(studentId, subjectId, {});
 
-      expect(simResult.status).toBe(200);
-      expect(simResult.data.targetGrade).toBe(3.0);
-      expect(simResult.data.requiredForTarget).toBe(8.83);
-      expect(simResult.data.isTargetAttainable).toBe(false);
-      expect(simResult.data.hypotheticalScore).toBeNull();
+      simResult.status.Should().Be(200);
+      simResult.data.targetGrade.Should().Be(3.0);
+      simResult.data.requiredForTarget.Should().Be(8.83);
+      simResult.data.isTargetAttainable.Should().BeFalse();
+      Should(simResult.data.hypotheticalScore).BeNull();
     });
 
     it('[P12] simulación maneja excepción si getBySubject retorna datos nulos', async () => {
@@ -447,9 +458,13 @@ describe('EvaluationsService (F25 — Caminos Básicos Backend Tabla 38)', () =>
         data: null as any,
       });
 
-      await expect(
-        service.simulate(studentId, subjectId, { targetGrade: 3.5 }),
-      ).rejects.toThrow(new NotFoundException('Evaluations could not be retrieved'));
+      await (
+        await Should(() =>
+          service.simulate(studentId, subjectId, { targetGrade: 3.5 }),
+        )
+      ).ThrowAsync(
+        new NotFoundException('Evaluations could not be retrieved'),
+      );
     });
   });
 
@@ -457,14 +472,14 @@ describe('EvaluationsService (F25 — Caminos Básicos Backend Tabla 38)', () =>
     it('caso sin evaluaciones: promedio 0, restante 100%, nota requerida 3.0, "Sin calificaciones"', () => {
       const summary = service.calculateSummary([]);
 
-      expect(summary.totalWeight).toBe(0);
-      expect(summary.remainingWeight).toBe(100);
-      expect(summary.currentContribution).toBe(0);
-      expect(summary.currentAverage).toBe(0);
-      expect(summary.requiredGrade).toBe(3.0);
-      expect(summary.isAttainable).toBe(true);
-      expect(summary.status).toBe('Sin calificaciones');
-      expect(summary.weightExceeded).toBe(false);
+      summary.totalWeight.Should().Be(0);
+      summary.remainingWeight.Should().Be(100);
+      summary.currentContribution.Should().Be(0);
+      summary.currentAverage.Should().Be(0);
+      summary.requiredGrade.Should().Be(3.0);
+      summary.isAttainable.Should().BeTrue();
+      summary.status.Should().Be('Sin calificaciones');
+      summary.weightExceeded.Should().BeFalse();
     });
 
     it('caso promedio reprobatorio pero alcanzable (status "En riesgo" si currentAverage < 3.0)', () => {
@@ -476,9 +491,9 @@ describe('EvaluationsService (F25 — Caminos Básicos Backend Tabla 38)', () =>
 
       const summary = service.calculateSummary(evaluations);
 
-      expect(summary.currentAverage).toBe(2.5);
-      expect(summary.isAttainable).toBe(true);
-      expect(summary.status).toBe('En riesgo');
+      summary.currentAverage.Should().Be(2.5);
+      summary.isAttainable.Should().BeTrue();
+      summary.status.Should().Be('En riesgo');
     });
 
     it('caso con 100% evaluado y nota final reprobada (< 3.0): requiredGrade null y status "En riesgo"', () => {
@@ -488,10 +503,10 @@ describe('EvaluationsService (F25 — Caminos Básicos Backend Tabla 38)', () =>
 
       const summary = service.calculateSummary(evaluations);
 
-      expect(summary.remainingWeight).toBe(0);
-      expect(summary.requiredGrade).toBeNull();
-      expect(summary.isAttainable).toBe(false);
-      expect(summary.status).toBe('En riesgo');
+      summary.remainingWeight.Should().Be(0);
+      Should(summary.requiredGrade).BeNull();
+      summary.isAttainable.Should().BeFalse();
+      summary.status.Should().Be('En riesgo');
     });
 
     it('caso precisión de coma flotante a 2 decimales exactos', () => {
@@ -503,10 +518,10 @@ describe('EvaluationsService (F25 — Caminos Básicos Backend Tabla 38)', () =>
 
       const summary = service.calculateSummary(evaluations);
 
-      expect(summary.totalWeight).toBe(100.0);
-      expect(summary.remainingWeight).toBe(0.0);
-      expect(summary.currentContribution.toString()).toMatch(/^\d+(\.\d{1,2})?$/);
-      expect(summary.currentAverage.toString()).toMatch(/^\d+(\.\d{1,2})?$/);
+      summary.totalWeight.Should().Be(100.0);
+      summary.remainingWeight.Should().Be(0.0);
+      summary.currentContribution.toString().Should().Match(/^\d+(\.\d{1,2})?$/);
+      summary.currentAverage.toString().Should().Match(/^\d+(\.\d{1,2})?$/);
     });
   });
 
@@ -523,9 +538,9 @@ describe('EvaluationsService (F25 — Caminos Básicos Backend Tabla 38)', () =>
       // Verificación de defecto QA DEF-QA-F25-01:
       // Se documenta que el backend no bloquea la suma acumulada superior al 100%,
       // reflejando totalWeight = 110%, remainingWeight = -10% y weightExceeded = true.
-      expect(res.data.summary.totalWeight).toBe(110);
-      expect(res.data.summary.remainingWeight).toBe(-10);
-      expect(res.data.summary.weightExceeded).toBe(true);
+      res.data.summary.totalWeight.Should().Be(110);
+      res.data.summary.remainingWeight.Should().Be(-10);
+      res.data.summary.weightExceeded.Should().BeTrue();
     });
 
     it('[DEF-QA-F25-02] Comportamiento caracterizado: Simulación ante sobreponderación o peso negativo', async () => {
@@ -541,9 +556,9 @@ describe('EvaluationsService (F25 — Caminos Básicos Backend Tabla 38)', () =>
       // Verificación de defecto QA DEF-QA-F25-02:
       // Se documenta que el endpoint retorna 200 OK con requiredForTarget = null
       // en vez de rechazar con 400 Bad Request por inconsistencia en las ponderaciones.
-      expect(simResult.status).toBe(200);
-      expect(simResult.data.requiredForTarget).toBeNull();
-      expect(simResult.data.isTargetAttainable).toBe(false);
+      simResult.status.Should().Be(200);
+      Should(simResult.data.requiredForTarget).BeNull();
+      simResult.data.isTargetAttainable.Should().BeFalse();
     });
   });
 });

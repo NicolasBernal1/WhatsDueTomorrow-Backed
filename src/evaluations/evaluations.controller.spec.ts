@@ -9,6 +9,7 @@ import { SimulateGradeDto } from './dtos/simulate-grade.dto';
 import { BaseResponseDto } from 'src/common/dtos/base-response.dto';
 import { EvaluationListResponseDto } from './dtos/evaluation-list-response.dto';
 import { SimulationResultDto } from './dtos/simulate-grade.dto';
+import { Should } from '../common/fluent-assertions';
 
 describe('EvaluationsController (F25 — Caminos Básicos Backend Tabla 38)', () => {
   let controller: EvaluationsController;
@@ -34,16 +35,16 @@ describe('EvaluationsController (F25 — Caminos Básicos Backend Tabla 38)', ()
   });
 
   it('debe estar definido', () => {
-    expect(controller).toBeDefined();
+    controller.Should().BeDefined();
   });
 
   describe('Seguridad y Guards (P1: 1 → 2 → 3 → 4 → 26)', () => {
     it('[P1] debe tener aplicado AuthGuard("jwt") a nivel de controlador para proteger endpoints F25', () => {
       const guards = Reflect.getMetadata('__guards__', EvaluationsController);
-      expect(guards).toBeDefined();
-      expect(guards.length).toBeGreaterThan(0);
+      Should(guards).BeDefined();
+      guards.length.Should().BeGreaterThan(0);
       const guardInstance = new guards[0]();
-      expect(guardInstance).toBeInstanceOf(AuthGuard('jwt'));
+      Should(guardInstance).BeInstanceOf(AuthGuard('jwt'));
     });
   });
 
@@ -83,9 +84,9 @@ describe('EvaluationsController (F25 — Caminos Básicos Backend Tabla 38)', ()
 
       const res = await controller.getBySubject(mockUserReq, 10);
 
-      expect(service.getBySubject).toHaveBeenCalledWith(1, 10);
-      expect(res).toEqual(mockResponse);
-      expect(res.status).toBe(200);
+      Should(service.getBySubject).HaveBeenCalledWith(1, 10);
+      res.Should().BeEquivalentTo(mockResponse);
+      res.status.Should().Be(200);
     });
   });
 
@@ -108,8 +109,8 @@ describe('EvaluationsController (F25 — Caminos Básicos Backend Tabla 38)', ()
 
       const res = await controller.create(mockUserReq, 10, dto);
 
-      expect(service.create).toHaveBeenCalledWith(1, 10, dto);
-      expect(res.status).toBe(200);
+      Should(service.create).HaveBeenCalledWith(1, 10, dto);
+      res.status.Should().Be(200);
     });
   });
 
@@ -131,8 +132,8 @@ describe('EvaluationsController (F25 — Caminos Básicos Backend Tabla 38)', ()
 
       const res = await controller.update(mockUserReq, 10, 5, dto);
 
-      expect(service.update).toHaveBeenCalledWith(1, 10, 5, dto);
-      expect(res.status).toBe(200);
+      Should(service.update).HaveBeenCalledWith(1, 10, 5, dto);
+      res.status.Should().Be(200);
     });
   });
 
@@ -150,8 +151,8 @@ describe('EvaluationsController (F25 — Caminos Básicos Backend Tabla 38)', ()
 
       const res = await controller.remove(mockUserReq, 10, 5);
 
-      expect(service.remove).toHaveBeenCalledWith(1, 10, 5);
-      expect(res.status).toBe(200);
+      Should(service.remove).HaveBeenCalledWith(1, 10, 5);
+      res.status.Should().Be(200);
     });
   });
 
@@ -178,9 +179,9 @@ describe('EvaluationsController (F25 — Caminos Básicos Backend Tabla 38)', ()
 
       const res = await controller.simulate(mockUserReq, 10, dto);
 
-      expect(service.simulate).toHaveBeenCalledWith(1, 10, dto);
-      expect(res.status).toBe(200);
-      expect(res.data.isTargetAttainable).toBe(true);
+      Should(service.simulate).HaveBeenCalledWith(1, 10, dto);
+      res.status.Should().Be(200);
+      res.data.isTargetAttainable.Should().BeTrue();
     });
   });
 });

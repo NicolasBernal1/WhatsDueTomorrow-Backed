@@ -3,6 +3,7 @@ import { SubjectsController } from './subjects.controller';
 import { SubjectsService } from './subjects.service';
 import { AddSubjectDto } from './dtos/add-subject.dto';
 import { EditSubjectDto } from './dtos/edit-subject.dto';
+import { Should } from 'src/common/fluent-assertions';
 
 describe('SubjectsController', () => {
   let controller: SubjectsController;
@@ -38,7 +39,7 @@ describe('SubjectsController', () => {
   });
 
   it('deberia estar definido', () => {
-    expect(controller).toBeDefined();
+    Should(controller).NotBeNull();
   });
 
   // F07 - GET /subjects
@@ -54,8 +55,8 @@ describe('SubjectsController', () => {
 
       const result = await controller.getSubjects(req);
 
-      expect(service.getSubjects).toHaveBeenCalledWith(1);
-      expect(result).toEqual(expected);
+      Should(service.getSubjects).HaveBeenCalledWith(1);
+      result.Should().BeEquivalentTo(expected);
     });
   });
 
@@ -71,8 +72,8 @@ describe('SubjectsController', () => {
 
       const result = await controller.getSubjectById(1);
 
-      expect(service.getSubject).toHaveBeenCalledWith(1);
-      expect(result).toEqual(expected);
+      Should(service.getSubject).HaveBeenCalledWith(1);
+      result.Should().BeEquivalentTo(expected);
     });
   });
 
@@ -90,8 +91,8 @@ describe('SubjectsController', () => {
 
       const result = await controller.addSubject(req, dto);
 
-      expect(service.addSubject).toHaveBeenCalledWith(1, dto);
-      expect(result).toEqual(expected);
+      Should(service.addSubject).HaveBeenCalledWith(1, dto);
+      result.Should().BeEquivalentTo(expected);
     });
   });
 
@@ -104,8 +105,8 @@ describe('SubjectsController', () => {
 
       const result = await controller.editSubject(1, dto);
 
-      expect(service.editSubject).toHaveBeenCalledWith(1, dto);
-      expect(result).toEqual(expected);
+      Should(service.editSubject).HaveBeenCalledWith(1, dto);
+      result.Should().BeEquivalentTo(expected);
     });
   });
 
@@ -117,8 +118,8 @@ describe('SubjectsController', () => {
 
       const result = await controller.removeSubject(1);
 
-      expect(service.remove).toHaveBeenCalledWith(1);
-      expect(result).toEqual(expected);
+      Should(service.remove).HaveBeenCalledWith(1);
+      result.Should().BeEquivalentTo(expected);
     });
   });
 
@@ -143,8 +144,8 @@ describe('SubjectsController', () => {
 
       const result = await controller.getAcademicLoadSummary(req);
 
-      expect(service.getAcademicLoadSummary).toHaveBeenCalledWith(1);
-      expect(result).toEqual(expected);
+      Should(service.getAcademicLoadSummary).HaveBeenCalledWith(1);
+      result.Should().BeEquivalentTo(expected);
     });
   });
 });

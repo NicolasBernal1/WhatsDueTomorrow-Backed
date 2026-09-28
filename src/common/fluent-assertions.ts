@@ -119,8 +119,23 @@ export class FluentAssertion<T> {
     return this;
   }
 
+  public BeGreaterThanOrEqualTo(val: number): this {
+    chai.expect(this.actual).to.be.at.least(val);
+    return this;
+  }
+
   public BeLessThan(val: number): this {
     chai.expect(this.actual).to.be.below(val);
+    return this;
+  }
+
+  public BeLessThanOrEqualTo(val: number): this {
+    chai.expect(this.actual).to.be.at.most(val);
+    return this;
+  }
+
+  public BeInstanceOf(type: any): this {
+    chai.expect(this.actual).to.be.instanceOf(type);
     return this;
   }
 
