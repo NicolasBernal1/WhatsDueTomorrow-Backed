@@ -10,10 +10,6 @@ import * as bcrypt from 'bcrypt';
 chai.use(chaiAsPromised);
 const chaiExpect = chai.expect;
 
-// ════════════════════════════════════════════════════════════════════════════
-// REGISTRAR ESTUDIANTE — POST /auth/register
-// Tabla de caminos BE-1
-// ════════════════════════════════════════════════════════════════════════════
 jest.mock('bcrypt');
 
 const mockUser = {
@@ -36,7 +32,6 @@ describe('AuthService · register', () => {
   let service: AuthService;
 
   beforeEach(async () => {
-    // Arrange (módulo de pruebas de Nest)
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
@@ -50,7 +45,6 @@ describe('AuthService · register', () => {
   });
 
   it('should be defined', () => {
-    // Assert
     chaiExpect(service).to.exist;
   });
 
@@ -61,15 +55,12 @@ describe('AuthService · register', () => {
   };
 
   it('P2 (1-2-3(No)-5-6-7): should register a new user and return status 201', async () => {
-    // Arrange
     mockUsersService.findOneByEmail.mockResolvedValue(null);
     (bcrypt.hash as jest.Mock).mockResolvedValue('hashed_password');
     mockUsersService.create.mockResolvedValue(mockUser);
 
-    // Act
     const result = await service.register(registerDto);
 
-    // Assert
     expect(mockUsersService.findOneByEmail).toHaveBeenCalledWith(
       registerDto.email,
     );
@@ -88,10 +79,8 @@ describe('AuthService · register', () => {
   });
 
   it('P1 (1-2-3(Sí)-4): should throw ExistingUserException if the email is already in use', async () => {
-    // Arrange
     mockUsersService.findOneByEmail.mockResolvedValue(mockUser);
 
-    // Act & Assert
     await chaiExpect(service.register(registerDto)).to.be.rejectedWith(
       ExistingUserException,
     );

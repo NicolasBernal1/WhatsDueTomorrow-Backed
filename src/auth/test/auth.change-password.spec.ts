@@ -6,13 +6,6 @@ import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Should } from '../../common/fluent-assertions';
 
-// ════════════════════════════════════════════════════════════════════════════
-// CAMBIAR CONTRASEÑA — PATCH /auth/change-password
-// Tabla de caminos BE-5 · nodos 1-13 · decisiones en 3, 6, 9 · V(G) = 4
-// El camino P1 (nodo 3, token inválido) lo resuelve el guard JWT antes de
-// llegar al servicio, por lo que no es unit-testable aquí — se cubre a nivel
-// e2e golpeando el endpoint sin token / con token vencido.
-// ════════════════════════════════════════════════════════════════════════════
 jest.mock('bcrypt');
 
 const mockUser = {
@@ -35,7 +28,6 @@ describe('AuthService · changePassword', () => {
   let service: AuthService;
 
   beforeEach(async () => {
-    // Arrange
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
@@ -49,7 +41,6 @@ describe('AuthService · changePassword', () => {
   });
 
   it('should be defined', () => {
-    // Assert
     service.Should().BeDefined();
   });
 
@@ -60,10 +51,8 @@ describe('AuthService · changePassword', () => {
   };
 
   it('P2 (1-2-3(Sí)-5-6(No)-7): should throw NotFoundException if the user does not exist', async () => {
-    // Arrange
     mockUsersService.findOneById.mockResolvedValue(null);
 
-    // Act & Assert
     await Should(() =>
       service.changePassword(userId, changePasswordDto),
     ).ThrowAsync(NotFoundException);
@@ -71,11 +60,9 @@ describe('AuthService · changePassword', () => {
   });
 
   it('P3 (1-2-3(Sí)-5-6(Sí)-8-9(No)-10): should throw UnauthorizedException if the current password is incorrect', async () => {
-    // Arrange
     mockUsersService.findOneById.mockResolvedValue(mockUser);
     (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
-    // Act & Assert
     await Should(() =>
       service.changePassword(userId, changePasswordDto),
     ).ThrowAsync(UnauthorizedException);
@@ -83,16 +70,13 @@ describe('AuthService · changePassword', () => {
   });
 
   it('P4 (1-2-3(Sí)-5-6(Sí)-8-9(Sí)-11-12-13): should hash the new password, save the user and return status 200', async () => {
-    // Arrange
     mockUsersService.findOneById.mockResolvedValue({ ...mockUser });
     (bcrypt.compare as jest.Mock).mockResolvedValue(true);
     (bcrypt.hash as jest.Mock).mockResolvedValue('new_hashed_password');
     mockUsersService.save.mockResolvedValue(mockUser);
 
-    // Act
     const result = await service.changePassword(userId, changePasswordDto);
 
-    // Assert
     Should(bcrypt.compare).HaveBeenCalledWith(
       changePasswordDto.currentPassword,
       mockUser.password,

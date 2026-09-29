@@ -10,10 +10,6 @@ import * as bcrypt from 'bcrypt';
 chai.use(chaiAsPromised);
 const chaiExpect = chai.expect;
 
-// ════════════════════════════════════════════════════════════════════════════
-// VERIFICAR CONTRASEÑA (paso previo a Cambiar Contraseña en el frontend)
-// PATCH /auth/verify-password
-// ════════════════════════════════════════════════════════════════════════════
 jest.mock('bcrypt');
 
 const mockUser = {
@@ -35,7 +31,6 @@ describe('AuthService · verifyPassword', () => {
   let service: AuthService;
 
   beforeEach(async () => {
-    // Arrange
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
@@ -49,7 +44,6 @@ describe('AuthService · verifyPassword', () => {
   });
 
   it('should be defined', () => {
-    // Assert
     chaiExpect(service).to.exist;
   });
 
@@ -57,10 +51,8 @@ describe('AuthService · verifyPassword', () => {
   const password = 'plain_password';
 
   it('P2 (1-2-3(Sí)-5-6(No)-7): should throw NotFoundException if the user does not exist', async () => {
-    // Arrange
     mockUsersService.findOneById.mockResolvedValue(null);
 
-    // Act & Assert
     await chaiExpect(
       service.verifyPassword(userId, password),
     ).to.be.rejectedWith(NotFoundException);
@@ -68,11 +60,9 @@ describe('AuthService · verifyPassword', () => {
   });
 
   it('P3 (1-2-3(Sí)-5-6(Sí)-8-9(No)-10): should throw UnauthorizedException if the password is incorrect', async () => {
-    // Arrange
     mockUsersService.findOneById.mockResolvedValue(mockUser);
     (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
-    // Act & Assert
     await chaiExpect(
       service.verifyPassword(userId, password),
     ).to.be.rejectedWith(UnauthorizedException);
@@ -80,14 +70,11 @@ describe('AuthService · verifyPassword', () => {
   });
 
   it('P4 (1-2-3(Sí)-5-6(Sí)-8-9(Sí)-11): should return status 200 when the password is correct', async () => {
-    // Arrange
     mockUsersService.findOneById.mockResolvedValue(mockUser);
     (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
-    // Act
     const result = await service.verifyPassword(userId, password);
 
-    // Assert
     chaiExpect(result.status).to.equal(200);
     chaiExpect(result.message).to.equal('Password verified successfully');
   });

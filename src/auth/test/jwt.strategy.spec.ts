@@ -14,7 +14,6 @@ describe('JwtStrategy', () => {
   let strategy: JwtStrategy;
 
   beforeEach(async () => {
-    // Arrange
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         JwtStrategy,
@@ -26,18 +25,14 @@ describe('JwtStrategy', () => {
   });
 
   it('should be defined', () => {
-    // Assert
     chaiExpect(strategy).to.exist;
   });
 
   it('P (token válido): should return { sub, email } from the decoded payload', async () => {
-    // Arrange
     const payload = { sub: 1, email: 'test@example.com' };
 
-    // Act
     const result = await strategy.validate(payload);
 
-    // Assert
     chaiExpect(result).to.deep.equal({ sub: 1, email: 'test@example.com' });
   });
 });
