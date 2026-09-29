@@ -17,7 +17,6 @@ const chaiExpect = chai.expect;
 // llegar al servicio, por lo que no es unit-testable aquí — se cubre a nivel
 // e2e golpeando el endpoint sin token / con token vencido.
 // ════════════════════════════════════════════════════════════════════════════
-
 jest.mock('bcrypt');
 
 const mockUser = {

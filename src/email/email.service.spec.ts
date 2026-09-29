@@ -32,7 +32,11 @@ describe('EmailService', () => {
   });
 
   it('should POST to the Resend API with the right payload', async () => {
-    fetchMock.mockResolvedValue({ ok: true, status: 200, text: async () => '' });
+    fetchMock.mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: async () => '',
+    });
 
     await service.send({
       to: 'user@example.com',
@@ -63,7 +67,11 @@ describe('EmailService', () => {
 
   it('should fall back to the default sender when EMAIL_FROM is not set', async () => {
     delete process.env.EMAIL_FROM;
-    fetchMock.mockResolvedValue({ ok: true, status: 200, text: async () => '' });
+    fetchMock.mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: async () => '',
+    });
 
     await service.send({
       to: 'user@example.com',
@@ -77,7 +85,11 @@ describe('EmailService', () => {
   });
 
   it('should use the input "from" over EMAIL_FROM when provided', async () => {
-    fetchMock.mockResolvedValue({ ok: true, status: 200, text: async () => '' });
+    fetchMock.mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: async () => '',
+    });
 
     await service.send({
       to: 'user@example.com',
@@ -99,7 +111,12 @@ describe('EmailService', () => {
     });
 
     await expect(
-      service.send({ to: 'user@example.com', subject: 'Hi', html: '<p>Hi</p>', text: 'Hi' }),
+      service.send({
+        to: 'user@example.com',
+        subject: 'Hi',
+        html: '<p>Hi</p>',
+        text: 'Hi',
+      }),
     ).rejects.toThrow('Resend API error (422): Invalid from address');
   });
 
@@ -108,7 +125,12 @@ describe('EmailService', () => {
     delete process.env.ALLOW_EMAIL_LOG_FALLBACK;
 
     await expect(
-      service.send({ to: 'user@example.com', subject: 'Hi', html: '<p>Hi</p>', text: 'Hi' }),
+      service.send({
+        to: 'user@example.com',
+        subject: 'Hi',
+        html: '<p>Hi</p>',
+        text: 'Hi',
+      }),
     ).rejects.toThrow('RESEND_API_KEY is not set');
     expect(fetchMock).not.toHaveBeenCalled();
   });
@@ -118,7 +140,12 @@ describe('EmailService', () => {
     process.env.ALLOW_EMAIL_LOG_FALLBACK = 'true';
 
     await expect(
-      service.send({ to: 'user@example.com', subject: 'Hi', html: '<p>Hi</p>', text: 'Hi' }),
+      service.send({
+        to: 'user@example.com',
+        subject: 'Hi',
+        html: '<p>Hi</p>',
+        text: 'Hi',
+      }),
     ).resolves.toBeUndefined();
     expect(fetchMock).not.toHaveBeenCalled();
   });

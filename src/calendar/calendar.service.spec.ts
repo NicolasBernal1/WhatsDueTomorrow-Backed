@@ -6,6 +6,7 @@ import { SubjectClass } from 'src/subjects/entities/subject-class.entity';
 import { User } from 'src/users/entities/user.entity';
 import { CalendarFeed } from './entities/calendar-feed.entity';
 import { CalendarService } from './calendar.service';
+import { Should, fluent } from '../common/fluent-assertions';
 
 describe('CalendarService (F23 — Caminos Básicos Backend Tabla 18)', () => {
   let service: CalendarService;
@@ -35,8 +36,14 @@ describe('CalendarService (F23 — Caminos Básicos Backend Tabla 18)', () => {
         CalendarService,
         { provide: getRepositoryToken(CalendarFeed), useValue: feedRepository },
         { provide: getRepositoryToken(User), useValue: userRepository },
-        { provide: getRepositoryToken(SubjectClass), useValue: classRepository },
-        { provide: getRepositoryToken(Assignment), useValue: assignmentRepository },
+        {
+          provide: getRepositoryToken(SubjectClass),
+          useValue: classRepository,
+        },
+        {
+          provide: getRepositoryToken(Assignment),
+          useValue: assignmentRepository,
+        },
       ],
     }).compile();
 
@@ -44,7 +51,7 @@ describe('CalendarService (F23 — Caminos Básicos Backend Tabla 18)', () => {
   });
 
   it('debe estar definido el servicio', () => {
-    expect(service).toBeDefined();
+    service.Should().BeDefined();
   });
 
   // Camino P2: 1-2-3-5-6-9-20
@@ -54,10 +61,12 @@ describe('CalendarService (F23 — Caminos Básicos Backend Tabla 18)', () => {
 
       const token = await service.getOrCreateToken(1);
 
-      expect(token).toBe('existing-token-abc');
-      expect(feedRepository.findOne).toHaveBeenCalledWith({ where: { user: { id: 1 } } });
-      expect(userRepository.findOneBy).not.toHaveBeenCalled();
-      expect(feedRepository.save).not.toHaveBeenCalled();
+      token.Should().Be('existing-token-abc');
+      Should(feedRepository.findOne).HaveBeenCalledWith({
+        where: { user: { id: 1 } },
+      });
+      Should(userRepository.findOneBy).NotHaveBeenCalled();
+      Should(feedRepository.save).NotHaveBeenCalled();
     });
   });
 
@@ -67,10 +76,13 @@ describe('CalendarService (F23 — Caminos Básicos Backend Tabla 18)', () => {
       feedRepository.findOne.mockResolvedValue(null);
       userRepository.findOneBy.mockResolvedValue(null);
 
-      await expect(service.getOrCreateToken(999)).rejects.toThrow(NotFoundException);
-      await expect(service.getOrCreateToken(999)).rejects.toThrow('User not found');
-      expect(feedRepository.create).not.toHaveBeenCalled();
-      expect(feedRepository.save).not.toHaveBeenCalled();
+      (
+        await Should(() => service.getOrCreateToken(999)).ThrowAsync(
+          NotFoundException,
+        )
+      ).WithMessage('User not found');
+      Should(feedRepository.create).NotHaveBeenCalled();
+      Should(feedRepository.save).NotHaveBeenCalled();
     });
   });
 
@@ -81,18 +93,21 @@ describe('CalendarService (F23 — Caminos Básicos Backend Tabla 18)', () => {
       feedRepository.findOne.mockResolvedValue(null);
       userRepository.findOneBy.mockResolvedValue(mockUser);
       feedRepository.create.mockImplementation((dto) => dto);
-      feedRepository.save.mockImplementation(async (feed) => ({ ...feed, id: 10 }));
+      feedRepository.save.mockImplementation(async (feed) => ({
+        ...feed,
+        id: 10,
+      }));
 
       const token = await service.getOrCreateToken(1);
 
-      expect(feedRepository.create).toHaveBeenCalledWith(
+      Should(feedRepository.create).HaveBeenCalledWith(
         expect.objectContaining({
           user: mockUser,
           token: expect.stringMatching(/^[0-9a-f]{64}$/),
         }),
       );
-      expect(feedRepository.save).toHaveBeenCalled();
-      expect(token).toMatch(/^[0-9a-f]{64}$/);
+      Should(feedRepository.save).HaveBeenCalled();
+      token.Should().Match(/^[0-9a-f]{64}$/);
     });
   });
 
@@ -101,10 +116,13 @@ describe('CalendarService (F23 — Caminos Básicos Backend Tabla 18)', () => {
     it('debe lanzar NotFoundException("User not found") antes de consultar clases o entregas', async () => {
       userRepository.findOneBy.mockResolvedValue(null);
 
-      await expect(service.generateForUser(999)).rejects.toThrow(NotFoundException);
-      await expect(service.generateForUser(999)).rejects.toThrow('User not found');
-      expect(classRepository.find).not.toHaveBeenCalled();
-      expect(assignmentRepository.find).not.toHaveBeenCalled();
+      (
+        await Should(() => service.generateForUser(999)).ThrowAsync(
+          NotFoundException,
+        )
+      ).WithMessage('User not found');
+      Should(classRepository.find).NotHaveBeenCalled();
+      Should(assignmentRepository.find).NotHaveBeenCalled();
     });
   });
 
@@ -119,14 +137,19 @@ describe('CalendarService (F23 — Caminos Básicos Backend Tabla 18)', () => {
           startTime: '08:00',
           endTime: '10:00',
           classroom: 'Aula 301',
-          subject: { name: 'Matemáticas Especiales; Grupo 1, Sección A', professor: 'Dr. Euler & Gauss' },
+          subject: {
+            name: 'Matemáticas Especiales; Grupo 1, Sección A',
+            professor: 'Dr. Euler & Gauss',
+          },
         },
       ];
       const mockAssignments = [
         {
           id: 20,
-          title: 'Taller de Cálculo Multivariable con descripción sumamente extensa para verificar el algoritmo de plegado a setenta y cinco octetos según estándar RFC',
-          description: 'Línea 1\nLínea 2 con caracteres especiales: coma, punto y coma; y barra invertida \\',
+          title:
+            'Taller de Cálculo Multivariable con descripción sumamente extensa para verificar el algoritmo de plegado a setenta y cinco octetos según estándar RFC',
+          description:
+            'Línea 1\nLínea 2 con caracteres especiales: coma, punto y coma; y barra invertida \\',
           dueDate: '2026-09-15T14:00:00.000Z',
           subject: { name: 'Matemáticas Especiales' },
         },
@@ -139,26 +162,32 @@ describe('CalendarService (F23 — Caminos Básicos Backend Tabla 18)', () => {
       const calendar = await service.generateForUser(1);
 
       // Verificación cabecera y cierre RFC 5545
-      expect(calendar).toContain('BEGIN:VCALENDAR');
-      expect(calendar).toContain('VERSION:2.0');
-      expect(calendar).toContain('PRODID:-//Whats Due Tomorrow//Academic Calendar//EN');
-      expect(calendar).toContain('CALSCALE:GREGORIAN');
-      expect(calendar).toContain('METHOD:PUBLISH');
-      expect(calendar).toContain('END:VCALENDAR');
+      calendar.Should().Contain('BEGIN:VCALENDAR');
+      calendar.Should().Contain('VERSION:2.0');
+      calendar
+        .Should()
+        .Contain('PRODID:-//Whats Due Tomorrow//Academic Calendar//EN');
+      calendar.Should().Contain('CALSCALE:GREGORIAN');
+      calendar.Should().Contain('METHOD:PUBLISH');
+      calendar.Should().Contain('END:VCALENDAR');
 
       // Verificación evento de clase
-      expect(calendar).toContain('UID:class-10-user-1@whats-due-tomorrow');
-      expect(calendar).toContain('RRULE:FREQ=WEEKLY');
-      expect(calendar).toContain('SUMMARY:Class: Matemáticas Especiales\\; Grupo 1\\, Sección A');
-      expect(calendar).toContain('DESCRIPTION:Professor: Dr. Euler & Gauss');
+      calendar.Should().Contain('UID:class-10-user-1@whats-due-tomorrow');
+      calendar.Should().Contain('RRULE:FREQ=WEEKLY');
+      calendar
+        .Should()
+        .Contain(
+          'SUMMARY:Class: Matemáticas Especiales\\; Grupo 1\\, Sección A',
+        );
+      calendar.Should().Contain('DESCRIPTION:Professor: Dr. Euler & Gauss');
 
       // Verificación evento de entrega
-      expect(calendar).toContain('UID:assignment-20-user-1@whats-due-tomorrow');
-      expect(calendar).toContain('DTSTART:20260915T140000Z');
-      expect(calendar).toContain('Matemáticas Especiales');
+      calendar.Should().Contain('UID:assignment-20-user-1@whats-due-tomorrow');
+      calendar.Should().Contain('DTSTART:20260915T140000Z');
+      calendar.Should().Contain('Matemáticas Especiales');
 
       // Verificación plegado RFC 5545 (líneas continuadas con espacio inicial)
-      expect(calendar).toMatch(/\r?\n [^\r\n]+/);
+      calendar.Should().Match(/\r?\n [^\r\n]+/);
     });
 
     it('debe manejar días de la semana en inglés y por defecto', async () => {
@@ -185,8 +214,8 @@ describe('CalendarService (F23 — Caminos Básicos Backend Tabla 18)', () => {
       assignmentRepository.find.mockResolvedValue([]);
 
       const calendar = await service.generateForUser(1);
-      expect(calendar).toContain('UID:class-11-user-1@whats-due-tomorrow');
-      expect(calendar).toContain('UID:class-12-user-1@whats-due-tomorrow');
+      calendar.Should().Contain('UID:class-11-user-1@whats-due-tomorrow');
+      calendar.Should().Contain('UID:class-12-user-1@whats-due-tomorrow');
     });
   });
 
@@ -195,13 +224,12 @@ describe('CalendarService (F23 — Caminos Básicos Backend Tabla 18)', () => {
     it('debe lanzar NotFoundException("Calendar feed not found") cuando el token no coincide en BD', async () => {
       feedRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.generateForToken('invalid-non-existent-token')).rejects.toThrow(
-        NotFoundException,
-      );
-      await expect(service.generateForToken('invalid-non-existent-token')).rejects.toThrow(
-        'Calendar feed not found',
-      );
-      expect(userRepository.findOneBy).not.toHaveBeenCalled();
+      (
+        await Should(() =>
+          service.generateForToken('invalid-non-existent-token'),
+        ).ThrowAsync(NotFoundException)
+      ).WithMessage('Calendar feed not found');
+      Should(userRepository.findOneBy).NotHaveBeenCalled();
     });
   });
 
@@ -210,16 +238,21 @@ describe('CalendarService (F23 — Caminos Básicos Backend Tabla 18)', () => {
     it('debe resolver el feed existente y generar el archivo iCalendar para el usuario correspondiente', async () => {
       const mockFeed = { token: 'valid-token-xyz', user: { id: 5 } };
       feedRepository.findOne.mockResolvedValue(mockFeed);
-      userRepository.findOneBy.mockResolvedValue({ id: 5, email: 'user5@example.com' });
+      userRepository.findOneBy.mockResolvedValue({
+        id: 5,
+        email: 'user5@example.com',
+      });
       classRepository.find.mockResolvedValue([]);
       assignmentRepository.find.mockResolvedValue([]);
 
       const calendar = await service.generateForToken('valid-token-xyz');
 
-      expect(feedRepository.findOne).toHaveBeenCalledWith({ where: { token: 'valid-token-xyz' } });
-      expect(userRepository.findOneBy).toHaveBeenCalledWith({ id: 5 });
-      expect(calendar).toContain('BEGIN:VCALENDAR');
-      expect(calendar).toContain('END:VCALENDAR');
+      Should(feedRepository.findOne).HaveBeenCalledWith({
+        where: { token: 'valid-token-xyz' },
+      });
+      Should(userRepository.findOneBy).HaveBeenCalledWith({ id: 5 });
+      calendar.Should().Contain('BEGIN:VCALENDAR');
+      calendar.Should().Contain('END:VCALENDAR');
     });
   });
 
@@ -248,7 +281,7 @@ describe('CalendarService (F23 — Caminos Básicos Backend Tabla 18)', () => {
 
       // Conforme a la sección 3.6.1 de RFC 5545, un VEVENT debe especificar DTEND o DURATION.
       // Se documenta y verifica el defecto DEF-QA-F23-01: el método assignmentEvent omite ambas propiedades.
-      expect(calendar).not.toMatch(/\r?\n(DTEND|DURATION):/);
+      calendar.Should().NotMatch(/\r?\n(DTEND|DURATION):/);
     });
 
     it('[DEF-QA-F23-02] debe documentar y verificar la ausencia del componente VTIMEZONE para fijar la zona horaria', async () => {
@@ -280,7 +313,7 @@ describe('CalendarService (F23 — Caminos Básicos Backend Tabla 18)', () => {
 
       // Se documenta y verifica el defecto DEF-QA-F23-02: Las clases se exportan en formato flotante
       // y las entregas en UTC, pero el archivo carece del bloque VTIMEZONE.
-      expect(calendar).not.toContain('BEGIN:VTIMEZONE');
+      calendar.Should().NotContain('BEGIN:VTIMEZONE');
     });
   });
 });

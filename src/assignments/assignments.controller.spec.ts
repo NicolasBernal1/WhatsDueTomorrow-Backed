@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AssignmentsController } from './assignments.controller';
 import { AssignmentsService } from './assignments.service';
+import { Should } from '../common/fluent-assertions';
 
 describe('AssignmentsController', () => {
   let controller: AssignmentsController;
@@ -18,7 +19,9 @@ describe('AssignmentsController', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AssignmentsController],
-      providers: [{ provide: AssignmentsService, useValue: assignmentServiceMock }],
+      providers: [
+        { provide: AssignmentsService, useValue: assignmentServiceMock },
+      ],
     }).compile();
 
     controller = module.get<AssignmentsController>(AssignmentsController);
@@ -50,25 +53,40 @@ describe('AssignmentsController', () => {
       const expected = {
         status: 200,
         message: 'Upcoming assignments retrieved successfully',
-        data: [{ id: 1, title: 'Exam', description: '', dueDate: '2026-09-15T00:00:00Z', subjectId: 2, subjectName: 'Physics' }],
+        data: [
+          {
+            id: 1,
+            title: 'Exam',
+            description: '',
+            dueDate: '2026-09-15T00:00:00Z',
+            subjectId: 2,
+            subjectName: 'Physics',
+          },
+        ],
       };
-      assignmentService.getUpcomingAssignments.mockResolvedValue(expected as any);
+      assignmentService.getUpcomingAssignments.mockResolvedValue(
+        expected as any,
+      );
 
       // Act
       const result = await controller.getUpcoming(req);
 
-      // Assert
-      expect(assignmentService.getUpcomingAssignments).toHaveBeenCalledWith(42);
-      expect(result).toBe(expected);
+      // Assert (Fluent Assertions)
+      Should(assignmentService.getUpcomingAssignments).HaveBeenCalledWith(42);
+      result.Should().Be(expected);
     });
 
     it('should propagate service errors when upcoming assignments retrieval fails', async () => {
       // Arrange
       const req = { user: { sub: 42 } };
-      assignmentService.getUpcomingAssignments.mockRejectedValue(new Error('Internal database failure'));
+      assignmentService.getUpcomingAssignments.mockRejectedValue(
+        new Error('Internal database failure'),
+      );
 
-      // Act & Assert
-      await expect(controller.getUpcoming(req)).rejects.toThrow('Internal database failure');
+      // Act & Assert (Fluent Exception Assertion)
+      await Should(async () => controller.getUpcoming(req)).ThrowAsync(
+        'Internal database failure',
+      );
     });
   });
 
@@ -76,11 +94,16 @@ describe('AssignmentsController', () => {
     it('should call assignmentService.getAssignmentsBySubject with userId and subjectId', async () => {
       const req = { user: { sub: 1 } };
       const expected = { status: 200, message: 'ok', data: [] };
-      assignmentService.getAssignmentsBySubject.mockResolvedValue(expected as any);
+      assignmentService.getAssignmentsBySubject.mockResolvedValue(
+        expected as any,
+      );
 
       const result = await controller.getAssignmentsBySubject(req, 10);
 
-      expect(assignmentService.getAssignmentsBySubject).toHaveBeenCalledWith(1, 10);
+      expect(assignmentService.getAssignmentsBySubject).toHaveBeenCalledWith(
+        1,
+        10,
+      );
       expect(result).toBe(expected);
     });
   });
@@ -88,8 +111,15 @@ describe('AssignmentsController', () => {
   describe('addAssignment', () => {
     it('should call assignmentService.addAssignment with userId, subjectId and the DTO', async () => {
       const req = { user: { sub: 1 } };
-      const dto = { title: 'Tarea', description: 'desc', dueDate: '2026-01-01T00:00:00' };
-      const expected = { status: 201, message: 'Assignment created successfully' };
+      const dto = {
+        title: 'Tarea',
+        description: 'desc',
+        dueDate: '2026-01-01T00:00:00',
+      };
+      const expected = {
+        status: 201,
+        message: 'Assignment created successfully',
+      };
       assignmentService.addAssignment.mockResolvedValue(expected as any);
 
       const result = await controller.addAssignment(req, 10, dto as any);
@@ -101,7 +131,10 @@ describe('AssignmentsController', () => {
 
   describe('removeAssignment', () => {
     it('should call assignmentService.deleteAssignment with assignmentId', async () => {
-      const expected = { status: 200, message: 'Assignment deleted successfully' };
+      const expected = {
+        status: 200,
+        message: 'Assignment deleted successfully',
+      };
       assignmentService.deleteAssignment.mockResolvedValue(expected as any);
 
       const result = await controller.removeAssignment(100);
@@ -114,7 +147,10 @@ describe('AssignmentsController', () => {
   describe('editAssignment', () => {
     it('should call assignmentService.editAssignment with assignmentId and the DTO', async () => {
       const dto = { title: 'Tarea editada' };
-      const expected = { status: 200, message: 'Assignment updated successfully' };
+      const expected = {
+        status: 200,
+        message: 'Assignment updated successfully',
+      };
       assignmentService.editAssignment.mockResolvedValue(expected as any);
 
       const result = await controller.editAssignment(100, dto as any);

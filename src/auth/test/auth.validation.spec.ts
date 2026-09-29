@@ -25,17 +25,20 @@ describe('Auth DTO validation', () => {
     expect(errors.some((error) => error.property === 'name')).toBe(true);
   });
 
-  it.each(['ana', 'ana@', 'ana@example'])('rejects invalid email: %s', async (email) => {
-    const dto = Object.assign(new CreateUserDto(), {
-      name: 'Ana',
-      email,
-      password: 'Clave123',
-    });
+  it.each(['ana', 'ana@', 'ana@example'])(
+    'rejects invalid email: %s',
+    async (email) => {
+      const dto = Object.assign(new CreateUserDto(), {
+        name: 'Ana',
+        email,
+        password: 'Clave123',
+      });
 
-    const errors = await validate(dto);
+      const errors = await validate(dto);
 
-    expect(errors.some((error) => error.property === 'email')).toBe(true);
-  });
+      expect(errors.some((error) => error.property === 'email')).toBe(true);
+    },
+  );
 
   it('rejects invalid email during login', async () => {
     const dto = Object.assign(new LoginDto(), {

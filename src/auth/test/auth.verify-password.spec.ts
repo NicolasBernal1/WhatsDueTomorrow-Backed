@@ -14,7 +14,6 @@ const chaiExpect = chai.expect;
 // VERIFICAR CONTRASEÑA (paso previo a Cambiar Contraseña en el frontend)
 // PATCH /auth/verify-password
 // ════════════════════════════════════════════════════════════════════════════
-
 jest.mock('bcrypt');
 
 const mockUser = {

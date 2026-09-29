@@ -14,7 +14,6 @@ const chaiExpect = chai.expect;
 // INICIAR SESIÓN — POST /auth/login
 // Tabla de caminos BE-2 · nodos 1-9 · 2 decisiones (nodos 3, 6) · V(G) = 3
 // ════════════════════════════════════════════════════════════════════════════
-
 jest.mock('bcrypt');
 
 const mockUser = {

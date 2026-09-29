@@ -14,8 +14,13 @@ const BOGOTA_UTC_OFFSET_HOURS = 5;
  * matching how the rest of this codebase compares dueDate with plain
  * ISO strings (see AssignmentsService.getUpcomingAssignments).
  */
-export function getBogotaTomorrowRange(now: Date = new Date()): { start: string; end: string } {
-  const bogotaNow = new Date(now.getTime() - BOGOTA_UTC_OFFSET_HOURS * 60 * 60 * 1000);
+export function getBogotaTomorrowRange(now: Date = new Date()): {
+  start: string;
+  end: string;
+} {
+  const bogotaNow = new Date(
+    now.getTime() - BOGOTA_UTC_OFFSET_HOURS * 60 * 60 * 1000,
+  );
   const bogotaTomorrowStartUtc = Date.UTC(
     bogotaNow.getUTCFullYear(),
     bogotaNow.getUTCMonth(),
@@ -28,8 +33,12 @@ export function getBogotaTomorrowRange(now: Date = new Date()): { start: string;
   const bogotaTomorrowEndUtc = bogotaTomorrowStartUtc + 24 * 60 * 60 * 1000;
 
   return {
-    start: new Date(bogotaTomorrowStartUtc + BOGOTA_UTC_OFFSET_HOURS * 60 * 60 * 1000).toISOString(),
-    end: new Date(bogotaTomorrowEndUtc + BOGOTA_UTC_OFFSET_HOURS * 60 * 60 * 1000).toISOString(),
+    start: new Date(
+      bogotaTomorrowStartUtc + BOGOTA_UTC_OFFSET_HOURS * 60 * 60 * 1000,
+    ).toISOString(),
+    end: new Date(
+      bogotaTomorrowEndUtc + BOGOTA_UTC_OFFSET_HOURS * 60 * 60 * 1000,
+    ).toISOString(),
   };
 }
 
@@ -102,7 +111,8 @@ export class RemindersService {
 
   private buildText(assignments: Assignment[]): string {
     const lines = assignments.map(
-      (a) => `- ${a.title} — ${a.subject.name} (${this.formatDueDate(a.dueDate)})`,
+      (a) =>
+        `- ${a.title} — ${a.subject.name} (${this.formatDueDate(a.dueDate)})`,
     );
     return `Tienes ${assignments.length} tarea(s) que vencen mañana:\n${lines.join('\n')}`;
   }
@@ -126,6 +136,9 @@ export class RemindersService {
   }
 
   private escapeHtml(value: string): string {
-    return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return value
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;');
   }
 }

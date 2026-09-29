@@ -8,6 +8,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Assignment } from 'src/assignments/entities/assignment.entity';
 import { Subtask } from './entities/subtask.entity';
 import { SubtasksService } from './subtasks.service';
+import { Should } from '../common/fluent-assertions';
 
 describe('SubtasksService (F22 — Desglosar tareas en subtareas con avance porcentual - Tabla 12)', () => {
   let service: SubtasksService;
@@ -50,8 +51,14 @@ describe('SubtasksService (F22 — Desglosar tareas en subtareas con avance porc
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         SubtasksService,
-        { provide: getRepositoryToken(Subtask), useValue: mockSubtaskRepository },
-        { provide: getRepositoryToken(Assignment), useValue: mockAssignmentRepository },
+        {
+          provide: getRepositoryToken(Subtask),
+          useValue: mockSubtaskRepository,
+        },
+        {
+          provide: getRepositoryToken(Assignment),
+          useValue: mockAssignmentRepository,
+        },
       ],
     }).compile();
 
@@ -60,7 +67,7 @@ describe('SubtasksService (F22 — Desglosar tareas en subtareas con avance porc
   });
 
   it('debe estar definido el servicio de subtareas', () => {
-    expect(service).toBeDefined();
+    service.Should().NotBeNull().And.BeDefined();
   });
 
   // ─── TABLA 12: CAMINOS BÁSICOS INDEPENDIENTES (BACKEND F22) ──────────────────
@@ -69,9 +76,9 @@ describe('SubtasksService (F22 — Desglosar tareas en subtareas con avance porc
   it('Camino P1 (1-2-3-21): debe rechazar peticiones no autenticadas cuando falta la identidad del usuario', async () => {
     // Si userId es indefinido o nulo, la validación de propiedad debe fallar
     mockAssignmentRepository.findOne.mockResolvedValue(mockAssignment);
-    await expect(service.getByAssignment(undefined as any, 10)).rejects.toThrow(
-      ForbiddenException,
-    );
+    await Should(async () =>
+      service.getByAssignment(undefined as any, 10),
+    ).ThrowAsync(ForbiddenException);
   });
 
   // Camino P2: 1-2-4-5-6-21 (assignmentId no existe en PostgreSQL)
@@ -79,9 +86,9 @@ describe('SubtasksService (F22 — Desglosar tareas en subtareas con avance porc
     // Arrange: assignmentRepository retorna null
     mockAssignmentRepository.findOne.mockResolvedValue(null);
 
-    // Act & Assert
-    await expect(service.getByAssignment(1, 999)).rejects.toThrow(
-      new NotFoundException('The assignment does not exist'),
+    // Act & Assert (Fluent Assertions)
+    await Should(async () => service.getByAssignment(1, 999)).ThrowAsync(
+      'The assignment does not exist',
     );
   });
 
@@ -90,11 +97,11 @@ describe('SubtasksService (F22 — Desglosar tareas en subtareas con avance porc
     // Arrange: assignment.user.id = 999, req.user = 1
     mockAssignmentRepository.findOne.mockResolvedValue(mockOtherUserAssignment);
 
-    // Act & Assert
-    await expect(service.getByAssignment(1, 10)).rejects.toThrow(
-      new ForbiddenException('You cannot access this assignment'),
+    // Act & Assert (Fluent Assertions)
+    await Should(async () => service.getByAssignment(1, 10)).ThrowAsync(
+      'You cannot access this assignment',
     );
-    expect(mockSubtaskRepository.find).not.toHaveBeenCalled();
+    Should(mockSubtaskRepository.find).NotHaveBeenCalled();
   });
 
   // Camino P4: 1-2-4-5-7-9-10-20-21 (Flujo nominal GET /subtasks con lista ordenada y avance porcentual)
@@ -106,14 +113,14 @@ describe('SubtasksService (F22 — Desglosar tareas en subtareas con avance porc
     // Act
     const result = await service.getByAssignment(1, 10);
 
-    // Assert
-    expect(result.status).toBe(200);
-    expect(result.message).toBe('Subtasks retrieved successfully');
-    expect(result.data?.subtasks).toHaveLength(2);
+    // Assert (Fluent Assertions)
+    result.status.Should().Be(200);
+    result.message.Should().Be('Subtasks retrieved successfully');
+    result.data?.subtasks.Should().HaveCount(2);
     // 1 de 2 completadas = 50%
-    expect(result.data?.progress).toBe(50);
-    expect(result.data?.subtasks[0].title).toBe('Investigación bibliográfica');
-    expect(result.data?.subtasks[1].title).toBe('Diseño de arquitectura');
+    result.data?.progress.Should().Be(50);
+    result.data?.subtasks[0].title.Should().Be('Investigación bibliográfica');
+    result.data?.subtasks[1].title.Should().Be('Diseño de arquitectura');
   });
 
   // Camino P5: 1-2-4-5-7-9-11-12-21 (POST con dto.title vacío o de solo espacios)
@@ -121,11 +128,11 @@ describe('SubtasksService (F22 — Desglosar tareas en subtareas con avance porc
     // Arrange
     mockAssignmentRepository.findOne.mockResolvedValue(mockAssignment);
 
-    // Act & Assert
-    await expect(service.create(1, 10, { title: '   ' })).rejects.toThrow(
-      new BadRequestException('The subtask title cannot be empty'),
-    );
-    expect(mockSubtaskRepository.save).not.toHaveBeenCalled();
+    // Act & Assert (Fluent Assertions)
+    await Should(async () =>
+      service.create(1, 10, { title: '   ' }),
+    ).ThrowAsync('The subtask title cannot be empty');
+    Should(mockSubtaskRepository.save).NotHaveBeenCalled();
   });
 
   // Camino P6: 1-2-4-5-7-9-11-20-21 (POST con título válido y asignación de posición ordinal)
@@ -142,21 +149,25 @@ describe('SubtasksService (F22 — Desglosar tareas en subtareas con avance porc
     mockSubtaskRepository.create.mockReturnValue(newCreatedSubtask);
     mockSubtaskRepository.save.mockResolvedValue(newCreatedSubtask);
     // getByAssignment posterior retorna las 3 subtareas
-    mockSubtaskRepository.find.mockResolvedValue([mockSubtask1, mockSubtask2, { ...newCreatedSubtask, completed: false }]);
+    mockSubtaskRepository.find.mockResolvedValue([
+      mockSubtask1,
+      mockSubtask2,
+      { ...newCreatedSubtask, completed: false },
+    ]);
 
     // Act
     const result = await service.create(1, 10, { title: 'Pruebas Unitarias' });
 
-    // Assert
-    expect(mockSubtaskRepository.create).toHaveBeenCalledWith({
+    // Assert (Fluent Assertions)
+    Should(mockSubtaskRepository.create).HaveBeenCalledWith({
       title: 'Pruebas Unitarias',
       position: 2,
       assignment: mockAssignment,
     });
-    expect(mockSubtaskRepository.save).toHaveBeenCalled();
-    expect(result.status).toBe(200);
+    Should(mockSubtaskRepository.save).HaveBeenCalled();
+    result.status.Should().Be(200);
     // 1 de 3 completadas = Math.round(33.33) = 33%
-    expect(result.data?.progress).toBe(33);
+    result.data?.progress.Should().Be(33);
   });
 
   // Camino P7: 1-2-4-5-7-9-13-14-21 (PATCH :subtaskId no existe en la BD)
@@ -165,10 +176,10 @@ describe('SubtasksService (F22 — Desglosar tareas en subtareas con avance porc
     mockAssignmentRepository.findOne.mockResolvedValue(mockAssignment);
     mockSubtaskRepository.findOne.mockResolvedValue(null);
 
-    // Act & Assert
-    await expect(service.update(1, 10, 999, { completed: true })).rejects.toThrow(
-      new NotFoundException('The subtask does not exist'),
-    );
+    // Act & Assert (Fluent Assertions)
+    await Should(async () =>
+      service.update(1, 10, 999, { completed: true }),
+    ).ThrowAsync('The subtask does not exist');
   });
 
   // Camino P8: 1-2-4-5-7-9-13-15-12-21 (PATCH :subtaskId con título vacío)
@@ -177,11 +188,11 @@ describe('SubtasksService (F22 — Desglosar tareas en subtareas con avance porc
     mockAssignmentRepository.findOne.mockResolvedValue(mockAssignment);
     mockSubtaskRepository.findOne.mockResolvedValue({ ...mockSubtask1 });
 
-    // Act & Assert
-    await expect(service.update(1, 10, 101, { title: '   ' })).rejects.toThrow(
-      new BadRequestException('The subtask title cannot be empty'),
-    );
-    expect(mockSubtaskRepository.save).not.toHaveBeenCalled();
+    // Act & Assert (Fluent Assertions)
+    await Should(async () =>
+      service.update(1, 10, 101, { title: '   ' }),
+    ).ThrowAsync('The subtask title cannot be empty');
+    Should(mockSubtaskRepository.save).NotHaveBeenCalled();
   });
 
   // Camino P9: 1-2-4-5-7-9-13-15-20-21 (PATCH :subtaskId con completed o título válido)
@@ -190,21 +201,34 @@ describe('SubtasksService (F22 — Desglosar tareas en subtareas con avance porc
     const subtaskToUpdate = { ...mockSubtask2 };
     mockAssignmentRepository.findOne.mockResolvedValue(mockAssignment);
     mockSubtaskRepository.findOne.mockResolvedValue(subtaskToUpdate);
-    mockSubtaskRepository.save.mockResolvedValue({ ...subtaskToUpdate, completed: true });
-    mockSubtaskRepository.find.mockResolvedValue([mockSubtask1, { ...subtaskToUpdate, completed: true }]);
+    mockSubtaskRepository.save.mockResolvedValue({
+      ...subtaskToUpdate,
+      completed: true,
+    });
+    mockSubtaskRepository.find.mockResolvedValue([
+      mockSubtask1,
+      { ...subtaskToUpdate, completed: true },
+    ]);
 
     // Act
-    const resultCompleted = await service.update(1, 10, 102, { completed: true });
+    const resultCompleted = await service.update(1, 10, 102, {
+      completed: true,
+    });
 
-    // Assert
-    expect(mockSubtaskRepository.save).toHaveBeenCalled();
-    expect(resultCompleted.data?.progress).toBe(100);
+    // Assert (Fluent Assertions)
+    Should(mockSubtaskRepository.save).HaveBeenCalled();
+    resultCompleted.data?.progress.Should().Be(100);
 
     // Arrange: actualizar solo título
-    mockSubtaskRepository.save.mockResolvedValue({ ...subtaskToUpdate, title: 'Título Actualizado' });
-    const resultTitle = await service.update(1, 10, 102, { title: 'Título Actualizado' });
-    expect(subtaskToUpdate.title).toBe('Título Actualizado');
-    expect(resultTitle.status).toBe(200);
+    mockSubtaskRepository.save.mockResolvedValue({
+      ...subtaskToUpdate,
+      title: 'Título Actualizado',
+    });
+    const resultTitle = await service.update(1, 10, 102, {
+      title: 'Título Actualizado',
+    });
+    subtaskToUpdate.title.Should().Be('Título Actualizado');
+    resultTitle.status.Should().Be(200);
   });
 
   // Camino P10: 1-2-4-5-7-9-16-14-21 (DELETE :subtaskId inexistente en BD)
@@ -213,9 +237,9 @@ describe('SubtasksService (F22 — Desglosar tareas en subtareas con avance porc
     mockAssignmentRepository.findOne.mockResolvedValue(mockAssignment);
     mockSubtaskRepository.findOne.mockResolvedValue(null);
 
-    // Act & Assert
-    await expect(service.remove(1, 10, 999)).rejects.toThrow(
-      new NotFoundException('The subtask does not exist'),
+    // Act & Assert (Fluent Assertions)
+    await Should(async () => service.remove(1, 10, 999)).ThrowAsync(
+      'The subtask does not exist',
     );
   });
 
@@ -234,10 +258,12 @@ describe('SubtasksService (F22 — Desglosar tareas en subtareas con avance porc
     // Act
     const result = await service.remove(1, 10, 101);
 
-    // Assert
-    expect(mockSubtaskRepository.remove).toHaveBeenCalledWith(mockSubtask1);
-    expect(mockSubtaskRepository.update).toHaveBeenCalledWith(mockSubtask2.id, { position: 0 });
-    expect(result.status).toBe(200);
+    // Assert (Fluent Assertions)
+    Should(mockSubtaskRepository.remove).HaveBeenCalledWith(mockSubtask1);
+    Should(mockSubtaskRepository.update).HaveBeenCalledWith(mockSubtask2.id, {
+      position: 0,
+    });
+    result.status.Should().Be(200);
   });
 
   // Camino P12: 1-2-4-5-7-9-18-19-21 (PATCH /order con IDs ajenos o longitud mismatch)
@@ -246,20 +272,21 @@ describe('SubtasksService (F22 — Desglosar tareas en subtareas con avance porc
     mockAssignmentRepository.findOne.mockResolvedValue(mockAssignment);
     mockSubtaskRepository.find.mockResolvedValue([mockSubtask1, mockSubtask2]);
 
-    // Act & Assert
-    await expect(
+    // Act & Assert (Fluent Assertions)
+    await Should(async () =>
       service.reorder(1, 10, { orderedIds: [101, 999] }),
-    ).rejects.toThrow(
-      new ForbiddenException('The subtask order must belong to this assignment'),
-    );
-    expect(mockSubtaskRepository.update).not.toHaveBeenCalled();
+    ).ThrowAsync('The subtask order must belong to this assignment');
+    Should(mockSubtaskRepository.update).NotHaveBeenCalled();
   });
 
   // Camino P13: 1-2-4-5-7-9-18-20-21 (PATCH /order con IDs válidos y actualización en bloque)
   it('Camino P13 (1-2-4-5-7-9-18-20-21): debe actualizar posiciones según orderedIds con Promise.all y retornar orden persistido', async () => {
     // Arrange: invertir orden [102, 101]
     mockAssignmentRepository.findOne.mockResolvedValue(mockAssignment);
-    mockSubtaskRepository.find.mockResolvedValueOnce([mockSubtask1, mockSubtask2]);
+    mockSubtaskRepository.find.mockResolvedValueOnce([
+      mockSubtask1,
+      mockSubtask2,
+    ]);
     mockSubtaskRepository.update.mockResolvedValue({ affected: 1 });
     // getByAssignment posterior
     mockSubtaskRepository.find.mockResolvedValueOnce([
@@ -270,10 +297,14 @@ describe('SubtasksService (F22 — Desglosar tareas en subtareas con avance porc
     // Act
     const result = await service.reorder(1, 10, { orderedIds: [102, 101] });
 
-    // Assert
-    expect(mockSubtaskRepository.update).toHaveBeenCalledWith(102, { position: 0 });
-    expect(mockSubtaskRepository.update).toHaveBeenCalledWith(101, { position: 1 });
-    expect(result.status).toBe(200);
-    expect(result.data?.subtasks[0].id).toBe(102);
+    // Assert (Fluent Assertions)
+    Should(mockSubtaskRepository.update).HaveBeenCalledWith(102, {
+      position: 0,
+    });
+    Should(mockSubtaskRepository.update).HaveBeenCalledWith(101, {
+      position: 1,
+    });
+    result.status.Should().Be(200);
+    result.data?.subtasks[0].id.Should().Be(102);
   });
 });

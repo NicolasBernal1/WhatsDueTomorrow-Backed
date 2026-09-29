@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RemindersController } from './reminders.controller';
 import { RemindersService } from './reminders.service';
+import { Should } from '../common/fluent-assertions';
 
 const mockRemindersService = {
   sendDueTomorrowReminders: jest.fn(),
@@ -12,7 +13,9 @@ describe('RemindersController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [RemindersController],
-      providers: [{ provide: RemindersService, useValue: mockRemindersService }],
+      providers: [
+        { provide: RemindersService, useValue: mockRemindersService },
+      ],
     }).compile();
 
     controller = module.get<RemindersController>(RemindersController);
@@ -20,7 +23,7 @@ describe('RemindersController', () => {
   });
 
   it('should be defined', () => {
-    expect(controller).toBeDefined();
+    controller.Should().NotBeNull().And.BeDefined();
   });
 
   it('should delegate to RemindersService.sendDueTomorrowReminders', async () => {
@@ -31,7 +34,10 @@ describe('RemindersController', () => {
 
     const result = await controller.trigger();
 
-    expect(mockRemindersService.sendDueTomorrowReminders).toHaveBeenCalled();
-    expect(result).toEqual({ status: 200, message: 'Due-tomorrow reminders processed' });
+    Should(mockRemindersService.sendDueTomorrowReminders).HaveBeenCalled();
+    result.Should().BeEquivalentTo({
+      status: 200,
+      message: 'Due-tomorrow reminders processed',
+    });
   });
 });

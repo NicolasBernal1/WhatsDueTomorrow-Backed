@@ -29,7 +29,11 @@ describe('AuthController', () => {
 
   describe('register', () => {
     it('should call authService.register with the DTO and return its result', async () => {
-      const userDto = { name: 'Ana', email: 'ana@test.com', password: 'Clave123' };
+      const userDto = {
+        name: 'Ana',
+        email: 'ana@test.com',
+        password: 'Clave123',
+      };
       const expected = {
         status: 201,
         message: 'User registered successfully',
@@ -50,7 +54,10 @@ describe('AuthController', () => {
       const expected = {
         status: 200,
         message: 'Logged in successfully',
-        data: { token: 'tok', user: { id: 1, name: 'Ana', email: 'ana@test.com' } },
+        data: {
+          token: 'tok',
+          user: { id: 1, name: 'Ana', email: 'ana@test.com' },
+        },
       };
       authService.login.mockResolvedValue(expected as any);
 
@@ -65,7 +72,10 @@ describe('AuthController', () => {
     it('should extract userId from req.user.sub and call authService.changePassword', async () => {
       const req = { user: { sub: 1, email: 'ana@test.com' } };
       const dto = { currentPassword: 'old', newPassword: 'new' };
-      const expected = { status: 200, message: 'Password updated successfully' };
+      const expected = {
+        status: 200,
+        message: 'Password updated successfully',
+      };
       authService.changePassword.mockResolvedValue(expected as any);
 
       const result = await controller.changePassword(req, dto as any);
@@ -79,7 +89,10 @@ describe('AuthController', () => {
     it('should extract userId from req.user.sub and call authService.verifyPassword with the password string', async () => {
       const req = { user: { sub: 1, email: 'ana@test.com' } };
       const dto = { password: 'Clave123' };
-      const expected = { status: 200, message: 'Password verified successfully' };
+      const expected = {
+        status: 200,
+        message: 'Password verified successfully',
+      };
       authService.verifyPassword.mockResolvedValue(expected as any);
 
       const result = await controller.verifyPassword(req, dto as any);

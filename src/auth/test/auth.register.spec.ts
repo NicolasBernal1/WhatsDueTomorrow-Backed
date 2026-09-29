@@ -14,7 +14,6 @@ const chaiExpect = chai.expect;
 // REGISTRAR ESTUDIANTE — POST /auth/register
 // Tabla de caminos BE-1
 // ════════════════════════════════════════════════════════════════════════════
-
 jest.mock('bcrypt');
 
 const mockUser = {

@@ -5,11 +5,6 @@ import { JwtStrategy } from '../jwt.strategy';
 
 const chaiExpect = chai.expect;
 
-// Nota: el camino "token inválido -> 401" de las tablas BE-3, BE-4 y BE-5
-// (nodo "Guard JWT" / "¿token válido?") lo resuelve la librería passport-jwt
-// ANTES de llamar a validate() (firma inválida o expirado nunca llegan aquí).
-// Por eso ese camino no se cubre con un unit test de esta clase; se valida
-// con una prueba e2e golpeando un endpoint protegido sin token / con token vencido.
 
 const mockConfigService = {
   get: jest.fn().mockReturnValue('test_secret'),

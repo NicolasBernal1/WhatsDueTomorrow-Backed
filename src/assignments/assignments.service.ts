@@ -18,26 +18,29 @@ export class AssignmentsService {
     @InjectRepository(Assignment)
     private readonly assignmentRepository: Repository<Assignment>,
     private readonly userService: UsersService,
-    private readonly subjectService: SubjectsService
-  ){}
+    private readonly subjectService: SubjectsService,
+  ) {}
 
-  async getAssignmentsBySubject(userId: number, subjectId: number): Promise<BaseResponseDto<AssignmentResponseDto[]>>{
+  async getAssignmentsBySubject(
+    userId: number,
+    subjectId: number,
+  ): Promise<BaseResponseDto<AssignmentResponseDto[]>> {
     const assignments = await this.assignmentRepository.find({
       where: { user: { id: userId }, subject: { id: subjectId } },
     });
 
-    if(assignments.length === 0){
+    if (assignments.length === 0) {
       return {
         status: 200,
         message: 'No assignments found for this subject',
-          data: []
+        data: [],
       };
     }
 
     const response: AssignmentResponseDto[] = assignments.map((assignment) => ({
       id: assignment.id,
       title: assignment.title,
-      description: assignment.description || "",
+      description: assignment.description || '',
       dueDate: assignment.dueDate,
       subjectId: assignment.subject.id,
     }));
@@ -45,37 +48,22 @@ export class AssignmentsService {
     return {
       status: 200,
       message: 'Assignments retrieved successfully',
-      data: response
-    }
+      data: response,
+    };
   }
 
-  async getAssignmentsByUser(userId: number): Promise<BaseResponseDto<AssignmentResponseCompDto[]>>{
+  async getAssignmentsByUser(
+    userId: number,
+  ): Promise<BaseResponseDto<AssignmentResponseCompDto[]>> {
     const assignments = await this.assignmentRepository.find({
-      where: { user: { id: userId } }
+      where: { user: { id: userId } },
     });
 
-    if(assignments.length === 0){
-      return {
-        status: 200,
-        message: 'No assignments found for this user',
-          data: []
-      };
-    }
-
-    const response: AssignmentResponseCompDto[] = assignments.map((assignment) => ({
-      id: assignment.id,
-      title: assignment.title,
-      description: assignment.description || "",
-      dueDate: assignment.dueDate,
-      subjectId: assignment.subject.id,
-      subjectName: assignment.subject.name
-    }));
-
-    return {
-      status: 200,
-      message: 'Assignments retrieved successfully',
-      data: response
-    }
+    return this.buildComprehensiveResponse(
+      assignments,
+      'No assignments found for this user',
+      'Assignments retrieved successfully',
+    );
   }
 
   async getUpcomingAssignments(
@@ -93,39 +81,57 @@ export class AssignmentsService {
       order: { dueDate: 'ASC' },
     });
 
+    return this.buildComprehensiveResponse(
+      assignments,
+      'No upcoming assignments',
+      'Upcoming assignments retrieved successfully',
+    );
+  }
+
+  private buildComprehensiveResponse(
+    assignments: Assignment[],
+    emptyMessage: string,
+    successMessage: string,
+  ): BaseResponseDto<AssignmentResponseCompDto[]> {
     if (assignments.length === 0) {
       return {
         status: 200,
-        message: 'No upcoming assignments',
+        message: emptyMessage,
         data: [],
       };
     }
 
-    const response: AssignmentResponseCompDto[] = assignments.map((assignment) => ({
-      id: assignment.id,
-      title: assignment.title,
-      description: assignment.description || '',
-      dueDate: assignment.dueDate,
-      subjectId: assignment.subject.id,
-      subjectName: assignment.subject.name,
-    }));
+    const response: AssignmentResponseCompDto[] = assignments.map(
+      (assignment) => ({
+        id: assignment.id,
+        title: assignment.title,
+        description: assignment.description || '',
+        dueDate: assignment.dueDate,
+        subjectId: assignment.subject.id,
+        subjectName: assignment.subject.name,
+      }),
+    );
 
     return {
       status: 200,
-      message: 'Upcoming assignments retrieved successfully',
+      message: successMessage,
       data: response,
     };
   }
 
-  async addAssignment(userId: number, subjectId: number, addAssignmentDto: AddAssignmentDto): Promise<BaseResponseDto<null>>{
+  async addAssignment(
+    userId: number,
+    subjectId: number,
+    addAssignmentDto: AddAssignmentDto,
+  ): Promise<BaseResponseDto<null>> {
     const user = await this.userService.findOneById(userId);
     const subject = await this.subjectService.getSubjectById(subjectId);
 
-    if(!user){
+    if (!user) {
       throw new NotFoundException('The user does not exist');
     }
 
-    if(!subject){
+    if (!subject) {
       throw new NotFoundException('The subject does not exist');
     }
 
@@ -134,21 +140,23 @@ export class AssignmentsService {
       description: addAssignmentDto.description,
       dueDate: addAssignmentDto.dueDate,
       user: user,
-      subject: subject
+      subject: subject,
     });
 
     await this.assignmentRepository.save(newAssignment);
 
     return {
       status: 201,
-      message: 'Assignment created successfully'
-    }
+      message: 'Assignment created successfully',
+    };
   }
 
-  async deleteAssignment(assignmentId: number): Promise<BaseResponseDto<null>>{
-    const assignment = await this.assignmentRepository.findOneBy({ id: assignmentId });
+  async deleteAssignment(assignmentId: number): Promise<BaseResponseDto<null>> {
+    const assignment = await this.assignmentRepository.findOneBy({
+      id: assignmentId,
+    });
 
-    if(!assignment){
+    if (!assignment) {
       throw new NotFoundException('The assignment does not exist');
     }
 
@@ -156,16 +164,19 @@ export class AssignmentsService {
 
     return {
       status: 200,
-      message: 'Assignment deleted successfully'
-    }
+      message: 'Assignment deleted successfully',
+    };
   }
-  async editAssignment(assignmentId: number, updateAssignmentDto: UpdateAssignmentDto): Promise<BaseResponseDto<null>>{
+  async editAssignment(
+    assignmentId: number,
+    updateAssignmentDto: UpdateAssignmentDto,
+  ): Promise<BaseResponseDto<null>> {
     const assignment = await this.assignmentRepository.preload({
       id: assignmentId,
-      ...updateAssignmentDto
+      ...updateAssignmentDto,
     });
 
-    if(!assignment){
+    if (!assignment) {
       throw new NotFoundException('The assignment does not exist');
     }
 
@@ -173,7 +184,7 @@ export class AssignmentsService {
 
     return {
       status: 200,
-      message: 'Assignment updated successfully'
-    }
+      message: 'Assignment updated successfully',
+    };
   }
 }

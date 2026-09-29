@@ -5,6 +5,7 @@ import { Assignment } from './entities/assignment.entity';
 import { UsersService } from 'src/users/users.service';
 import { SubjectsService } from 'src/subjects/subjects.service';
 import { NotFoundException } from '@nestjs/common';
+import { Should } from '../common/fluent-assertions';
 
 // ─── Datos de prueba ─────────────────────────────────────────────────────────
 
@@ -59,7 +60,10 @@ describe('AssignmentsService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AssignmentsService,
-        { provide: getRepositoryToken(Assignment), useValue: mockAssignmentRepository },
+        {
+          provide: getRepositoryToken(Assignment),
+          useValue: mockAssignmentRepository,
+        },
         { provide: UsersService, useValue: mockUsersService },
         { provide: SubjectsService, useValue: mockSubjectsService },
       ],
@@ -124,15 +128,15 @@ describe('AssignmentsService', () => {
       // Act
       const result = await service.getUpcomingAssignments(1);
 
-      // Assert
-      expect(mockAssignmentRepository.find).toHaveBeenCalledWith(
+      // Assert (Fluent Assertions)
+      Should(mockAssignmentRepository.find).HaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
             user: { id: 1 },
           }),
         }),
       );
-      expect(result.status).toBe(200);
+      result.status.Should().Be(200);
     });
 
     // Camino P2: 1-2-4-5-6-7-8-9-14 (Fallo de conexión o excepción en BD PostgreSQL / TypeORM)
@@ -141,8 +145,10 @@ describe('AssignmentsService', () => {
       const dbError = new Error('PostgreSQL connection timeout');
       mockAssignmentRepository.find.mockRejectedValue(dbError);
 
-      // Act & Assert
-      await expect(service.getUpcomingAssignments(1)).rejects.toThrow('PostgreSQL connection timeout');
+      // Act & Assert (Fluent Exception Assertion)
+      await Should(async () => service.getUpcomingAssignments(1)).ThrowAsync(
+        'PostgreSQL connection timeout',
+      );
     });
 
     // Camino P3: 1-2-4-5-6-7-10-11-13-14 (Flujo nominal principal con entregas próximas encontradas)
@@ -153,11 +159,11 @@ describe('AssignmentsService', () => {
       // Act
       const result = await service.getUpcomingAssignments(1);
 
-      // Assert
-      expect(result.status).toBe(200);
-      expect(result.message).toBe('Upcoming assignments retrieved successfully');
-      expect(result.data).toHaveLength(1);
-      expect(result.data![0]).toEqual({
+      // Assert (Fluent Assertions)
+      result.status.Should().Be(200);
+      result.message.Should().Be('Upcoming assignments retrieved successfully');
+      result.data!.Should().HaveCount(1);
+      result.data![0].Should().BeEquivalentTo({
         id: 100,
         title: 'Tarea 1',
         description: 'Ejercicios del capítulo 3',
@@ -176,8 +182,8 @@ describe('AssignmentsService', () => {
       const customHours = 24;
       await service.getUpcomingAssignments(1, customHours);
 
-      // Assert
-      expect(mockAssignmentRepository.find).toHaveBeenCalledWith(
+      // Assert (Fluent Assertions)
+      Should(mockAssignmentRepository.find).HaveBeenCalledWith(
         expect.objectContaining({
           order: { dueDate: 'ASC' },
         }),
@@ -192,10 +198,10 @@ describe('AssignmentsService', () => {
       // Act
       const result = await service.getUpcomingAssignments(1);
 
-      // Assert
-      expect(result.status).toBe(200);
-      expect(result.message).toBe('No upcoming assignments');
-      expect(result.data).toEqual([]);
+      // Assert (Fluent Assertions)
+      result.status.Should().Be(200);
+      result.message.Should().Be('No upcoming assignments');
+      result.data!.Should().BeEmpty();
     });
   });
 
@@ -263,14 +269,18 @@ describe('AssignmentsService', () => {
         user: mockUser,
         subject: mockSubject,
       });
-      expect(mockAssignmentRepository.save).toHaveBeenCalledWith(mockAssignment);
+      expect(mockAssignmentRepository.save).toHaveBeenCalledWith(
+        mockAssignment,
+      );
     });
 
     it('should throw NotFoundException when the user does not exist', async () => {
       mockUsersService.findOneById.mockResolvedValue(null);
       mockSubjectsService.getSubjectById.mockResolvedValue(mockSubject);
 
-      await expect(service.addAssignment(999, 10, addDto)).rejects.toThrow(NotFoundException);
+      await expect(service.addAssignment(999, 10, addDto)).rejects.toThrow(
+        NotFoundException,
+      );
       expect(mockAssignmentRepository.create).not.toHaveBeenCalled();
     });
 
@@ -278,7 +288,9 @@ describe('AssignmentsService', () => {
       mockUsersService.findOneById.mockResolvedValue(mockUser);
       mockSubjectsService.getSubjectById.mockResolvedValue(null);
 
-      await expect(service.addAssignment(1, 999, addDto)).rejects.toThrow(NotFoundException);
+      await expect(service.addAssignment(1, 999, addDto)).rejects.toThrow(
+        NotFoundException,
+      );
       expect(mockAssignmentRepository.create).not.toHaveBeenCalled();
     });
   });
@@ -299,7 +311,9 @@ describe('AssignmentsService', () => {
     it('should throw NotFoundException when the assignment does not exist', async () => {
       mockAssignmentRepository.findOneBy.mockResolvedValue(null);
 
-      await expect(service.deleteAssignment(999)).rejects.toThrow(NotFoundException);
+      await expect(service.deleteAssignment(999)).rejects.toThrow(
+        NotFoundException,
+      );
       expect(mockAssignmentRepository.delete).not.toHaveBeenCalled();
     });
   });
@@ -311,7 +325,9 @@ describe('AssignmentsService', () => {
 
     it('should update an assignment and return status 200', async () => {
       const preloaded = { ...mockAssignment, ...updateDto };
-      (mockAssignmentRepository as any).preload = jest.fn().mockResolvedValue(preloaded);
+      (mockAssignmentRepository as any).preload = jest
+        .fn()
+        .mockResolvedValue(preloaded);
       mockAssignmentRepository.save.mockResolvedValue(preloaded);
 
       const result = await service.editAssignment(100, updateDto as any);
@@ -326,11 +342,13 @@ describe('AssignmentsService', () => {
     });
 
     it('should throw NotFoundException when the assignment does not exist', async () => {
-      (mockAssignmentRepository as any).preload = jest.fn().mockResolvedValue(null);
+      (mockAssignmentRepository as any).preload = jest
+        .fn()
+        .mockResolvedValue(null);
 
-      await expect(service.editAssignment(999, updateDto as any)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.editAssignment(999, updateDto as any),
+      ).rejects.toThrow(NotFoundException);
       expect(mockAssignmentRepository.save).not.toHaveBeenCalled();
     });
   });

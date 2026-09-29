@@ -22,14 +22,20 @@ describe('POST /auth/register (e2e - caja negra)', () => {
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(
-      new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+      }),
     );
     await app.init();
 
     // Fixture: usuario ya existente en BD, usado en el caso CN2
-    await request(app.getHttpServer())
-      .post('/auth/register')
-      .send({ name: 'Usuario Existente', email: existingEmail, password: 'Clave123' });
+    await request(app.getHttpServer()).post('/auth/register').send({
+      name: 'Usuario Existente',
+      email: existingEmail,
+      password: 'Clave123',
+    });
   });
 
   afterAll(async () => {
@@ -42,7 +48,10 @@ describe('POST /auth/register (e2e - caja negra)', () => {
       .send({ name: 'Ana', email: uniqueEmail, password: 'Clave123' })
       .expect(201)
       .expect((res) => {
-        expect(res.body.data).toMatchObject({ name: 'Ana', email: uniqueEmail });
+        expect(res.body.data).toMatchObject({
+          name: 'Ana',
+          email: uniqueEmail,
+        });
         expect(res.body.data.password).toBeUndefined();
       });
   });
@@ -50,14 +59,22 @@ describe('POST /auth/register (e2e - caja negra)', () => {
   it('CN2: email ya en uso -> 409', () => {
     return request(app.getHttpServer())
       .post('/auth/register')
-      .send({ name: 'Otra Persona', email: existingEmail, password: 'OtraClave1' })
+      .send({
+        name: 'Otra Persona',
+        email: existingEmail,
+        password: 'OtraClave1',
+      })
       .expect(409);
   });
 
   it('CN3: campo name vacío -> 400', () => {
     return request(app.getHttpServer())
       .post('/auth/register')
-      .send({ name: '', email: `cn3_${Date.now()}@test.com`, password: 'Clave123' })
+      .send({
+        name: '',
+        email: `cn3_${Date.now()}@test.com`,
+        password: 'Clave123',
+      })
       .expect(400);
   });
 
