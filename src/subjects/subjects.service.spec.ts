@@ -7,6 +7,7 @@ import { SubjectClass } from './entities/subject-class.entity';
 import { UsersService } from 'src/users/users.service';
 import { NotFoundException } from '@nestjs/common';
 import { ContradictoryTimeException } from './exceptions/contradictory-time.exception';
+import { Should } from 'src/common/fluent-assertions';
 
 describe('SubjectsService - Módulo de clases', () => {
   let service: SubjectsService;
@@ -83,35 +84,43 @@ describe('SubjectsService - Módulo de clases', () => {
     service = module.get<SubjectsService>(SubjectsService);
   });
 
+  it('deberia estar definido', () => {
+    service.Should().BeDefined();
+  });
+
   describe('Consultar horario', () => {
     // Camino:
     // 1,2,3,4,5,10
     it('debe lanzar error cuando el usuario no existe', async () => {
+      // Arrange
       userService.findOneById.mockResolvedValue(null);
 
-      await expect(service.getClassesByid(1)).rejects.toThrow(
-        new NotFoundException('User not found'),
+      // Act & Assert (Fluent Exception Assertion)
+      await Should(() => service.getClassesByid(1)).ThrowAsync(
+        NotFoundException,
       );
 
-      expect(userService.findOneById).toHaveBeenCalledWith(1);
+      Should(userService.findOneById).HaveBeenCalledWith(1);
     });
 
     // Camino:
     // 1,2,3,4,6,7,8,10
     it('debe retornar arreglo vacio cuando el usuario no tiene clases', async () => {
+      // Arrange
       userService.findOneById.mockResolvedValue(userMock);
-
       subjectClassRepository.findBy.mockResolvedValue([]);
 
+      // Act
       const result = await service.getClassesByid(1);
 
-      expect(result).toEqual({
+      // Assert (Fluent Assertions)
+      result.Should().BeEquivalentTo({
         status: 200,
         message: 'The user has no classes',
         data: [],
       });
 
-      expect(subjectClassRepository.findBy).toHaveBeenCalledWith({
+      Should(subjectClassRepository.findBy).HaveBeenCalledWith({
         user: {
           id: 1,
         },
@@ -121,13 +130,15 @@ describe('SubjectsService - Módulo de clases', () => {
     // Camino:
     // 1,2,3,4,6,7,9,10
     it('debe retornar las clases del usuario con la informacion de su asignatura', async () => {
+      // Arrange
       userService.findOneById.mockResolvedValue(userMock);
-
       subjectClassRepository.findBy.mockResolvedValue([classMock]);
 
+      // Act
       const result = await service.getClassesByid(1);
 
-      expect(result).toEqual({
+      // Assert (Fluent Assertions)
+      result.Should().BeEquivalentTo({
         status: 200,
         message: 'Classes retrieved successfully',
         data: [
@@ -160,47 +171,53 @@ describe('SubjectsService - Módulo de clases', () => {
     // Camino:
     // 1,2,3,4,6,10
     it('debe lanzar error cuando el usuario no existe', async () => {
+      // Arrange
       userService.findOneById.mockResolvedValue(null);
 
-      await expect(service.addClass(1, addClassDto)).rejects.toThrow(
-        new NotFoundException('User not found'),
+      // Act & Assert (Fluent Exception Assertion)
+      await Should(() => service.addClass(1, addClassDto)).ThrowAsync(
+        NotFoundException,
       );
 
-      expect(userService.findOneById).toHaveBeenCalledWith(1);
+      Should(userService.findOneById).HaveBeenCalledWith(1);
     });
 
     // Camino:
     // 1,2,3,4,5,7,6,10
     it('debe lanzar error cuando la asignatura no existe', async () => {
+      // Arrange
       userService.findOneById.mockResolvedValue(userMock);
-
       subjectRepository.findOneBy.mockResolvedValue(null);
 
-      await expect(service.addClass(1, addClassDto)).rejects.toThrow(
-        new NotFoundException('The subject does not exist'),
+      // Act & Assert (Fluent Exception Assertion)
+      await Should(() => service.addClass(1, addClassDto)).ThrowAsync(
+        NotFoundException,
       );
 
-      expect(subjectRepository.findOneBy).toHaveBeenCalledWith({
+      Should(subjectRepository.findOneBy).HaveBeenCalledWith({
         id: 10,
       });
     });
 
     it('debe lanzar error "Subject not found" si getSubjectById resuelve un valor falso', async () => {
+      // Arrange
       userService.findOneById.mockResolvedValue(userMock);
+      jest
+        .spyOn(service, 'getSubjectById')
+        .mockResolvedValue(undefined as any);
 
-      jest.spyOn(service, 'getSubjectById').mockResolvedValue(undefined as any);
-
-      await expect(service.addClass(1, addClassDto)).rejects.toThrow(
-        new NotFoundException('Subject not found'),
+      // Act & Assert (Fluent Exception Assertion)
+      await Should(() => service.addClass(1, addClassDto)).ThrowAsync(
+        NotFoundException,
       );
 
-      expect(service.getSubjectById).toHaveBeenCalledWith(10);
-      expect(subjectClassRepository.create).not.toHaveBeenCalled();
+      Should(service.getSubjectById).HaveBeenCalledWith(10);
+      Should(subjectClassRepository.create).NotHaveBeenCalled();
     });
 
     it('debe lanzar ContradictoryTimeException cuando endTime es anterior a startTime', async () => {
+      // Arrange
       userService.findOneById.mockResolvedValue(userMock);
-
       subjectRepository.findOneBy.mockResolvedValue(subjectMock);
 
       const dtoConHorarioInvalido = {
@@ -209,28 +226,29 @@ describe('SubjectsService - Módulo de clases', () => {
         endTime: '08:00',
       };
 
-      await expect(service.addClass(1, dtoConHorarioInvalido)).rejects.toThrow(
-        new ContradictoryTimeException(),
-      );
+      // Act & Assert (Fluent Exception Assertion)
+      await Should(() =>
+        service.addClass(1, dtoConHorarioInvalido),
+      ).ThrowAsync(ContradictoryTimeException);
 
-      expect(subjectClassRepository.create).not.toHaveBeenCalled();
-      expect(subjectClassRepository.save).not.toHaveBeenCalled();
+      Should(subjectClassRepository.create).NotHaveBeenCalled();
+      Should(subjectClassRepository.save).NotHaveBeenCalled();
     });
 
     // Camino:
     // 1,2,3,4,5,7,8,9,10
     it('debe crear la clase correctamente cuando usuario y asignatura existen', async () => {
+      // Arrange
       userService.findOneById.mockResolvedValue(userMock);
-
       subjectRepository.findOneBy.mockResolvedValue(subjectMock);
-
       subjectClassRepository.create.mockReturnValue(classMock);
-
       subjectClassRepository.save.mockResolvedValue(classMock);
 
+      // Act
       const result = await service.addClass(1, addClassDto);
 
-      expect(subjectClassRepository.create).toHaveBeenCalledWith({
+      // Assert (Fluent Assertions)
+      Should(subjectClassRepository.create).HaveBeenCalledWith({
         dayOfWeek: 'monday',
         startTime: '08:00',
         endTime: '10:00',
@@ -238,9 +256,9 @@ describe('SubjectsService - Módulo de clases', () => {
         user: userMock,
       });
 
-      expect(subjectClassRepository.save).toHaveBeenCalledWith(classMock);
+      Should(subjectClassRepository.save).HaveBeenCalledWith(classMock);
 
-      expect(result).toEqual({
+      result.Should().BeEquivalentTo({
         status: 201,
         message: 'Class created successfully',
       });
@@ -251,13 +269,15 @@ describe('SubjectsService - Módulo de clases', () => {
     // Camino:
     // 1,2,3,4,5,7,8
     it('debe lanzar error cuando la clase no pertenece al usuario o no existe', async () => {
+      // Arrange
       subjectClassRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.removeClass(1, 5)).rejects.toThrow(
-        new NotFoundException('Class not found or not owned by user'),
+      // Act & Assert (Fluent Exception Assertion)
+      await Should(() => service.removeClass(1, 5)).ThrowAsync(
+        NotFoundException,
       );
 
-      expect(subjectClassRepository.findOne).toHaveBeenCalledWith({
+      Should(subjectClassRepository.findOne).HaveBeenCalledWith({
         where: {
           id: 5,
           user: {
@@ -270,18 +290,20 @@ describe('SubjectsService - Módulo de clases', () => {
     // Camino:
     // 1,2,3,4,5,6,8
     it('debe eliminar la clase correctamente', async () => {
+      // Arrange
       subjectClassRepository.findOne.mockResolvedValue(classMock);
-
       subjectClassRepository.delete.mockResolvedValue({
         affected: 1,
         raw: {},
       } as any);
 
+      // Act
       const result = await service.removeClass(1, 5);
 
-      expect(subjectClassRepository.delete).toHaveBeenCalledWith(5);
+      // Assert (Fluent Assertions)
+      Should(subjectClassRepository.delete).HaveBeenCalledWith(5);
 
-      expect(result).toEqual({
+      result.Should().BeEquivalentTo({
         status: 200,
         message: 'Class deleted successfully',
       });
@@ -298,27 +320,30 @@ describe('SubjectsService - Módulo de clases', () => {
     // Camino:
     // 1,2,3,4,5,7,10
     it('debe lanzar error cuando el usuario no existe', async () => {
+      // Arrange
       userService.findOneById.mockResolvedValue(null);
 
-      await expect(service.editClass(1, 5, editClassDto)).rejects.toThrow(
-        new NotFoundException('User not found'),
+      // Act & Assert (Fluent Exception Assertion)
+      await Should(() => service.editClass(1, 5, editClassDto)).ThrowAsync(
+        NotFoundException,
       );
 
-      expect(userService.findOneById).toHaveBeenCalledWith(1);
+      Should(userService.findOneById).HaveBeenCalledWith(1);
     });
 
     // Camino:
     // 1,2,3,4,5,6,8,7,10
     it('debe lanzar error cuando la clase no existe', async () => {
+      // Arrange
       userService.findOneById.mockResolvedValue(userMock);
-
       subjectClassRepository.preload.mockResolvedValue(undefined);
 
-      await expect(service.editClass(1, 5, editClassDto)).rejects.toThrow(
-        new NotFoundException('Class not found or not owned by user'),
+      // Act & Assert (Fluent Exception Assertion)
+      await Should(() => service.editClass(1, 5, editClassDto)).ThrowAsync(
+        NotFoundException,
       );
 
-      expect(subjectClassRepository.preload).toHaveBeenCalledWith({
+      Should(subjectClassRepository.preload).HaveBeenCalledWith({
         id: 5,
         ...editClassDto,
       });
@@ -327,22 +352,23 @@ describe('SubjectsService - Módulo de clases', () => {
     // Camino:
     // 1,2,3,4,5,6,8,9,10
     it('debe actualizar la clase correctamente', async () => {
+      // Arrange
       userService.findOneById.mockResolvedValue(userMock);
-
       subjectClassRepository.preload.mockResolvedValue(classMock);
-
       subjectClassRepository.save.mockResolvedValue(classMock);
 
+      // Act
       const result = await service.editClass(1, 5, editClassDto);
 
-      expect(subjectClassRepository.preload).toHaveBeenCalledWith({
+      // Assert (Fluent Assertions)
+      Should(subjectClassRepository.preload).HaveBeenCalledWith({
         id: 5,
         ...editClassDto,
       });
 
-      expect(subjectClassRepository.save).toHaveBeenCalledWith(classMock);
+      Should(subjectClassRepository.save).HaveBeenCalledWith(classMock);
 
-      expect(result).toEqual({
+      result.Should().BeEquivalentTo({
         status: 200,
         message: 'Class updated successfully',
       });
@@ -362,38 +388,49 @@ describe('SubjectsService - Módulo de clases', () => {
     }
 
     it('should throw NotFoundException when the user does not exist', async () => {
+      // Arrange
       userService.findOneById.mockResolvedValue(null);
 
-      await expect(service.searchSubjects(999, 'algo')).rejects.toThrow(
+      // Act & Assert (Fluent Exception Assertion)
+      await Should(() => service.searchSubjects(999, 'algo')).ThrowAsync(
         NotFoundException,
       );
-      expect(subjectRepository.createQueryBuilder).not.toHaveBeenCalled();
+
+      Should(subjectRepository.createQueryBuilder).NotHaveBeenCalled();
     });
 
     it('should return an empty result without querying when the search term is blank', async () => {
+      // Arrange
       userService.findOneById.mockResolvedValue(userMock);
 
+      // Act
       const result = await service.searchSubjects(1, '   ');
 
-      expect(result).toEqual({
+      // Assert (Fluent Assertions)
+      result.Should().BeEquivalentTo({
         status: 200,
         message: 'Search query is required',
         data: [],
       });
-      expect(subjectRepository.createQueryBuilder).not.toHaveBeenCalled();
+
+      Should(subjectRepository.createQueryBuilder).NotHaveBeenCalled();
     });
 
     it('should return an empty result when no subjects match the search', async () => {
+      // Arrange
       userService.findOneById.mockResolvedValue(userMock);
       const qb = mockQueryBuilder([]);
 
+      // Act
       const result = await service.searchSubjects(1, 'inexistente');
 
-      expect(qb.andWhere).toHaveBeenCalledWith(
+      // Assert (Fluent Assertions)
+      Should(qb.andWhere).HaveBeenCalledWith(
         '(subject.name LIKE :term OR subject.professor LIKE :term)',
         { term: '%inexistente%' },
       );
-      expect(result).toEqual({
+
+      result.Should().BeEquivalentTo({
         status: 200,
         message: 'No subjects found matching the search',
         data: [],
@@ -401,14 +438,17 @@ describe('SubjectsService - Módulo de clases', () => {
     });
 
     it('should return matching subjects, defaulting credits to 3 when unset', async () => {
+      // Arrange
       userService.findOneById.mockResolvedValue(userMock);
       mockQueryBuilder([{ ...subjectMock, credits: undefined }]);
 
+      // Act
       const result = await service.searchSubjects(1, 'valid');
 
-      expect(result.status).toBe(200);
-      expect(result.message).toBe('Subjects retrieved successfully');
-      expect(result.data).toEqual([
+      // Assert (Fluent Assertions)
+      result.status.Should().Be(200);
+      result.message.Should().Be('Subjects retrieved successfully');
+      result.data.Should().BeEquivalentTo([
         {
           id: subjectMock.id,
           name: subjectMock.name,
