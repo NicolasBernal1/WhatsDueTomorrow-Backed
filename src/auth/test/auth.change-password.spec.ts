@@ -1,14 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import * as chai from 'chai';
-import chaiAsPromised from 'chai-as-promised';
 import { AuthService } from '../auth.service';
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-
-chai.use(chaiAsPromised);
-const chaiExpect = chai.expect;
+import { Should } from '../../common/fluent-assertions';
 
 // ════════════════════════════════════════════════════════════════════════════
 // CAMBIAR CONTRASEÑA — PATCH /auth/change-password
@@ -54,7 +50,7 @@ describe('AuthService · changePassword', () => {
 
   it('should be defined', () => {
     // Assert
-    chaiExpect(service).to.exist;
+    service.Should().BeDefined();
   });
 
   const userId = 1;
@@ -68,10 +64,10 @@ describe('AuthService · changePassword', () => {
     mockUsersService.findOneById.mockResolvedValue(null);
 
     // Act & Assert
-    await chaiExpect(
+    await Should(() =>
       service.changePassword(userId, changePasswordDto),
-    ).to.be.rejectedWith(NotFoundException);
-    expect(mockUsersService.save).not.toHaveBeenCalled();
+    ).ThrowAsync(NotFoundException);
+    Should(mockUsersService.save).NotHaveBeenCalled();
   });
 
   it('P3 (1-2-3(Sí)-5-6(Sí)-8-9(No)-10): should throw UnauthorizedException if the current password is incorrect', async () => {
@@ -80,10 +76,10 @@ describe('AuthService · changePassword', () => {
     (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
     // Act & Assert
-    await chaiExpect(
+    await Should(() =>
       service.changePassword(userId, changePasswordDto),
-    ).to.be.rejectedWith(UnauthorizedException);
-    expect(mockUsersService.save).not.toHaveBeenCalled();
+    ).ThrowAsync(UnauthorizedException);
+    Should(mockUsersService.save).NotHaveBeenCalled();
   });
 
   it('P4 (1-2-3(Sí)-5-6(Sí)-8-9(Sí)-11-12-13): should hash the new password, save the user and return status 200', async () => {
@@ -97,15 +93,15 @@ describe('AuthService · changePassword', () => {
     const result = await service.changePassword(userId, changePasswordDto);
 
     // Assert
-    expect(bcrypt.compare).toHaveBeenCalledWith(
+    Should(bcrypt.compare).HaveBeenCalledWith(
       changePasswordDto.currentPassword,
       mockUser.password,
     );
-    expect(bcrypt.hash).toHaveBeenCalledWith(changePasswordDto.newPassword, 10);
-    expect(mockUsersService.save).toHaveBeenCalledWith(
+    Should(bcrypt.hash).HaveBeenCalledWith(changePasswordDto.newPassword, 10);
+    Should(mockUsersService.save).HaveBeenCalledWith(
       expect.objectContaining({ password: 'new_hashed_password' }),
     );
-    chaiExpect(result.status).to.equal(200);
-    chaiExpect(result.message).to.equal('Password updated successfully');
+    result.status.Should().Be(200);
+    result.message.Should().Be('Password updated successfully');
   });
 });
