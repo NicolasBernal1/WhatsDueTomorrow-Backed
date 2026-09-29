@@ -30,7 +30,8 @@ pipeline {
                     sh """
                         ${SCANNER_HOME}/bin/sonar-scanner \
                           -Dsonar.qualitygate.wait=true \
-                          -Dsonar.qualitygate.timeout=300
+                          -Dsonar.qualitygate.timeout=300 \
+                          -Dsonar.scanner.skipJreProvisioning=true
                     """
                 }
             }
@@ -45,16 +46,16 @@ pipeline {
         stage('Deploy') {
             steps {
                 withCredentials([
-                    string(credentialsId: 'jwt-secret',   variable: 'JWT_SECRET'),
-                    string(credentialsId: 'db-host',      variable: 'DB_HOST'),
-                    string(credentialsId: 'db-port',      variable: 'DB_PORT'),
-                    string(credentialsId: 'db-username',  variable: 'DB_USERNAME'),
-                    string(credentialsId: 'db-password',  variable: 'DB_PASSWORD'),
-                    string(credentialsId: 'db-database',  variable: 'DB_DATABASE'),
-                    string(credentialsId: 'EMAIL_FROM', variable: 'EMAIL_FROM'),
-                    string(credentialsId: 'GMAIL_APP_PASSWORD', variable: 'GMAIL_APP_PASSWORD'),
-                    string(credentialsId: 'GMAIL_USER', variable: 'GMAIL_USER'),
-                    string(credentialsId: 'RESEND_API_KEY', variable: 'RESEND_API_KEY')
+                    string(credentialsId: 'jwt-secret',           variable: 'JWT_SECRET'),
+                    string(credentialsId: 'db-host',              variable: 'DB_HOST'),
+                    string(credentialsId: 'db-port',              variable: 'DB_PORT'),
+                    string(credentialsId: 'db-username',          variable: 'DB_USERNAME'),
+                    string(credentialsId: 'db-password',          variable: 'DB_PASSWORD'),
+                    string(credentialsId: 'db-database',          variable: 'DB_DATABASE'),
+                    string(credentialsId: 'email-from',           variable: 'EMAIL_FROM'),
+                    string(credentialsId: 'gmail-app-password',   variable: 'GMAIL_APP_PASSWORD'),
+                    string(credentialsId: 'gmail-user',           variable: 'GMAIL_USER'),
+                    string(credentialsId: 'resend-api-key',       variable: 'RESEND_API_KEY')
                 ]) {
                     sh '''
                         docker rm -f whatsduetomorrow-backend || true

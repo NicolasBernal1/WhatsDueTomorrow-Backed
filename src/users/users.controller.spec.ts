@@ -1,12 +1,20 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import * as chai from 'chai';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
+
+const chaiExpect = chai.expect;
+
+// ════════════════════════════════════════════════════════════════════════════
+// CONSULTAR PERFIL — GET /users/profile
+// ════════════════════════════════════════════════════════════════════════════
 
 describe('UsersController', () => {
   let controller: UsersController;
   let usersService: jest.Mocked<UsersService>;
 
   beforeEach(async () => {
+    // Arrange
     const usersServiceMock = {
       getProfile: jest.fn(),
       remove: jest.fn(),
@@ -22,11 +30,13 @@ describe('UsersController', () => {
   });
 
   it('should be defined', () => {
-    expect(controller).toBeDefined();
+    // Assert
+    chaiExpect(controller).to.exist;
   });
 
   describe('profile', () => {
     it('should call usersService.getProfile with req.user.email', async () => {
+      // Arrange
       const req = { user: { email: 'user@example.com' } };
       const expected = {
         status: 200,
@@ -35,23 +45,28 @@ describe('UsersController', () => {
       };
       usersService.getProfile.mockResolvedValue(expected as any);
 
+      // Act
       const result = await controller.profile(req);
 
+      // Assert
       expect(usersService.getProfile).toHaveBeenCalledWith('user@example.com');
-      expect(result).toBe(expected);
+      chaiExpect(result).to.equal(expected);
     });
   });
 
   describe('deleteAccount', () => {
     it('should call usersService.remove with req.user.sub', async () => {
+      // Arrange
       const req = { user: { sub: 1 } };
       const expected = { status: 200, message: 'Account deleted', data: null };
       usersService.remove.mockResolvedValue(expected as any);
 
+      // Act
       const result = await controller.deleteAccount(req);
 
+      // Assert
       expect(usersService.remove).toHaveBeenCalledWith(1);
-      expect(result).toBe(expected);
+      chaiExpect(result).to.equal(expected);
     });
   });
 });
