@@ -269,7 +269,6 @@ export class SubjectsService {
     }
 
     if (addClassDto.endTime < addClassDto.startTime) {
-      console.log('ERRRRRORRRRRRRRRRRRRRRR');
       throw new ContradictoryTimeException();
     }
 

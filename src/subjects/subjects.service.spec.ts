@@ -158,6 +158,23 @@ describe('SubjectsService - Módulo de clases', () => {
         ],
       });
     });
+
+    it('debe consultar las clases usando exclusivamente el usuario solicitado', async () => {
+      userService.findOneById.mockResolvedValue(userMock);
+
+      subjectClassRepository.findBy.mockResolvedValue([classMock]);
+
+      await service.getClassesByid(1);
+
+      expect(userService.findOneById).toHaveBeenCalledWith(1);
+
+      expect(subjectClassRepository.findBy).toHaveBeenCalledTimes(1);
+      expect(subjectClassRepository.findBy).toHaveBeenCalledWith({
+        user: {
+          id: 1,
+        },
+      });
+    });
   });
 
   describe('Registrar clase', () => {
@@ -263,6 +280,38 @@ describe('SubjectsService - Módulo de clases', () => {
         message: 'Class created successfully',
       });
     });
+
+    it('debe crear la clase asociándola al usuario y a la asignatura correcta', async () => {
+      userService.findOneById.mockResolvedValue(userMock);
+      subjectRepository.findOneBy.mockResolvedValue(subjectMock);
+
+      subjectClassRepository.create.mockReturnValue(classMock);
+      subjectClassRepository.save.mockResolvedValue(classMock);
+
+      const dto = {
+        subjectId: 10,
+        dayOfWeek: 'monday',
+        startTime: '08:00',
+        endTime: '10:00',
+      };
+
+      const result = await service.addClass(1, dto);
+
+      expect(subjectClassRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          dayOfWeek: 'monday',
+          startTime: '08:00',
+          endTime: '10:00',
+          subject: subjectMock,
+          user: userMock,
+        }),
+      );
+
+      expect(subjectClassRepository.save).toHaveBeenCalledWith(classMock);
+
+      expect(result.status).toBe(201);
+      expect(result.message).toBe('Class created successfully');
+    });
   });
 
   describe('Eliminar clase', () => {
@@ -307,6 +356,25 @@ describe('SubjectsService - Módulo de clases', () => {
         status: 200,
         message: 'Class deleted successfully',
       });
+    });
+
+    it('debe eliminar exactamente la clase solicitada', async () => {
+      userService.findOneById.mockResolvedValue(userMock);
+
+      subjectClassRepository.findOne.mockResolvedValue(classMock);
+
+      subjectClassRepository.delete.mockResolvedValue({
+        affected: 1,
+        raw: {},
+      } as any);
+
+      const result = await service.removeClass(1, 5);
+
+      expect(subjectClassRepository.findOne).toHaveBeenCalled();
+      expect(subjectClassRepository.delete).toHaveBeenCalledWith(5);
+
+      expect(result.status).toBe(200);
+      expect(result.message).toBe('Class deleted successfully');
     });
   });
 
@@ -372,6 +440,39 @@ describe('SubjectsService - Módulo de clases', () => {
         status: 200,
         message: 'Class updated successfully',
       });
+    });
+
+    it('debe actualizar la clase conservando su identificación', async () => {
+      userService.findOneById.mockResolvedValue(userMock);
+
+      subjectClassRepository.preload.mockResolvedValue(classMock);
+      subjectClassRepository.save.mockResolvedValue(classMock);
+
+      const editClassDto = {
+        dayOfWeek: 'tuesday',
+        startTime: '10:00',
+        endTime: '12:00',
+      };
+
+      const result = await service.editClass(
+        1,
+        5,
+        editClassDto,
+      );
+
+      expect(subjectClassRepository.preload).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 5,
+          dayOfWeek: 'tuesday',
+          startTime: '10:00',
+          endTime: '12:00',
+        }),
+      );
+
+      expect(subjectClassRepository.save).toHaveBeenCalledWith(classMock);
+
+      expect(result.status).toBe(200);
+      expect(result.message).toBe('Class updated successfully');
     });
   });
 
