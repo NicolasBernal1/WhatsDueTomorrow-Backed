@@ -22,7 +22,12 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
-    "test:cy:f21": "cypress run --spec \"cypress/e2e/f21-urgent-radar/**/*.cy.js\""
+    "test:cy:f21": "cypress run --spec \"cypress/e2e/f21-urgent-radar/**/*.cy.js\"",
+    "test:cy:f22": "cypress run --spec \"cypress/e2e/f22-subtasks/**/*.cy.js\"",
+    "test:cy:f23": "cypress run --spec \"cypress/e2e/f23-calendar/**/*.cy.js\"",
+    "test:cy:f24": "cypress run --spec \"cypress/e2e/f24-notes/**/*.cy.js\"",
+    "test:cy:f25": "cypress run --spec \"cypress/e2e/f25-evaluations/**/*.cy.js\"",
+    "test:cy:f26": "cypress run --spec \"cypress/e2e/f26-academic-load/**/*.cy.js\""
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
