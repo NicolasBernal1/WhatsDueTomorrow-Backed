@@ -27,7 +27,16 @@
     "test:cy:f23": "cypress run --spec \"cypress/e2e/f23-calendar/**/*.cy.js\"",
     "test:cy:f24": "cypress run --spec \"cypress/e2e/f24-notes/**/*.cy.js\"",
     "test:cy:f25": "cypress run --spec \"cypress/e2e/f25-evaluations/**/*.cy.js\"",
-    "test:cy:f26": "cypress run --spec \"cypress/e2e/f26-academic-load/**/*.cy.js\""
+    "test:cy:f26": "cypress run --spec \"cypress/e2e/f26-academic-load/**/*.cy.js\"",
+    "test:bdd": "npm --prefix tests-bdd run test",
+    "test:bdd:f21": "npm --prefix tests-bdd run test:bdd:f21",
+    "test:bdd:f22": "npm --prefix tests-bdd run test:bdd:f22",
+    "test:bdd:f23": "npm --prefix tests-bdd run test:bdd:f23",
+    "test:bdd:f24": "npm --prefix tests-bdd run test:bdd:f24",
+    "test:bdd:f25": "npm --prefix tests-bdd run test:bdd:f25",
+    "test:bdd:f26": "npm --prefix tests-bdd run test:bdd:f26",
+    "test:bdd:all": "npm --prefix tests-bdd run test:bdd:all",
+    "test:bdd:report": "npm --prefix tests-bdd run test:bdd:report"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

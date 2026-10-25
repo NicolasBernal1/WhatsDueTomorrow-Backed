@@ -1,0 +1,1281 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-10-25T01:19:02.258Z",
+  "finishedAt": "2026-10-25T01:19:16.462Z",
+  "outcomes": {
+    "passed": 4,
+    "failed": 0,
+    "pending": 0,
+    "skipped": 0,
+    "compromised": 0,
+    "error": 0
+  },
+  "scenes": [
+    {
+      "name": "Visualización de la vista del radar de entregas urgentes",
+      "category": "F21 - Alertas y radar de entregas urgentes",
+      "outcome": {
+        "code": 64
+      },
+      "duration": 5103,
+      "startedAt": "2026-10-25T01:19:02.258Z",
+      "source": {
+        "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/f21_radar_entregas.feature",
+        "line": 9
+      },
+      "tags": [
+        {
+          "type": "feature",
+          "name": "F21 - Alertas y radar de entregas urgentes"
+        },
+        {
+          "type": "tag",
+          "name": "f21"
+        },
+        {
+          "type": "tag",
+          "name": "radar"
+        },
+        {
+          "type": "tag",
+          "name": "screenplay"
+        },
+        {
+          "type": "tag",
+          "name": "smoke"
+        },
+        {
+          "type": "tag",
+          "name": "exitoso"
+        }
+      ],
+      "activities": [
+        {
+          "type": "Task",
+          "name": "Dado que Alicia abre la aplicación e inicia sesión en la plataforma",
+          "outcome": {
+            "code": 64
+          },
+          "duration": 4721,
+          "startedAt": "2026-10-25T01:19:02.260Z",
+          "children": [
+            {
+              "type": "Task",
+              "name": "Alicia inicia sesión con \"estudiante.screenplay.31326@example.com\"",
+              "outcome": {
+                "code": 64
+              },
+              "duration": 3857,
+              "startedAt": "2026-10-25T01:19:03.123Z",
+              "children": [
+                {
+                  "type": "Interaction",
+                  "name": "Alicia navigates to \"/login\"",
+                  "outcome": {
+                    "code": 64
+                  },
+                  "duration": 690,
+                  "startedAt": "2026-10-25T01:19:03.124Z",
+                  "children": [],
+                  "location": {
+                    "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/step-definitions/f21_radar.steps.ts",
+                    "line": 18,
+                    "column": 19
+                  }
+                },
+                {
+                  "type": "Interaction",
+                  "name": "Alicia waits until campo de correo does become visible",
+                  "outcome": {
+                    "code": 64
+                  },
+                  "duration": 63,
+                  "startedAt": "2026-10-25T01:19:03.815Z",
+                  "children": [],
+                  "location": {
+                    "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/step-definitions/f21_radar.steps.ts",
+                    "line": 18,
+                    "column": 19
+                  }
+                },
+                {
+                  "type": "Interaction",
+                  "name": "Alicia enters \"estudiante.screenplay.31326@example.com\" into campo de correo",
+                  "outcome": {
+                    "code": 64
+                  },
+                  "duration": 10,
+                  "startedAt": "2026-10-25T01:19:03.878Z",
+                  "children": [],
+                  "location": {
+                    "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/test/tasks/IniciarSesion.ts",
+                    "line": 11,
+                    "column": 27
+                  }
+                },
+                {
+                  "type": "Interaction",
+                  "name": "Alicia enters [a masked value] into campo de contraseña",
+                  "outcome": {
+                    "code": 64
+                  },
+                  "duration": 8,
+                  "startedAt": "2026-10-25T01:19:03.889Z",
+                  "children": [],
+                  "location": {
+                    "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/test/tasks/IniciarSesion.ts",
+                    "line": 12,
+                    "column": 46
+                  }
+                },
+                {
+                  "type": "Interaction",
+                  "name": "Alicia clicks on botón Log In",
+                  "outcome": {
+                    "code": 64
+                  },
+                  "duration": 74,
+                  "startedAt": "2026-10-25T01:19:03.897Z",
+                  "children": [],
+                  "location": {
+                    "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/test/tasks/IniciarSesion.ts",
+                    "line": 13,
+                    "column": 11
+                  }
+                },
+                {
+                  "type": "Interaction",
+                  "name": "Alicia waits for 3s",
+                  "outcome": {
+                    "code": 64
+                  },
+                  "duration": 3009,
+                  "startedAt": "2026-10-25T01:19:03.971Z",
+                  "children": [],
+                  "location": {
+                    "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/step-definitions/f21_radar.steps.ts",
+                    "line": 18,
+                    "column": 19
+                  }
+                }
+              ],
+              "location": {
+                "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/step-definitions/f21_radar.steps.ts",
+                "line": 18,
+                "column": 19
+              }
+            }
+          ],
+          "location": {
+            "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/f21_radar_entregas.feature",
+            "line": 10
+          }
+        },
+        {
+          "type": "Task",
+          "name": "Cuando ella consulta el radar de entregas urgentes",
+          "outcome": {
+            "code": 64
+          },
+          "duration": 326,
+          "startedAt": "2026-10-25T01:19:06.982Z",
+          "children": [
+            {
+              "type": "Task",
+              "name": "Alicia consulta el radar de entregas urgentes",
+              "outcome": {
+                "code": 64
+              },
+              "duration": 320,
+              "startedAt": "2026-10-25T01:19:06.988Z",
+              "children": [
+                {
+                  "type": "Interaction",
+                  "name": "Alicia navigates to \"/urgent-radar\"",
+                  "outcome": {
+                    "code": 64
+                  },
+                  "duration": 271,
+                  "startedAt": "2026-10-25T01:19:06.988Z",
+                  "children": [],
+                  "location": {
+                    "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/step-definitions/f21_radar.steps.ts",
+                    "line": 24,
+                    "column": 20
+                  }
+                },
+                {
+                  "type": "Interaction",
+                  "name": "Alicia waits until título del radar de entregas urgentes does become visible",
+                  "outcome": {
+                    "code": 64
+                  },
+                  "duration": 47,
+                  "startedAt": "2026-10-25T01:19:07.260Z",
+                  "children": [],
+                  "location": {
+                    "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/step-definitions/f21_radar.steps.ts",
+                    "line": 24,
+                    "column": 20
+                  }
+                }
+              ],
+              "location": {
+                "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/step-definitions/f21_radar.steps.ts",
+                "line": 24,
+                "column": 20
+              }
+            }
+          ],
+          "location": {
+            "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/f21_radar_entregas.feature",
+            "line": 11
+          }
+        },
+        {
+          "type": "Task",
+          "name": "Entonces ella observa el título \"Urgent assignments radar\"",
+          "outcome": {
+            "code": 64
+          },
+          "duration": 8,
+          "startedAt": "2026-10-25T01:19:07.308Z",
+          "children": [
+            {
+              "type": "Interaction",
+              "name": "Alicia ensures that the text of título del radar de entregas urgentes does equal \"Urgent assignments radar\"",
+              "outcome": {
+                "code": 64
+              },
+              "duration": 3,
+              "startedAt": "2026-10-25T01:19:07.313Z",
+              "children": [],
+              "location": {
+                "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/step-definitions/f21_radar.steps.ts",
+                "line": 30,
+                "column": 12
+              }
+            }
+          ],
+          "location": {
+            "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/f21_radar_entregas.feature",
+            "line": 12
+          }
+        },
+        {
+          "type": "Task",
+          "name": "Y el radar de entregas urgentes está visible en pantalla",
+          "outcome": {
+            "code": 64
+          },
+          "duration": 21,
+          "startedAt": "2026-10-25T01:19:07.317Z",
+          "children": [
+            {
+              "type": "Interaction",
+              "name": "Alicia ensures that título del radar de entregas urgentes does become visible",
+              "outcome": {
+                "code": 64
+              },
+              "duration": 19,
+              "startedAt": "2026-10-25T01:19:07.319Z",
+              "children": [],
+              "location": {
+                "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/step-definitions/f21_radar.steps.ts",
+                "line": 36,
+                "column": 12
+              }
+            }
+          ],
+          "location": {
+            "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/f21_radar_entregas.feature",
+            "line": 13
+          }
+        },
+        {
+          "type": "Task",
+          "name": "After",
+          "outcome": {
+            "code": 64
+          },
+          "duration": 9,
+          "startedAt": "2026-10-25T01:19:07.339Z",
+          "children": [],
+          "location": {
+            "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/support/serenity.config.ts",
+            "line": 39
+          }
+        }
+      ],
+      "narrative": "Como estudiante universitario\nQuiero monitorear mis entregas urgentes en una vista dedicada\nPara priorizar mis compromisos académicos de las próximas 24 horas",
+      "cast": [
+        {
+          "name": "Alicia",
+          "abilities": [
+            {
+              "name": "PerformActivities"
+            },
+            {
+              "name": "AnswerQuestions"
+            },
+            {
+              "name": "RaiseErrors"
+            },
+            {
+              "name": "ScheduleWork",
+              "details": "{\"scheduler\":{\"clock\":{\"timeAdjustment\":{\"milliseconds\":0}},\"interactionTimeout\":{\"milliseconds\":5000}}}"
+            },
+            {
+              "name": "CallAnApi",
+              "details": "{\"baseURL\":\"https://whatsduetomorrow-backed.onrender.com\",\"headers\":{\"common\":{\"Accept\":\"application/json, text/plain, */*\"}},\"timeout\":10000}"
+            },
+            {
+              "name": "BrowseTheWebWithPlaywright"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Radar despejado cuando no existen entregas urgentes",
+      "category": "F21 - Alertas y radar de entregas urgentes",
+      "outcome": {
+        "code": 64
+      },
+      "duration": 4288,
+      "startedAt": "2026-10-25T01:19:07.365Z",
+      "source": {
+        "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/f21_radar_entregas.feature",
+        "line": 16
+      },
+      "tags": [
+        {
+          "type": "feature",
+          "name": "F21 - Alertas y radar de entregas urgentes"
+        },
+        {
+          "type": "tag",
+          "name": "f21"
+        },
+        {
+          "type": "tag",
+          "name": "radar"
+        },
+        {
+          "type": "tag",
+          "name": "screenplay"
+        },
+        {
+          "type": "tag",
+          "name": "alternativo"
+        },
+        {
+          "type": "tag",
+          "name": "radar_vacio"
+        }
+      ],
+      "activities": [
+        {
+          "type": "Task",
+          "name": "Dado que Alicia abre la aplicación e inicia sesión en la plataforma",
+          "outcome": {
+            "code": 64
+          },
+          "duration": 3714,
+          "startedAt": "2026-10-25T01:19:07.366Z",
+          "children": [
+            {
+              "type": "Task",
+              "name": "Alicia inicia sesión con \"estudiante.screenplay.31326@example.com\"",
+              "outcome": {
+                "code": 64
+              },
+              "duration": 3708,
+              "startedAt": "2026-10-25T01:19:07.372Z",
+              "children": [
+                {
+                  "type": "Interaction",
+                  "name": "Alicia navigates to \"/login\"",
+                  "outcome": {
+                    "code": 64
+                  },
+                  "duration": 555,
+                  "startedAt": "2026-10-25T01:19:07.372Z",
+                  "children": [],
+                  "location": {
+                    "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/step-definitions/f21_radar.steps.ts",
+                    "line": 18,
+                    "column": 19
+                  }
+                },
+                {
+                  "type": "Interaction",
+                  "name": "Alicia waits until campo de correo does become visible",
+                  "outcome": {
+                    "code": 64
+                  },
+                  "duration": 52,
+                  "startedAt": "2026-10-25T01:19:07.927Z",
+                  "children": [],
+                  "location": {
+                    "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/step-definitions/f21_radar.steps.ts",
+                    "line": 18,
+                    "column": 19
+                  }
+                },
+                {
+                  "type": "Interaction",
+                  "name": "Alicia enters \"estudiante.screenplay.31326@example.com\" into campo de correo",
+                  "outcome": {
+                    "code": 64
+                  },
+                  "duration": 8,
+                  "startedAt": "2026-10-25T01:19:07.979Z",
+                  "children": [],
+                  "location": {
+                    "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/test/tasks/IniciarSesion.ts",
+                    "line": 11,
+                    "column": 27
+                  }
+                },
+                {
+                  "type": "Interaction",
+                  "name": "Alicia enters [a masked value] into campo de contraseña",
+                  "outcome": {
+                    "code": 64
+                  },
+                  "duration": 6,
+                  "startedAt": "2026-10-25T01:19:07.987Z",
+                  "children": [],
+                  "location": {
+                    "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/test/tasks/IniciarSesion.ts",
+                    "line": 12,
+                    "column": 46
+                  }
+                },
+                {
+                  "type": "Interaction",
+                  "name": "Alicia clicks on botón Log In",
+                  "outcome": {
+                    "code": 64
+                  },
+                  "duration": 74,
+                  "startedAt": "2026-10-25T01:19:07.994Z",
+                  "children": [],
+                  "location": {
+                    "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/test/tasks/IniciarSesion.ts",
+                    "line": 13,
+                    "column": 11
+                  }
+                },
+                {
+                  "type": "Interaction",
+                  "name": "Alicia waits for 3s",
+                  "outcome": {
+                    "code": 64
+                  },
+                  "duration": 3010,
+                  "startedAt": "2026-10-25T01:19:08.069Z",
+                  "children": [],
+                  "location": {
+                    "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/step-definitions/f21_radar.steps.ts",
+                    "line": 18,
+                    "column": 19
+                  }
+                }
+              ],
+              "location": {
+                "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/step-definitions/f21_radar.steps.ts",
+                "line": 18,
+                "column": 19
+              }
+            }
+          ],
+          "location": {
+            "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/f21_radar_entregas.feature",
+            "line": 17
+          }
+        },
+        {
+          "type": "Task",
+          "name": "Cuando ella consulta el radar de entregas urgentes",
+          "outcome": {
+            "code": 64
+          },
+          "duration": 345,
+          "startedAt": "2026-10-25T01:19:11.081Z",
+          "children": [
+            {
+              "type": "Task",
+              "name": "Alicia consulta el radar de entregas urgentes",
+              "outcome": {
+                "code": 64
+              },
+              "duration": 339,
+              "startedAt": "2026-10-25T01:19:11.086Z",
+              "children": [
+                {
+                  "type": "Interaction",
+                  "name": "Alicia navigates to \"/urgent-radar\"",
+                  "outcome": {
+                    "code": 64
+                  },
+                  "duration": 292,
+                  "startedAt": "2026-10-25T01:19:11.086Z",
+                  "children": [],
+                  "location": {
+                    "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/step-definitions/f21_radar.steps.ts",
+                    "line": 24,
+                    "column": 20
+                  }
+                },
+                {
+                  "type": "Interaction",
+                  "name": "Alicia waits until título del radar de entregas urgentes does become visible",
+                  "outcome": {
+                    "code": 64
+                  },
+                  "duration": 47,
+                  "startedAt": "2026-10-25T01:19:11.378Z",
+                  "children": [],
+                  "location": {
+                    "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/step-definitions/f21_radar.steps.ts",
+                    "line": 24,
+                    "column": 20
+                  }
+                }
+              ],
+              "location": {
+                "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/step-definitions/f21_radar.steps.ts",
+                "line": 24,
+                "column": 20
+              }
+            }
+          ],
+          "location": {
+            "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/f21_radar_entregas.feature",
+            "line": 18
+          }
+        },
+        {
+          "type": "Task",
+          "name": "Entonces el radar muestra el mensaje \"No urgent assignments\"",
+          "outcome": {
+            "code": 64
+          },
+          "duration": 195,
+          "startedAt": "2026-10-25T01:19:11.426Z",
+          "children": [
+            {
+              "type": "Interaction",
+              "name": "Alicia ensures that the text of título de radar vacío does equal \"No urgent assignments\"",
+              "outcome": {
+                "code": 64
+              },
+              "duration": 190,
+              "startedAt": "2026-10-25T01:19:11.430Z",
+              "children": [],
+              "location": {
+                "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/step-definitions/f21_radar.steps.ts",
+                "line": 42,
+                "column": 12
+              }
+            }
+          ],
+          "location": {
+            "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/f21_radar_entregas.feature",
+            "line": 19
+          }
+        },
+        {
+          "type": "Task",
+          "name": "Y la descripción indica \"You have no pending assignments due within the next 24 hours.\"",
+          "outcome": {
+            "code": 64
+          },
+          "duration": 10,
+          "startedAt": "2026-10-25T01:19:11.621Z",
+          "children": [
+            {
+              "type": "Interaction",
+              "name": "Alicia ensures that the text of descripción de radar vacío does equal \"You have no pending assignments due within the next 24 hours.\"",
+              "outcome": {
+                "code": 64
+              },
+              "duration": 3,
+              "startedAt": "2026-10-25T01:19:11.627Z",
+              "children": [],
+              "location": {
+                "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/step-definitions/f21_radar.steps.ts",
+                "line": 48,
+                "column": 12
+              }
+            }
+          ],
+          "location": {
+            "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/f21_radar_entregas.feature",
+            "line": 20
+          }
+        },
+        {
+          "type": "Task",
+          "name": "After",
+          "outcome": {
+            "code": 64
+          },
+          "duration": 10,
+          "startedAt": "2026-10-25T01:19:11.631Z",
+          "children": [],
+          "location": {
+            "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/support/serenity.config.ts",
+            "line": 39
+          }
+        }
+      ],
+      "narrative": "Como estudiante universitario\nQuiero monitorear mis entregas urgentes en una vista dedicada\nPara priorizar mis compromisos académicos de las próximas 24 horas",
+      "cast": [
+        {
+          "name": "Alicia",
+          "abilities": [
+            {
+              "name": "PerformActivities"
+            },
+            {
+              "name": "AnswerQuestions"
+            },
+            {
+              "name": "RaiseErrors"
+            },
+            {
+              "name": "ScheduleWork",
+              "details": "{\"scheduler\":{\"clock\":{\"timeAdjustment\":{\"milliseconds\":0}},\"interactionTimeout\":{\"milliseconds\":5000}}}"
+            },
+            {
+              "name": "CallAnApi",
+              "details": "{\"baseURL\":\"https://whatsduetomorrow-backed.onrender.com\",\"headers\":{\"common\":{\"Accept\":\"application/json, text/plain, */*\"}},\"timeout\":10000}"
+            },
+            {
+              "name": "BrowseTheWebWithPlaywright"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Solicitud de activación de alertas web en el radar",
+      "category": "F21 - Alertas y radar de entregas urgentes",
+      "outcome": {
+        "code": 64
+      },
+      "duration": 4596,
+      "startedAt": "2026-10-25T01:19:11.655Z",
+      "source": {
+        "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/f21_radar_entregas.feature",
+        "line": 23
+      },
+      "tags": [
+        {
+          "type": "feature",
+          "name": "F21 - Alertas y radar de entregas urgentes"
+        },
+        {
+          "type": "tag",
+          "name": "f21"
+        },
+        {
+          "type": "tag",
+          "name": "radar"
+        },
+        {
+          "type": "tag",
+          "name": "screenplay"
+        },
+        {
+          "type": "tag",
+          "name": "alternativo"
+        },
+        {
+          "type": "tag",
+          "name": "alertas"
+        }
+      ],
+      "activities": [
+        {
+          "type": "Task",
+          "name": "Dado que Alicia abre la aplicación e inicia sesión en la plataforma",
+          "outcome": {
+            "code": 64
+          },
+          "duration": 4119,
+          "startedAt": "2026-10-25T01:19:11.656Z",
+          "children": [
+            {
+              "type": "Task",
+              "name": "Alicia inicia sesión con \"estudiante.screenplay.31326@example.com\"",
+              "outcome": {
+                "code": 64
+              },
+              "duration": 4112,
+              "startedAt": "2026-10-25T01:19:11.662Z",
+              "children": [
+                {
+                  "type": "Interaction",
+                  "name": "Alicia navigates to \"/login\"",
+                  "outcome": {
+                    "code": 64
+                  },
+                  "duration": 962,
+                  "startedAt": "2026-10-25T01:19:11.662Z",
+                  "children": [],
+                  "location": {
+                    "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/step-definitions/f21_radar.steps.ts",
+                    "line": 18,
+                    "column": 19
+                  }
+                },
+                {
+                  "type": "Interaction",
+                  "name": "Alicia waits until campo de correo does become visible",
+                  "outcome": {
+                    "code": 64
+                  },
+                  "duration": 50,
+                  "startedAt": "2026-10-25T01:19:12.624Z",
+                  "children": [],
+                  "location": {
+                    "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/step-definitions/f21_radar.steps.ts",
+                    "line": 18,
+                    "column": 19
+                  }
+                },
+                {
+                  "type": "Interaction",
+                  "name": "Alicia enters \"estudiante.screenplay.31326@example.com\" into campo de correo",
+                  "outcome": {
+                    "code": 64
+                  },
+                  "duration": 8,
+                  "startedAt": "2026-10-25T01:19:12.674Z",
+                  "children": [],
+                  "location": {
+                    "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/test/tasks/IniciarSesion.ts",
+                    "line": 11,
+                    "column": 27
+                  }
+                },
+                {
+                  "type": "Interaction",
+                  "name": "Alicia enters [a masked value] into campo de contraseña",
+                  "outcome": {
+                    "code": 64
+                  },
+                  "duration": 7,
+                  "startedAt": "2026-10-25T01:19:12.682Z",
+                  "children": [],
+                  "location": {
+                    "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/test/tasks/IniciarSesion.ts",
+                    "line": 12,
+                    "column": 46
+                  }
+                },
+                {
+                  "type": "Interaction",
+                  "name": "Alicia clicks on botón Log In",
+                  "outcome": {
+                    "code": 64
+                  },
+                  "duration": 80,
+                  "startedAt": "2026-10-25T01:19:12.689Z",
+                  "children": [],
+                  "location": {
+                    "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/test/tasks/IniciarSesion.ts",
+                    "line": 13,
+                    "column": 11
+                  }
+                },
+                {
+                  "type": "Interaction",
+                  "name": "Alicia waits for 3s",
+                  "outcome": {
+                    "code": 64
+                  },
+                  "duration": 3005,
+                  "startedAt": "2026-10-25T01:19:12.769Z",
+                  "children": [],
+                  "location": {
+                    "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/step-definitions/f21_radar.steps.ts",
+                    "line": 18,
+                    "column": 19
+                  }
+                }
+              ],
+              "location": {
+                "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/step-definitions/f21_radar.steps.ts",
+                "line": 18,
+                "column": 19
+              }
+            }
+          ],
+          "location": {
+            "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/f21_radar_entregas.feature",
+            "line": 24
+          }
+        },
+        {
+          "type": "Task",
+          "name": "Cuando ella consulta el radar de entregas urgentes",
+          "outcome": {
+            "code": 64
+          },
+          "duration": 345,
+          "startedAt": "2026-10-25T01:19:15.775Z",
+          "children": [
+            {
+              "type": "Task",
+              "name": "Alicia consulta el radar de entregas urgentes",
+              "outcome": {
+                "code": 64
+              },
+              "duration": 339,
+              "startedAt": "2026-10-25T01:19:15.781Z",
+              "children": [
+                {
+                  "type": "Interaction",
+                  "name": "Alicia navigates to \"/urgent-radar\"",
+                  "outcome": {
+                    "code": 64
+                  },
+                  "duration": 292,
+                  "startedAt": "2026-10-25T01:19:15.781Z",
+                  "children": [],
+                  "location": {
+                    "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/step-definitions/f21_radar.steps.ts",
+                    "line": 24,
+                    "column": 20
+                  }
+                },
+                {
+                  "type": "Interaction",
+                  "name": "Alicia waits until título del radar de entregas urgentes does become visible",
+                  "outcome": {
+                    "code": 64
+                  },
+                  "duration": 46,
+                  "startedAt": "2026-10-25T01:19:16.074Z",
+                  "children": [],
+                  "location": {
+                    "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/step-definitions/f21_radar.steps.ts",
+                    "line": 24,
+                    "column": 20
+                  }
+                }
+              ],
+              "location": {
+                "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/step-definitions/f21_radar.steps.ts",
+                "line": 24,
+                "column": 20
+              }
+            }
+          ],
+          "location": {
+            "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/f21_radar_entregas.feature",
+            "line": 25
+          }
+        },
+        {
+          "type": "Task",
+          "name": "Y ella activa las alertas web en el radar",
+          "outcome": {
+            "code": 64
+          },
+          "duration": 93,
+          "startedAt": "2026-10-25T01:19:16.120Z",
+          "children": [
+            {
+              "type": "Task",
+              "name": "Alicia activa las alertas web en el radar",
+              "outcome": {
+                "code": 64
+              },
+              "duration": 85,
+              "startedAt": "2026-10-25T01:19:16.127Z",
+              "children": [
+                {
+                  "type": "Interaction",
+                  "name": "Alicia waits until botón habilitar alertas web does become visible",
+                  "outcome": {
+                    "code": 64
+                  },
+                  "duration": 23,
+                  "startedAt": "2026-10-25T01:19:16.127Z",
+                  "children": [],
+                  "location": {
+                    "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/step-definitions/f21_radar.steps.ts",
+                    "line": 54,
+                    "column": 23
+                  }
+                },
+                {
+                  "type": "Interaction",
+                  "name": "Alicia clicks on botón habilitar alertas web",
+                  "outcome": {
+                    "code": 64
+                  },
+                  "duration": 62,
+                  "startedAt": "2026-10-25T01:19:16.150Z",
+                  "children": [],
+                  "location": {
+                    "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/test/tasks/ActivarAlertasWeb.ts",
+                    "line": 10,
+                    "column": 11
+                  }
+                }
+              ],
+              "location": {
+                "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/step-definitions/f21_radar.steps.ts",
+                "line": 54,
+                "column": 23
+              }
+            }
+          ],
+          "location": {
+            "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/f21_radar_entregas.feature",
+            "line": 26
+          }
+        },
+        {
+          "type": "Task",
+          "name": "Entonces el sistema despliega una notificación sobre las alertas web",
+          "outcome": {
+            "code": 64
+          },
+          "duration": 12,
+          "startedAt": "2026-10-25T01:19:16.213Z",
+          "children": [
+            {
+              "type": "Interaction",
+              "name": "Alicia ensures that the text of mensaje de notificación de alerta does not equal \"\"",
+              "outcome": {
+                "code": 64
+              },
+              "duration": 7,
+              "startedAt": "2026-10-25T01:19:16.218Z",
+              "children": [],
+              "location": {
+                "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/step-definitions/f21_radar.steps.ts",
+                "line": 60,
+                "column": 12
+              }
+            }
+          ],
+          "location": {
+            "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/f21_radar_entregas.feature",
+            "line": 27
+          }
+        },
+        {
+          "type": "Task",
+          "name": "After",
+          "outcome": {
+            "code": 64
+          },
+          "duration": 14,
+          "startedAt": "2026-10-25T01:19:16.226Z",
+          "children": [],
+          "location": {
+            "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/support/serenity.config.ts",
+            "line": 39
+          }
+        }
+      ],
+      "narrative": "Como estudiante universitario\nQuiero monitorear mis entregas urgentes en una vista dedicada\nPara priorizar mis compromisos académicos de las próximas 24 horas",
+      "cast": [
+        {
+          "name": "Alicia",
+          "abilities": [
+            {
+              "name": "PerformActivities"
+            },
+            {
+              "name": "AnswerQuestions"
+            },
+            {
+              "name": "RaiseErrors"
+            },
+            {
+              "name": "ScheduleWork",
+              "details": "{\"scheduler\":{\"clock\":{\"timeAdjustment\":{\"milliseconds\":0}},\"interactionTimeout\":{\"milliseconds\":5000}}}"
+            },
+            {
+              "name": "CallAnApi",
+              "details": "{\"baseURL\":\"https://whatsduetomorrow-backed.onrender.com\",\"headers\":{\"common\":{\"Accept\":\"application/json, text/plain, */*\"}},\"timeout\":10000}"
+            },
+            {
+              "name": "BrowseTheWebWithPlaywright"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Denegación de acceso no autenticado al endpoint del radar",
+      "category": "F21 - Alertas y radar de entregas urgentes",
+      "outcome": {
+        "code": 64
+      },
+      "duration": 208,
+      "startedAt": "2026-10-25T01:19:16.254Z",
+      "source": {
+        "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/f21_radar_entregas.feature",
+        "line": 30
+      },
+      "tags": [
+        {
+          "type": "feature",
+          "name": "F21 - Alertas y radar de entregas urgentes"
+        },
+        {
+          "type": "tag",
+          "name": "f21"
+        },
+        {
+          "type": "tag",
+          "name": "radar"
+        },
+        {
+          "type": "tag",
+          "name": "screenplay"
+        },
+        {
+          "type": "tag",
+          "name": "api"
+        },
+        {
+          "type": "tag",
+          "name": "seguridad"
+        },
+        {
+          "type": "tag",
+          "name": "error"
+        }
+      ],
+      "activities": [
+        {
+          "type": "Task",
+          "name": "Cuando el actor Api solicita las entregas urgentes sin token de autorización",
+          "outcome": {
+            "code": 64
+          },
+          "duration": 192,
+          "startedAt": "2026-10-25T01:19:16.254Z",
+          "children": [
+            {
+              "type": "Task",
+              "name": "Api consulta las entregas urgentes sin token de autorización",
+              "outcome": {
+                "code": 64
+              },
+              "duration": 188,
+              "startedAt": "2026-10-25T01:19:16.257Z",
+              "children": [
+                {
+                  "type": "Interaction",
+                  "name": "Api sends a GET request to '/assignments/upcoming'",
+                  "outcome": {
+                    "code": 64
+                  },
+                  "duration": 188,
+                  "startedAt": "2026-10-25T01:19:16.257Z",
+                  "children": [],
+                  "location": {
+                    "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/step-definitions/f21_radar.steps.ts",
+                    "line": 66,
+                    "column": 34
+                  },
+                  "restQuery": {
+                    "method": "GET",
+                    "url": "https://whatsduetomorrow-backed.onrender.com/assignments/upcoming",
+                    "requestHeaders": "Accept: application/json, text/plain, */*\nUser-Agent: axios/1.20.0\nAccept-Encoding: gzip, compress, deflate, br",
+                    "statusCode": 401,
+                    "responseHeaders": "date: Sun, 25 Oct 2026 01:19:16 GMT\ncontent-type: application/json; charset=utf-8\ncontent-length: 47\nconnection: close\naccess-control-allow-credentials: true\netag: W/\"2b-dGnJzt6gv1nJjX6DJ9RztDWptng\"\nrndr-id: 9699485b-9dd4-4a23\nserver: cloudflare\nvary: Origin, Accept-Encoding\nx-powered-by: Express\nx-render-origin-server: Render\ncf-cache-status: DYNAMIC\ncf-ray: a4fd645f19171381-BOG\nalt-svc: h3=\":443\"; ma=86400",
+                    "responseBody": "{\n    \"message\": \"Unauthorized\",\n    \"statusCode\": 401\n}"
+                  },
+                  "artifacts": [
+                    {
+                      "path": "test-runs/2026-10-25T01-19-16.444Z/artifact-get-https---whatsduetomorrow-backed-onrender-com-assignments-upc-469ef8a578.json",
+                      "type": "screenshot"
+                    }
+                  ]
+                }
+              ],
+              "location": {
+                "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/step-definitions/f21_radar.steps.ts",
+                "line": 66,
+                "column": 34
+              }
+            }
+          ],
+          "location": {
+            "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/f21_radar_entregas.feature",
+            "line": 31
+          }
+        },
+        {
+          "type": "Task",
+          "name": "Entonces la respuesta HTTP del servidor tiene código 401",
+          "outcome": {
+            "code": 64
+          },
+          "duration": 4,
+          "startedAt": "2026-10-25T01:19:16.446Z",
+          "children": [
+            {
+              "type": "Interaction",
+              "name": "Api ensures that the status of the last response does equal 401",
+              "outcome": {
+                "code": 64
+              },
+              "duration": 1,
+              "startedAt": "2026-10-25T01:19:16.449Z",
+              "children": [],
+              "location": {
+                "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/step-definitions/f21_radar.steps.ts",
+                "line": 72,
+                "column": 12
+              }
+            }
+          ],
+          "location": {
+            "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/f21_radar_entregas.feature",
+            "line": 32
+          }
+        },
+        {
+          "type": "Task",
+          "name": "After",
+          "outcome": {
+            "code": 64
+          },
+          "duration": 1,
+          "startedAt": "2026-10-25T01:19:16.450Z",
+          "children": [],
+          "location": {
+            "path": "/home/dsanabriag/Universidad/VyV/proyecto-aula/repositorios/WhatsDueTomorrow-Backed/tests-bdd/features/support/serenity.config.ts",
+            "line": 39
+          }
+        }
+      ],
+      "narrative": "Como estudiante universitario\nQuiero monitorear mis entregas urgentes en una vista dedicada\nPara priorizar mis compromisos académicos de las próximas 24 horas",
+      "artifacts": [
+        {
+          "path": "test-runs/2026-10-25T01-19-16.444Z/artifact-get-https---whatsduetomorrow-backed-onrender-com-assignments-upc-469ef8a578.json",
+          "type": "screenshot",
+          "activityId": "cforg4hbz4ohaibzqogtv5ba"
+        }
+      ],
+      "cast": [
+        {
+          "name": "Api",
+          "abilities": [
+            {
+              "name": "PerformActivities"
+            },
+            {
+              "name": "AnswerQuestions"
+            },
+            {
+              "name": "RaiseErrors"
+            },
+            {
+              "name": "ScheduleWork",
+              "details": "{\"scheduler\":{\"clock\":{\"timeAdjustment\":{\"milliseconds\":0}},\"interactionTimeout\":{\"milliseconds\":5000}}}"
+            },
+            {
+              "name": "CallAnApi",
+              "details": "{\"baseURL\":\"https://whatsduetomorrow-backed.onrender.com\",\"headers\":{\"common\":{\"Accept\":\"application/json, text/plain, */*\"}},\"timeout\":10000}"
+            },
+            {
+              "name": "BrowseTheWebWithPlaywright"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "type": "feature",
+      "name": "F21 - Alertas y radar de entregas urgentes"
+    },
+    {
+      "type": "tag",
+      "name": "f21"
+    },
+    {
+      "type": "tag",
+      "name": "radar"
+    },
+    {
+      "type": "tag",
+      "name": "screenplay"
+    },
+    {
+      "type": "tag",
+      "name": "smoke"
+    },
+    {
+      "type": "tag",
+      "name": "exitoso"
+    },
+    {
+      "type": "tag",
+      "name": "alternativo"
+    },
+    {
+      "type": "tag",
+      "name": "radar_vacio"
+    },
+    {
+      "type": "tag",
+      "name": "alertas"
+    },
+    {
+      "type": "tag",
+      "name": "api"
+    },
+    {
+      "type": "tag",
+      "name": "seguridad"
+    },
+    {
+      "type": "tag",
+      "name": "error"
+    }
+  ],
+  "testRunner": {
+    "name": "Cucumber",
+    "version": "13.3.0"
+  },
+  "systemContext": {
+    "nodeVersion": "v24.18.0",
+    "os": {
+      "name": "linux",
+      "version": "7.2.11-200.fc44.x86_64",
+      "arch": "x64"
+    },
+    "serenityVersion": "3.49.0",
+    "runtime": {
+      "provider": "localhost (fedora)",
+      "buildNumber": "2026-10-25 01:19",
+      "branch": "main",
+      "commit": "255da29",
+      "commitMessage": "Added Cypress tests",
+      "commitAuthor": "dsanabria174",
+      "repositoryUrl": "https://github.com/NicolasBernal1/WhatsDueTomorrow-Backed.git"
+    },
+    "projectName": "whats-due-tomorrow-bdd",
+    "packageManager": "npm"
+  },
+  "testRunId": "2026-10-25T01-19-16.444Z",
+  "attempt": 1
+}

@@ -1,0 +1,68 @@
+{
+  "$schema": "https://serenity-js.org/schemas/report-summary.json",
+  "generated": "2026-10-25T01:19:16.555Z",
+  "title": "whats-due-tomorrow-bdd",
+  "schemaVersion": 1,
+  "reportUrl": "./index.html",
+  "ci": {
+    "commit": "255da29",
+    "branch": "main"
+  },
+  "latestRun": {
+    "timestamp": "2026-10-25T01:19:02.258Z",
+    "label": "2026-10-25T01-19-16.444Z",
+    "totals": {
+      "passed": 4,
+      "failed": 0,
+      "pending": 0,
+      "skipped": 0,
+      "compromised": 0,
+      "error": 0
+    },
+    "duration": 14204
+  },
+  "runs": 2,
+  "delta": {
+    "passed": -20,
+    "failed": 0,
+    "pending": 0,
+    "skipped": 0,
+    "compromised": 0,
+    "error": 0
+  },
+  "failureClusters": [],
+  "consistency": {
+    "flaky": [],
+    "inconsistent": [],
+    "degraded": [],
+    "recovered": []
+  },
+  "scores": {
+    "passRate": 100,
+    "completeness": 100,
+    "consistency": 100,
+    "confidence": 100
+  },
+  "slowest": [
+    {
+      "name": "Visualización de la vista del radar de entregas urgentes",
+      "source": "f21_radar_entregas.feature:9",
+      "duration": 5103
+    },
+    {
+      "name": "Solicitud de activación de alertas web en el radar",
+      "source": "f21_radar_entregas.feature:23",
+      "duration": 4596
+    },
+    {
+      "name": "Radar despejado cuando no existen entregas urgentes",
+      "source": "f21_radar_entregas.feature:16",
+      "duration": 4288
+    },
+    {
+      "name": "Denegación de acceso no autenticado al endpoint del radar",
+      "source": "f21_radar_entregas.feature:30",
+      "duration": 208
+    }
+  ]
+}

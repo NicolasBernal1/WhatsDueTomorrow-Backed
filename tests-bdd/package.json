@@ -1,0 +1,34 @@
+{
+  "name": "whats-due-tomorrow-bdd",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pruebas BDD E2E y API con Cucumber, Serenity/JS, Playwright y Screenplay",
+  "scripts": {
+    "clean": "node -e \"const fs = require('fs'); fs.rmSync('reports', { recursive: true, force: true });\"",
+    "typecheck": "tsc --noEmit",
+    "test": "cucumber-js",
+    "test:bdd:f21": "cucumber-js --tags \"@f21\"",
+    "test:bdd:f22": "cucumber-js --tags \"@f22\"",
+    "test:bdd:f23": "cucumber-js --tags \"@f23\"",
+    "test:bdd:f24": "cucumber-js --tags \"@f24\"",
+    "test:bdd:f25": "cucumber-js --tags \"@f25\"",
+    "test:bdd:f26": "cucumber-js --tags \"@f26\"",
+    "test:bdd:all": "cucumber-js",
+    "test:bdd:report": "npx serenity-bdd-report || true"
+  },
+  "devDependencies": {
+    "@cucumber/cucumber": "13.3.0",
+    "@serenity-js/assertions": "3.49.0",
+    "@serenity-js/console-reporter": "3.49.0",
+    "@serenity-js/core": "3.49.0",
+    "@serenity-js/cucumber": "3.49.0",
+    "@serenity-js/html-reporter": "3.49.0",
+    "@serenity-js/playwright": "3.49.0",
+    "@serenity-js/rest": "3.49.0",
+    "@serenity-js/web": "3.49.0",
+    "@types/node": "^22.0.0",
+    "playwright": "^1.40.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.0.0"
+  }
+}
